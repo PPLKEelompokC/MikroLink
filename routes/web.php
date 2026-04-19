@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
+use App\Http\Controllers\KoperasiController;
+
 
 Route::get('/', function () {
     return view('landingPage');
@@ -33,9 +35,18 @@ Route::get('/cara-kerja', function () {
     return view('caraKerja');
 })->name('caraKerja');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
+use App\Http\Controllers\DashboardController;
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    // ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+
+Route::middleware(['auth', 'role:Admin Koperasi,Super Admin'])->group(function () {
+    Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
+    Route::put('/koperasi/update', [KoperasiController::class, 'update'])->name('koperasi.update');
+    Route::post('/koperasi/adjust-capital', [KoperasiController::class, 'adjustCapital'])->name('koperasi.adjustCapital');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
