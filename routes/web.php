@@ -23,6 +23,10 @@ Route::get('/cara-kerja', function () {
     return view('caraKerja');
 })->name('caraKerja');
 
+Route::view('pusat-bantuan', 'pusat-bantuan')
+    ->middleware(['auth', 'verified'])
+    ->name('pusat-bantuan');
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
