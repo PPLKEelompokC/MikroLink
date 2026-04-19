@@ -25,11 +25,11 @@
 
     <nav class="w-full h-[100px] flex justify-between items-center bg-white/90 backdrop-blur-sm px-12 border-b border-[#e4e4e4] sticky top-0 z-50">
         <div class="flex items-center">
-            <a href="{{ route('landingPage') }}"><img src="{{ asset('images/Logo Mikrolink.png') }}" class="w-[130px] h-auto"></a>
+            <a href="{{ route('home') }}"><img src="{{ asset('images/Logo Mikrolink.png') }}" class="w-[130px] h-auto"></a>
         </div>
         <div class="flex items-center gap-10">
-            <a href="{{ route('loginPage') }}" class="font-semibold text-[16px] text-gray-800 hover:text-[#e8a838]">Login</a>
-            <a href="{{ route('registerPage') }}" class="h-[50px] flex justify-center items-center bg-[#e8a838] px-10 py-2 rounded-[56px] shadow-xl shadow-orange-200/40 hover:bg-[#ffa200] transition-all">
+            <a href="{{ route('login') }}" class="font-semibold text-[16px] text-gray-800 hover:text-[#e8a838]">Login</a>
+            <a href="{{ route('register') }}" class="h-[50px] flex justify-center items-center bg-[#e8a838] px-10 py-2 rounded-[56px] shadow-xl shadow-orange-200/40 hover:bg-[#ffa200] transition-all">
                 <span class="font-bold text-[16px] text-white">Register</span>
             </a>
         </div>
@@ -47,7 +47,7 @@
             Bergabung bersama ribuan pejuang ekonomi — 1000+ anggota telah mewujudkan akses finansial yang adil dan transparan melalui ekosistem kolektif MikroLink.
         </p>
         <div class="flex items-center gap-5">
-            <a href="{{ route('registerPage') }}" class="flex justify-center items-center gap-5 bg-gradient-to-b from-[#e8a838] to-[#ffa200] pl-10 pr-3 py-3 rounded-full shadow-2xl shadow-orange-300/60 hover:scale-105 transition-all">
+            <a href="{{ route('register') }}" class="flex justify-center items-center gap-5 bg-gradient-to-b from-[#e8a838] to-[#ffa200] pl-10 pr-3 py-3 rounded-full shadow-2xl shadow-orange-300/60 hover:scale-105 transition-all">
                 <span class="font-bold text-[17px] text-white">Gabung Sekarang</span>
                 <div class="w-11 h-11 bg-white rounded-full flex items-center justify-center">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H7M17 7V17" stroke="url(#blueGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="blueGrad" x1="7" y1="7" x2="17" y2="17" gradientUnits="userSpaceOnUse"><stop stop-color="#013599"/><stop offset="1" stop-color="#295fc9"/></linearGradient></defs></svg>

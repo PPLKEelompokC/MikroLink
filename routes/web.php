@@ -5,15 +5,15 @@ use Livewire\Volt\Volt;
 
 Route::get('/', function () {
     return view('landingPage');
-})->name('landingPage');
+})->name('home');
 
 Route::get('/login', function () {
     return view('loginPage');
-})->name('loginPage');
+})->name('login');
 
 Route::get('/register', function () {
     return view('registerPage');
-})->name('registerPage');
+})->name('register');
 
 Route::get('/aspiration', function () {
     return view('aspirationPortal');

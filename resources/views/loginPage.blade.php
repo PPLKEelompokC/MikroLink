@@ -36,7 +36,7 @@
                 <button type="submit" class="w-full bg-[#ffa200] text-white font-bold py-4 rounded-full shadow-xl shadow-orange-200 hover:bg-[#e8a838] transition-all">Masuk</button>
             </form>
             <div class="mt-8 text-center">
-                <p class="text-gray-500 font-medium text-[15px]">Belum punya akun? <a href="{{ route('registerPage') }}" class="text-[#013599] font-bold hover:underline">Daftar</a></p>
+                <p class="text-gray-500 font-medium text-[15px]">Belum punya akun? <a href="{{ route('register') }}" class="text-[#013599] font-bold hover:underline">Daftar</a></p>
             </div>
             <div class="relative my-10 flex items-center">
                 <div class="flex-grow border-t border-gray-100"></div>

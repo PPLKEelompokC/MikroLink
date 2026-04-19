@@ -4,12 +4,12 @@
 
 @section('content')
     <nav class="w-full h-[100px] flex justify-between items-center px-12 bg-white/70 backdrop-blur-md sticky top-0 z-50 border-b border-gray-50">
-        <a href="{{ route('landingPage') }}">
+        <a href="{{ route('home') }}">
             <img src="{{ asset('images/Logo Mikrolink.png') }}" class="w-[130px] h-auto">
         </a>
         <div class="flex gap-10 items-center">
-            <a href="{{ route('loginPage') }}" class="font-bold text-gray-800 hover:text-[#e8a838] transition-colors">Login</a>
-            <a href="{{ route('registerPage') }}" class="bg-[#e8a838] text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-orange-100 hover:bg-[#ffa200] transition-all">Register</a>
+            <a href="{{ route('login') }}" class="font-bold text-gray-800 hover:text-[#e8a838] transition-colors">Login</a>
+            <a href="{{ route('register') }}" class="bg-[#e8a838] text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-orange-100 hover:bg-[#ffa200] transition-all">Register</a>
         </div>
     </nav>
 
