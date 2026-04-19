@@ -4,8 +4,24 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+    return view('landingPage');
+})->name('landingPage');
+
+Route::get('/login', function () {
+    return view('loginPage');
+})->name('loginPage');
+
+Route::get('/register', function () {
+    return view('registerPage');
+})->name('registerPage');
+
+Route::get('/aspiration', function () {
+    return view('aspirationPortal');
+})->name('aspirationPortal');
+
+Route::get('/cara-kerja', function () {
+    return view('caraKerja');
+})->name('caraKerja');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -13,7 +29,6 @@ Route::view('dashboard', 'dashboard')
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
-
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
