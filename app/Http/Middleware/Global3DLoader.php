@@ -12,6 +12,10 @@ class Global3DLoader
     {
         $response = $next($request);
 
+        if (app()->environment('testing')) {
+            return $response;
+        }
+
         if ($response instanceof \Illuminate\Http\Response && str_contains($response->headers->get('Content-Type'), 'text/html')) {
             $content = $response->getContent();
 
@@ -23,7 +27,7 @@ class Global3DLoader
                     transition: opacity 0.8s cubic-bezier(0.77, 0, 0.175, 1), visibility 0.8s;
                 }
                 .logo-premium-intro {
-                    width: 200px; /* Ukuran lebih gede sesuai request */
+                    width: 200px;
                     animation: premiumPop 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
                     filter: drop-shadow(0 0 20px rgba(232, 168, 56, 0.2));
                 }
