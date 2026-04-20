@@ -19,15 +19,6 @@ class DashboardController extends Controller
         $terakhirDiperbarui = $koperasi->capitalLogs->last() ? $koperasi->capitalLogs->last()->created_at->diffForHumans() : 'Belum ada transaksi';
         $capitalLogs = $koperasi->capitalLogs()->latest()->take(5)->get();
 
-        // AI Recommendation Skeleton
-        $aiRecommendations = [
-            'Mikro Usaha' => ['percentage' => 80, 'color' => 'bg-[#e8a838]'],
-            'Pertanian' => ['percentage' => 70, 'color' => 'bg-blue-600'],
-            'Pendidikan' => ['percentage' => 45, 'color' => 'bg-emerald-500'],
-            'Darurat' => ['percentage' => 25, 'color' => 'bg-red-600'],
-        ];
-        $aiInsight = 'Tingkatkan alokasi ke sektor Mikro Usaha untuk ROI optimal (+2.1%)';
-
-        return view('dashboard', compact('koperasi', 'availableCapital', 'likuiditas', 'totalTransaksi', 'terakhirDiperbarui', 'capitalLogs', 'aiRecommendations', 'aiInsight'));
+        return view('dashboard', compact('koperasi', 'availableCapital', 'likuiditas', 'totalTransaksi', 'terakhirDiperbarui', 'capitalLogs'));
     }
 }

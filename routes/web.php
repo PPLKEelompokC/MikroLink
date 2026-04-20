@@ -37,12 +37,8 @@ Route::get('/cara-kerja', function () {
 
 use App\Http\Controllers\DashboardController;
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    // ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
-
-Route::middleware(['auth', 'role:Admin Koperasi,Super Admin'])->group(function () {
+Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
     Route::put('/koperasi/update', [KoperasiController::class, 'update'])->name('koperasi.update');
     Route::post('/koperasi/adjust-capital', [KoperasiController::class, 'adjustCapital'])->name('koperasi.adjustCapital');
