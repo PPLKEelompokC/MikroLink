@@ -62,7 +62,7 @@
                 </div>
                 <h3 class="text-xl font-extrabold text-black mb-3">Dukungan Modal Produktif</h3>
                 <p class="text-gray-400 text-sm leading-relaxed mb-8">Ajukan bantuan modal untuk usaha mikro, alat produksi, atau pengembangan skill ekonomi mandiri.</p>
-                <button class="flex items-center gap-3 text-[#e8a838] font-bold text-sm uppercase tracking-wider group-hover:gap-5 transition-all">
+                <button onclick="fillAndScroll('Dukungan Modal Produktif')" class="flex items-center gap-3 text-[#e8a838] font-bold text-sm uppercase tracking-wider group-hover:gap-5 transition-all">
                     Ajukan Sekarang
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
@@ -74,13 +74,40 @@
                 </div>
                 <h3 class="text-xl font-extrabold text-black mb-3">Kesejahteraan Keluarga</h3>
                 <p class="text-gray-400 text-sm leading-relaxed mb-8">Dukungan untuk kebutuhan dasar pendidikan, kesehatan, dan gizi keluarga pra-sejahtera.</p>
-                <button class="flex items-center gap-3 text-[#013599] font-bold text-sm uppercase tracking-wider group-hover:gap-5 transition-all">
+                <button onclick="fillAndScroll('Kesejahteraan Keluarga')" class="flex items-center gap-3 text-[#013599] font-bold text-sm uppercase tracking-wider group-hover:gap-5 transition-all">
                     Ajukan Sekarang
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
             </div>
 
         </div>
+
+        <section id="form-section" class="bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-sm mb-16 p-8">
+            <h2 class="text-2xl font-extrabold text-gray-900 mb-6">Form Pengajuan Aspirasi</h2>
+            @if(session('success'))
+                <div class="mb-6 p-4 bg-green-50 text-green-700 rounded-xl font-bold border border-green-200">
+                    {{ session('success') }}
+                </div>
+            @endif
+            <form action="{{ route('aspiration.store') }}" method="POST" class="space-y-6">
+                @csrf
+                <div class="text-left">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Judul (Subject)</label>
+                    <input id="subject" name="subject" required type="text" placeholder="Misal: Bantuan Modal Usaha Sembako" 
+                        class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-[#e8a838] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-gray-600">
+                </div>
+
+                <div class="text-left">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Pesan Aspirasi</label>
+                    <textarea name="message" required rows="4" placeholder="Ceritakan detail kebutuhan Anda di sini..."
+                        class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-[#e8a838] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-gray-600 resize-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-[#ffa200] text-white font-bold py-4 rounded-2xl shadow-xl shadow-orange-200 hover:bg-[#e8a838] transition-all flex items-center justify-center gap-2">
+                    Kirim Aspirasi Sekarang
+                </button>
+            </form>
+        </section>
 
         <section class="bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-sm">
             <div class="px-8 py-6 border-b border-gray-50 flex justify-between items-center">
@@ -125,5 +152,11 @@
         MikroLink Smart Inclusion &copy; 2026 — Mendukung Percepatan Target SDG 1 (Tanpa Kemiskinan)
     </footer>
 
+    <script>
+        function fillAndScroll(subjectText) {
+            document.getElementById('subject').value = subjectText;
+            document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>

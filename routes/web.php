@@ -19,6 +19,9 @@ Route::get('/aspiration', function () {
     return view('aspirationPortal');
 })->name('aspirationPortal');
 
+// Rute baru untuk memproses data (Backend)
+Route::post('/aspiration/store', [\App\Http\Controllers\AspirationController::class, 'store'])->name('aspiration.store');
+
 Route::get('/cara-kerja', function () {
     return view('caraKerja');
 })->name('caraKerja');
