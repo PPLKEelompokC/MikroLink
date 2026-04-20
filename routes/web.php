@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AspirationController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -12,6 +14,8 @@ Route::get('/login', function () {
     return view('loginPage');
 })->name('login');
 
+Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+
 Route::get('/register', function () {
     return view('registerPage');
 })->name('register');
@@ -23,7 +27,7 @@ Route::get('/aspiration', function () {
 })->name('aspirationPortal');
 
 // Rute baru untuk memproses data (Backend)
-Route::post('/aspiration/store', [\App\Http\Controllers\AspirationController::class, 'store'])->name('aspiration.store');
+Route::post('/aspiration/store', [AspirationController::class, 'store'])->name('aspiration.store');
 
 Route::get('/cara-kerja', function () {
     return view('caraKerja');

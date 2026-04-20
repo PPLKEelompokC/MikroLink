@@ -11,15 +11,21 @@
             </div>
             
             <div class="w-full max-w-[420px]">
-                <form action="#" method="POST" class="space-y-6">
+                <form action="{{ route('login') }}" method="POST" class="space-y-6">
                     @csrf
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Email</label>
-                        <input type="email" placeholder="johndoe@gmail.com" class="w-full px-5 py-4 bg-white border border-gray-200 rounded-2xl outline-none focus:border-[#e8a838] transition-all font-medium text-gray-600">
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="johndoe@gmail.com" class="w-full px-5 py-4 bg-white border border-gray-200 rounded-2xl outline-none focus:border-[#e8a838] transition-all font-medium text-gray-600">
+                        @error('email')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="relative">
                         <label class="block text-sm font-bold text-gray-700 mb-2">Password</label>
-                        <input type="password" placeholder="masukkan password" class="w-full px-5 py-4 bg-white border border-gray-200 rounded-2xl outline-none focus:border-[#e8a838] transition-all font-medium text-gray-600">
+                        <input type="password" name="password" placeholder="masukkan password" class="w-full px-5 py-4 bg-white border border-gray-200 rounded-2xl outline-none focus:border-[#e8a838] transition-all font-medium text-gray-600">
+                        @error('password')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                         <div class="mt-2 text-right"><a href="#" class="text-[14px] font-bold text-[#013599] hover:underline">Lupa password?</a></div>
                     </div>
                     <button type="submit" class="w-full bg-[#ffa200] text-white font-bold py-4 rounded-full shadow-xl shadow-orange-200 hover:bg-[#e8a838] transition-all">Masuk</button>
