@@ -25,7 +25,7 @@
 
     <nav class="w-full h-[100px] flex justify-between items-center bg-white/90 backdrop-blur-sm px-12 border-b border-[#e4e4e4] sticky top-0 z-50">
         <div class="flex items-center">
-            <a href="{{ route('home') }}"><img src="{{ asset('images/Logo Mikrolink.png') }}" class="w-[130px] h-auto"></a>
+            <a href="{{ route('home') }}"><img src="{{ asset('images/logo-mikrolink.png') }}" class="w-[130px] h-auto"></a>
         </div>
         <div class="flex items-center gap-10">
             <a href="{{ route('login') }}" class="font-semibold text-[16px] text-gray-800 hover:text-[#e8a838]">Login</a>
@@ -37,7 +37,7 @@
 
     <main class="flex-1 flex flex-col items-center justify-center text-center px-6 -mt-20">
         <div class="mb-14 border border-[#e8a838]/30 bg-white px-8 py-3 rounded-full flex items-center gap-4 shadow-sm">
-            <img src="{{ asset('images/Logo Mikrolink.png') }}" class="h-10 w-auto">
+            <img src="{{ asset('images/logo-mikrolink.png') }}" class="h-10 w-auto">
             <span class="font-bold text-gray-900 text-[18px]">MikroLink</span>
         </div>
         <h1 class="max-w-5xl font-bold text-[50px] leading-[68px] text-black tracking-tight mb-8">
