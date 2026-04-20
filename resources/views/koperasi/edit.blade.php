@@ -11,7 +11,19 @@
     </div>
     <div class="hidden lg:flex items-center gap-8">
         <a href="{{ route('dashboard') }}" class="font-semibold text-[15px] text-gray-500 hover:text-[#e8a838] transition-colors">Dashboard</a>
-        <a href="#" class="font-bold text-[15px] text-[#e8a838]">Manage Koperasi</a>
+        @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi']))
+            <a href="{{ route('koperasi.edit') }}" class="font-bold text-[15px] text-[#e8a838]">Manage Koperasi</a>
+        @endif
+    </div>
+    <div class="flex items-center">
+        <!-- User profile circle -->
+        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-inner cursor-pointer hover:bg-gray-400 transition-colors">
+            @if(auth()->check())
+                {{ auth()->user()->initials() }}
+            @else
+                GU
+            @endif
+        </div>
     </div>
 </nav>
 
