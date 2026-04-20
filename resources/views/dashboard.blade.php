@@ -111,6 +111,25 @@
             </div>
         </div>
 
+        <!-- Performa Kesehatan Finansial Section -->
+        <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 relative overflow-hidden">
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-2">
+                <div>
+                    <h2 class="text-[22px] text-gray-900 leading-tight">
+                        <span>Peforma</span> <span class="font-bold">Kesehatan Finansial</span>
+                    </h2>
+                    <p class="text-[16px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
+                </div>
+                <a href="#" id="btn-ajukan-pinjaman" onclick="handleAjukanPinjaman(event)" class="bg-[#e8a838] hover:bg-[#d4952f] text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
+                    Ajukan Pinjaman
+                </a>
+            </div>
+
+            <!-- Chart Container -->
+            <div id="financialChart" class="w-full" style="min-height: 320px;"></div>
+        </div>
+
         <!-- Bottom Grid Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-10">
             
@@ -179,3 +198,227 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    /**
+     * Placeholder function for "Ajukan Pinjaman" button.
+     * Replace the URL below with the actual route when the loan application page is ready.
+     */
+    function handleAjukanPinjaman(event) {
+        event.preventDefault();
+        // TODO: Replace '#' with the actual route, e.g.: window.location.href = '/pinjaman/ajukan';
+        alert('Fitur Ajukan Pinjaman akan segera tersedia.');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const chartLabels = @json($chartLabels);
+        const omzetData = @json($omzetData);
+        const creditScoreData = @json($creditScoreData);
+        const omzetPercentage = {{ $omzetPercentage }};
+        const latestCreditScore = {{ $latestCreditScore }};
+
+        if (chartLabels.length === 0) {
+            document.getElementById('financialChart').innerHTML =
+                '<div class="flex items-center justify-center h-64 text-gray-400 text-sm italic">Belum ada data performa finansial.</div>';
+            return;
+        }
+
+        const options = {
+            series: [
+                {
+                    name: 'Omzet',
+                    type: 'area',
+                    data: omzetData,
+                },
+                {
+                    name: 'Skor Kredit',
+                    type: 'line',
+                    data: creditScoreData,
+                },
+            ],
+            chart: {
+                height: 320,
+                type: 'line',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                toolbar: { show: false },
+                zoom: { enabled: false },
+                dropShadow: {
+                    enabled: true,
+                    top: 4,
+                    left: 0,
+                    blur: 8,
+                    opacity: 0.12,
+                    color: ['#3b82f6', '#f59e0b'],
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 1200,
+                    animateGradually: { enabled: true, delay: 150 },
+                    dynamicAnimation: { enabled: true, speed: 350 },
+                },
+            },
+            colors: ['#3b82f6', '#f59e0b'],
+            fill: {
+                type: ['gradient', 'solid'],
+                gradient: {
+                    shade: 'light',
+                    type: 'vertical',
+                    shadeIntensity: 0.3,
+                    opacityFrom: 0.35,
+                    opacityTo: 0.05,
+                    stops: [0, 90, 100],
+                },
+            },
+            stroke: {
+                width: [3, 3],
+                curve: 'smooth',
+            },
+            markers: {
+                size: [0, 0],
+                hover: { sizeOffset: 5 },
+                strokeWidth: 3,
+                strokeColors: '#fff',
+                discrete: [
+                    {
+                        seriesIndex: 0,
+                        dataPointIndex: omzetData.length - 2,
+                        fillColor: '#3b82f6',
+                        strokeColor: '#fff',
+                        size: 6,
+                    },
+                    {
+                        seriesIndex: 1,
+                        dataPointIndex: creditScoreData.length - 2,
+                        fillColor: '#f59e0b',
+                        strokeColor: '#fff',
+                        size: 6,
+                    },
+                ],
+            },
+            labels: chartLabels,
+            xaxis: {
+                type: 'category',
+                labels: {
+                    style: {
+                        colors: '#9ca3af',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                    },
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+            },
+            yaxis: [
+                {
+                    show: false,
+                    min: 0,
+                },
+                {
+                    show: false,
+                    opposite: true,
+                    min: 0,
+                    max: 100,
+                },
+            ],
+            grid: {
+                show: true,
+                borderColor: '#f3f4f6',
+                strokeDashArray: 4,
+                xaxis: { lines: { show: false } },
+                yaxis: { lines: { show: true } },
+                padding: { top: 0, right: 10, bottom: 0, left: 10 },
+            },
+            legend: { show: false },
+            tooltip: {
+                shared: false,
+                intersect: true,
+                custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                    const seriesName = w.globals.seriesNames[seriesIndex];
+                    let value = '';
+                    let bgColor = '';
+                    let textColor = '';
+
+                    if (seriesIndex === 0) {
+                        // Omzet
+                        const pct = series[0][dataPointIndex] > 0
+                            ? ((series[0][dataPointIndex] / Math.max(...omzetData)) * 100).toFixed(1)
+                            : '0';
+                        value = pct + '%';
+                        bgColor = '#eff6ff';
+                        textColor = '#3b82f6';
+                    } else {
+                        // Skor Kredit
+                        value = series[1][dataPointIndex].toFixed(0) + '%';
+                        bgColor = '#fffbeb';
+                        textColor = '#f59e0b';
+                    }
+
+                    return `<div style="
+                        background: ${bgColor};
+                        border: 1px solid ${textColor}20;
+                        border-radius: 8px;
+                        padding: 8px 14px;
+                        font-family: 'Plus Jakarta Sans', sans-serif;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                    ">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 13px; font-weight: 600; color: #374151;">${seriesName}</span>
+                            <span style="font-size: 15px; font-weight: 800; color: ${textColor};">${value}</span>
+                        </div>
+                    </div>`;
+                },
+            },
+            annotations: {
+                points: [
+                    {
+                        x: chartLabels[chartLabels.length - 2],
+                        y: omzetData[omzetData.length - 2],
+                        seriesIndex: 0,
+                        label: {
+                            text: 'Omzet  ' + omzetPercentage + '%',
+                            borderColor: '#3b82f6',
+                            borderWidth: 0,
+                            borderRadius: 8,
+                            style: {
+                                color: '#1e40af',
+                                background: '#dbeafe',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                padding: { left: 10, right: 10, top: 6, bottom: 6 },
+                            },
+                            offsetY: -15,
+                        },
+                    },
+                    {
+                        x: chartLabels[chartLabels.length - 2],
+                        y: creditScoreData[creditScoreData.length - 2],
+                        yAxisIndex: 1,
+                        seriesIndex: 1,
+                        label: {
+                            text: 'Skor Kredit  ' + latestCreditScore.toFixed(0) + '%',
+                            borderColor: '#f59e0b',
+                            borderWidth: 0,
+                            borderRadius: 8,
+                            style: {
+                                color: '#92400e',
+                                background: '#fef3c7',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                padding: { left: 10, right: 10, top: 6, bottom: 6 },
+                            },
+                            offsetY: -15,
+                        },
+                    },
+                ],
+            },
+        };
+
+        const chart = new ApexCharts(document.getElementById('financialChart'), options);
+        chart.render();
+    });
+</script>
+@endpush
