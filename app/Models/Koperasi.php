@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Koperasi extends Model
 {
@@ -18,9 +19,14 @@ class Koperasi extends Model
         'saldo_kas',
     ];
 
-    public function capitalLogs()
+    public function capitalLogs(): HasMany
     {
         return $this->hasMany(CapitalLog::class, 'koperasi_id', 'id_koperasi');
+    }
+
+    public function financialRecords(): HasMany
+    {
+        return $this->hasMany(FinancialRecord::class, 'koperasi_id', 'id_koperasi');
     }
 
     public function updateSaldo(float $amount, string $type = 'Penyesuaian Modal', string $memberName = null): void

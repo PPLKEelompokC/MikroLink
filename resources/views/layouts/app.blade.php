@@ -47,11 +47,15 @@
 
     @yield('content')
 
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
     <script>
         window.addEventListener("load", () => {
             const loader = document.getElementById("loader");
             setTimeout(() => { loader.classList.add("loader-hidden"); }, 700);
         });
     </script>
+
+    @stack('scripts')
 </body>
 </html>
