@@ -3,11 +3,10 @@
 namespace Database\Factories;
 
 use App\Models\FinancialRecord;
-use App\Models\Koperasi;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\FinancialRecord>
+ * @extends Factory<FinancialRecord>
  */
 class FinancialRecordFactory extends Factory
 {
