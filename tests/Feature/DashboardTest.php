@@ -8,9 +8,11 @@ test('guests are redirected to the login page', function () {
 });
 
 test('authenticated users can visit the dashboard', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'role' => 'Admin Koperasi',
+    ]);
     $this->actingAs($user);
 
     $response = $this->get('/dashboard');
-    $response->assertStatus(200);
+    $response->assertOk();
 });
