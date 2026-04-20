@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -14,6 +15,8 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return view('registerPage');
 })->name('register');
+
+Route::post('/register', [RegisteredUserController::class, 'store']);
 
 Route::get('/aspiration', function () {
     return view('aspirationPortal');
