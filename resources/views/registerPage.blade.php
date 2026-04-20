@@ -40,20 +40,29 @@
                 
                 <div class="text-left">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Username</label>
-                    <input type="text" name="name" placeholder="Masukkan username unik" 
+                    <input type="text" name="name" value="{{ old('name') }}" placeholder="Masukkan username unik" 
                         class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-[#e8a838] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-gray-600">
+                    @error('name')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="text-left">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Alamat Email</label>
-                    <input type="email" name="email" placeholder="johndoe@gmail.com" 
+                    <input type="email" name="email" value="{{ old('email') }}" placeholder="johndoe@gmail.com" 
                         class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-[#e8a838] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-gray-600">
+                    @error('email')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="text-left">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Kata Sandi</label>
                     <input type="password" name="password" placeholder="••••••••" 
                         class="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-[#e8a838] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-gray-600">
+                    @error('password')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <button type="submit" class="w-full bg-gradient-to-b from-[#e8a838] to-[#ffa200] text-white font-bold py-5 rounded-2xl shadow-xl shadow-orange-200 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all group">
