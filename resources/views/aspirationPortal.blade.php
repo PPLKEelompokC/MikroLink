@@ -6,6 +6,7 @@
     <title>Portal Aspirasi - MikroLink</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -36,13 +37,32 @@
             <div class="h-6 w-[1px] bg-gray-200"></div>
             <span class="font-bold text-gray-800 text-sm tracking-tight uppercase">Portal Aspirasi Warga</span>
         </div>
-        <div class="flex items-center gap-6">
-            <div class="text-right">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Pejuang Ekonomi</p>
-                <p class="text-sm font-extrabold text-gray-800">Asep Jagung</p>
+        <div x-data="{ open: false }" class="relative flex items-center gap-6">
+            <div class="text-right hidden sm:block">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ Auth::check() ? (Auth::user()->role ?? 'Pejuang Ekonomi') : 'Pejuang Ekonomi' }}</p>
+                <p class="text-sm font-extrabold text-gray-800">{{ Auth::user()->name ?? 'Guest' }}</p>
             </div>
-            <div class="w-12 h-12 bg-gradient-to-tr from-[#e8a838] to-[#ffa200] rounded-full border-2 border-white shadow-md flex items-center justify-center text-white font-bold">
-                MD
+            
+            <button @click="open = !open" @click.away="open = false" class="focus:outline-none flex items-center gap-2">
+                <div class="w-12 h-12 bg-gradient-to-tr from-[#e8a838] to-[#ffa200] rounded-full border-2 border-white shadow-md flex items-center justify-center text-white font-bold hover:scale-105 transition-transform">
+                    {{ Auth::check() ? strtoupper(substr(Auth::user()->name, 0, 2)) : 'GU' }}
+                </div>
+            </button>
+
+            <div x-show="open" x-transition.opacity.duration.200ms class="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50" style="display: none;">
+                @if(Auth::check())
+                    <div class="px-4 py-2 border-b border-gray-50 sm:hidden">
+                        <p class="text-sm font-bold text-gray-800">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                    </div>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#e8a838] transition-colors">Edit Profile</a>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">Logout</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#e8a838] transition-colors">Login</a>
+                @endif
             </div>
         </div>
     </nav>

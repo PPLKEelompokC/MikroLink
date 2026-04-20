@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9fafb; margin: 0; }
 
@@ -36,19 +37,29 @@
             <div class="h-6 w-[1px] bg-white/20"></div>
             <span class="font-bold text-white/80 text-sm tracking-tight uppercase">Manajemen Pusat Data</span>
         </div>
-        <div class="flex items-center gap-6">
-            <div class="text-right">
+        <div x-data="{ open: false }" class="relative flex items-center gap-6">
+            <div class="text-right hidden sm:block">
                 <p class="text-[10px] font-bold text-[#ffa200] uppercase tracking-widest">Administrator</p>
                 <p class="text-sm font-extrabold text-white">{{ Auth::user()->name }}</p>
             </div>
-            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#013599] font-black text-sm">
-                {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+            
+            <button @click="open = !open" @click.away="open = false" class="focus:outline-none flex items-center gap-2">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#013599] font-black text-sm hover:scale-105 transition-transform shadow-sm">
+                    {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                </div>
+            </button>
+
+            <div x-show="open" x-transition.opacity.duration.200ms class="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50" style="display: none;">
+                <div class="px-4 py-2 border-b border-gray-50 sm:hidden">
+                    <p class="text-sm font-bold text-gray-800">{{ Auth::user()->name }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                </div>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#013599] transition-colors">Edit Profile</a>
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">Logout</button>
+                </form>
             </div>
-            <div class="h-6 w-[1px] bg-white/20"></div>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="text-xs font-bold text-white/50 hover:text-red-400 uppercase tracking-widest transition-colors">Logout</button>
-            </form>
         </div>
     </nav>
 
