@@ -39,7 +39,7 @@
 </head>
 <body>
     <div id="loader">
-        <img src="{{ asset('images/Logo Mikrolink.png') }}" class="logo-3d">
+        <img src="{{ asset('images/logo-mikrolink.png') }}" class="logo-3d">
     </div>
 
     <div class="bg-global-diamond"></div>

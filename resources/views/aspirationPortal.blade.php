@@ -31,7 +31,7 @@
     <nav class="w-full h-[80px] flex justify-between items-center bg-white/90 backdrop-blur-sm px-12 border-b border-[#e4e4e4] sticky top-0 z-50">
         <div class="flex items-center gap-8">
             <a href="{{ route('home') }}">
-                <img src="{{ asset('images/Logo Mikrolink.png') }}" alt="Logo" class="w-[110px] h-auto object-contain">
+                <img src="{{ asset('images/logo-mikrolink.png') }}" alt="Logo" class="w-[110px] h-auto object-contain">
             </a>
             <div class="h-6 w-[1px] bg-gray-200"></div>
             <span class="font-bold text-gray-800 text-sm tracking-tight uppercase">Portal Aspirasi Warga</span>

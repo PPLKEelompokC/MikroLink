@@ -5,7 +5,7 @@
 @section('content')
     <nav class="w-full h-[100px] flex justify-between items-center px-12 bg-white/70 backdrop-blur-md sticky top-0 z-50 border-b border-gray-50">
         <a href="{{ route('home') }}">
-            <img src="{{ asset('images/Logo Mikrolink.png') }}" class="w-[130px] h-auto">
+            <img src="{{ asset('images/logo-mikrolink.png') }}" class="w-[130px] h-auto">
         </a>
         <div class="flex gap-10 items-center">
             <a href="{{ route('login') }}" class="font-bold text-gray-800 hover:text-[#e8a838] transition-colors">Login</a>
