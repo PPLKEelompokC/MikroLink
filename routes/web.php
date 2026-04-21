@@ -43,11 +43,17 @@ Route::get('/cara-kerja', function () {
     return view('caraKerja');
 })->name('caraKerja');
 
-Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
-    Route::put('/koperasi/update', [KoperasiController::class, 'update'])->name('koperasi.update');
-    Route::post('/koperasi/adjust-capital', [KoperasiController::class, 'adjustCapital'])->name('koperasi.adjustCapital');
+Route::view('dashboard', 'dashboard')
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::redirect('settings', 'settings/profile');
+    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
+    Volt::route('settings/password', 'settings.password')->name('settings.password');
+    Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
+    Volt::route('simpanan/setor', 'simpanan.create-setoran')->name('simpanan.setor');
+    Volt::route('admin/simpanan/validasi', 'admin.simpanan.validasi-setoran')->name('admin.simpanan.validasi');
 });
 
 Route::middleware('auth')->group(function () {
