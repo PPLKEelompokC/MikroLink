@@ -290,7 +290,7 @@
             <p class="text-gray-600 text-sm mb-7 max-w-md mx-auto">
                 Tim support kami siap membantu Anda. Buat tiket support dan kami akan merespon dalam waktu 1–3 hari bisnis.
             </p>
-            <a href="#" class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-8 py-3.5 rounded-full transition-colors shadow-md hover:shadow-lg text-sm">
+            <a href="{{ route('ticketing.index') }}" class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-8 py-3.5 rounded-full transition-colors shadow-md hover:shadow-lg text-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                 </svg>

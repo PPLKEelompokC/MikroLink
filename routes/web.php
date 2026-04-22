@@ -26,6 +26,13 @@ Route::get('/cara-kerja', function () {
 Route::view('pusat-bantuan', 'pusat-bantuan')
     ->middleware(['auth', 'verified'])
     ->name('pusat-bantuan');
+    
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('ticketing', [\App\Http\Controllers\TicketController::class, 'index'])->name('ticketing.index');
+    Route::get('ticketing/create', [\App\Http\Controllers\TicketController::class, 'create'])->name('ticketing.create');
+    Route::post('ticketing', [\App\Http\Controllers\TicketController::class, 'store'])->name('ticketing.store');
+    Route::get('ticketing/{ticket}', [\App\Http\Controllers\TicketController::class, 'show'])->name('ticketing.show');
+});
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
