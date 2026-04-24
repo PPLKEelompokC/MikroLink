@@ -11,7 +11,7 @@ class AspirationController extends Controller
     public function indexUser()
     {
         $aspirations = Aspiration::where('user_id', auth()->id())->latest()->get();
-        return view('dashboard', compact('aspirations'));
+        return view('aspirationPortal', compact('aspirations'));
     }
 
     public function indexAdmin()
