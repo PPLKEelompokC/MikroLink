@@ -32,9 +32,7 @@ Route::get('/register', function () {
 
 Route::post('/register', [RegisteredUserController::class, 'store']);
 
-Route::get('/aspiration', function () {
-    return view('aspirationPortal');
-})->name('aspirationPortal');
+Route::get('/aspiration', [AspirationController::class, 'indexUser'])->name('aspirationPortal');
 
 // Rute baru untuk memproses data (Backend)
 Route::post('/aspiration/store', [AspirationController::class, 'store'])->name('aspiration.store');
@@ -43,7 +41,7 @@ Route::get('/cara-kerja', function () {
     return view('caraKerja');
 })->name('caraKerja');
 
-Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi'])->group(function () {
+Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,user,admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
     Route::put('/koperasi/update', [KoperasiController::class, 'update'])->name('koperasi.update');
