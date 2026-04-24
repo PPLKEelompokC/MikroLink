@@ -58,4 +58,11 @@ class User extends Authenticatable // implements MustVerifyEmail
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
+    /**
+     * Get the trust metric associated with the user.
+     */
+    public function trustMetric()
+    {
+        return $this->hasOne(TrustMetric::class);
+    }
 }

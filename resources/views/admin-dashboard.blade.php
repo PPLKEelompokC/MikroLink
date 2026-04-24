@@ -29,7 +29,7 @@
 
     <div class="bg-fade-wrapper"><div class="diamond-pattern"></div></div>
 
-    <nav class="w-full h-[80px] flex justify-between items-center bg-[#013599] px-12 border-b border-[#012a7a] sticky top-0 z-50">
+    <nav class="w-full h-[80px] flex justify-between items-center bg-[#e8a838] px-12 border-b border-[#d4952f] sticky top-0 z-50">
         <div class="flex items-center gap-8">
             <a href="{{ route('home') }}" class="font-extrabold text-white text-xl tracking-tight">
                 MikroLink <span class="text-[#ffa200]">Admin</span>
@@ -44,7 +44,7 @@
             </div>
             
             <button @click="open = !open" @click.away="open = false" class="focus:outline-none flex items-center gap-2">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#013599] font-black text-sm hover:scale-105 transition-transform shadow-sm">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#e8a838] font-black text-sm hover:scale-105 transition-transform shadow-sm">
                     {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
                 </div>
             </button>
@@ -54,7 +54,7 @@
                     <p class="text-sm font-bold text-gray-800">{{ Auth::user()->name }}</p>
                     <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
                 </div>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#013599] transition-colors">Edit Profile</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#e8a838] transition-colors">Edit Profile</a>
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
                     <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">Logout</button>
@@ -80,7 +80,7 @@
             <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-6">
                 <div>
                     <p class="text-xs font-bold text-gray-400 uppercase">Total Entri</p>
-                    <p class="text-2xl font-black text-[#013599]">{{ $aspirations->count() }}</p>
+                    <p class="text-2xl font-black text-[#e8a838]">{{ $aspirations->count() }}</p>
                 </div>
                 <div class="h-10 w-[1px] bg-gray-100"></div>
                 <div>
@@ -93,13 +93,13 @@
         <section class="bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-xl shadow-gray-100">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead class="bg-gray-50/80 border-b border-gray-100">
+                    <thead class="bg-orange-50/80 border-b border-orange-100">
                         <tr class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                            <th class="px-8 py-5">Tgl Masuk</th>
-                            <th class="px-8 py-5">Pengaju (Warga)</th>
-                            <th class="px-8 py-5">Konteks Aspirasi</th>
-                            <th class="px-8 py-5">Status</th>
-                            <th class="px-8 py-5 text-right w-[200px]">Tindakan</th>
+                            <th class="px-8 py-5 text-[#e8a838]">Tgl Masuk</th>
+                            <th class="px-8 py-5 text-[#e8a838]">Pengaju (Warga)</th>
+                            <th class="px-8 py-5 text-[#e8a838]">Konteks Aspirasi</th>
+                            <th class="px-8 py-5 text-[#e8a838]">Status</th>
+                            <th class="px-8 py-5 text-[#e8a838] text-right w-[200px]">Tindakan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
@@ -111,7 +111,7 @@
                                 <p class="text-xs text-gray-400 font-medium">{{ $aspiration->user->email ?? '-' }}</p>
                             </td>
                             <td class="px-8 py-5">
-                                <p class="text-sm font-bold text-[#013599]">{{ $aspiration->subject }}</p>
+                                <p class="text-sm font-bold text-[#e8a838]">{{ $aspiration->subject }}</p>
                                 <p class="text-sm text-gray-500 mt-1 max-w-sm leading-relaxed line-clamp-2" title="{{ $aspiration->message }}">{{ $aspiration->message }}</p>
                             </td>
                             <td class="px-8 py-5">

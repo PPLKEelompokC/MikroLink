@@ -12,7 +12,7 @@ class Global3DLoader
     {
         $response = $next($request);
 
-        if (app()->environment('testing')) {
+        if (app()->environment('testing') || $request->isMethod('POST')) {
             return $response;
         }
 

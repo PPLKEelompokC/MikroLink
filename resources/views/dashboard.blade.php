@@ -13,8 +13,9 @@
         <div class="hidden lg:flex items-center gap-8">
             <a href="#" class="font-bold text-[15px] text-[#e8a838]">Dashboard</a>
             @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
-                <a href="{{ route('koperasi.edit') }}" class="font-bold text-[15px] text-emerald-600 hover:text-emerald-700 transition-colors">Manage Koperasi</a>
-                <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
+                <a href="{{ route('koperasi.edit') }}" class="font-bold text-[15px] text-[#e8a838] hover:text-[#d4952f] transition-colors">Manage Koperasi</a>
+                <a href="#aspiration-management" class="font-bold text-[15px] text-[#e8a838] hover:text-[#d4952f] transition-colors">Aspirations Portal</a>
+                <a href="#trust-management" class="font-bold text-[15px] text-[#e8a838] hover:text-[#d4952f] transition-colors">Trust Index</a>
             @endif
         </div>
         <div x-data="{ open: false }" class="relative">
@@ -95,6 +96,37 @@
                         <p class="mt-6 text-sm text-gray-400 font-medium leading-relaxed px-4">
                             Kelayakan pembiayaan Anda berdasarkan metrik keaktifan & administrasi.
                         </p>
+                        
+                        <!-- Progress Bar Breakdown -->
+                        <div class="w-full mt-8 space-y-4 px-2">
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                    <span>Partisipasi</span>
+                                    <span class="text-[#e8a838]">{{ $trustMetric->participation_score ?? 50 }}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#e8a838] rounded-full transition-all duration-1000" style="width: {{ $trustMetric->participation_score ?? 50 }}%"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                    <span>Integritas</span>
+                                    <span class="text-[#e8a838]">{{ $trustMetric->integrity_score ?? 50 }}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#e8a838] rounded-full transition-all duration-1000" style="width: {{ $trustMetric->integrity_score ?? 50 }}%"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                    <span>Konsistensi</span>
+                                    <span class="text-[#e8a838]">{{ $trustMetric->reliability_score ?? 50 }}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#e8a838] rounded-full transition-all duration-1000" style="width: {{ $trustMetric->reliability_score ?? 50 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Savings Cards Section -->
@@ -200,11 +232,11 @@
                     <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-4">
                             <span class="text-[14px] font-bold text-gray-800">Modal Tersedia</span>
-                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                            <svg class="w-5 h-5 text-[#e8a838]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                         </div>
                         <div class="text-[32px] font-bold text-gray-900 mb-1 tracking-tight">Rp {{ number_format($availableCapital, 0, ',', '.') }}</div>
                         <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ $likuiditas }}%</div>
-                        <div class="flex items-center text-[12px] font-bold text-emerald-500">
+                        <div class="flex items-center text-[12px] font-bold text-[#e8a838]">
                             <span>Stabil</span>
                             <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
                         </div>
@@ -229,9 +261,9 @@
                             <span class="text-[14px] font-bold text-gray-800">Status Update</span>
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        <div class="text-[28px] font-bold text-emerald-500 mb-1 tracking-tight truncate">{{ $terakhirDiperbarui }}</div>
+                        <div class="text-[28px] font-bold text-[#e8a838] mb-1 tracking-tight truncate">{{ $terakhirDiperbarui }}</div>
                         <div class="text-[12px] text-gray-500 mb-4">Pembaruan Modal Koperasi</div>
-                        <div class="flex items-center text-[12px] font-bold text-emerald-500">
+                        <div class="flex items-center text-[12px] font-bold text-[#e8a838]">
                             <span>Aktif</span>
                             <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
                         </div>
@@ -258,7 +290,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
-                        <div class="px-3 py-1.5 bg-emerald-50/80 text-emerald-600 text-[12px] font-bold rounded-md">Profil Koperasi</div>
+                        <div class="px-3 py-1.5 bg-orange-50 text-[#e8a838] text-[12px] font-bold rounded-md">Profil Koperasi</div>
                         @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi']))
                             <a href="{{ route('koperasi.edit') }}" class="text-[12px] font-bold text-[#e8a838] bg-orange-50 px-4 py-1.5 rounded-full hover:bg-orange-100 transition-colors">Edit Profil</a>
                         @endif
@@ -282,7 +314,7 @@
 
                 <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
-                        <div class="px-3 py-1.5 bg-blue-50/80 text-blue-600 text-[12px] font-bold rounded-md">Riwayat Perubahan Modal</div>
+                        <div class="px-3 py-1.5 bg-orange-50 text-[#e8a838] text-[12px] font-bold rounded-md">Riwayat Perubahan Modal</div>
                         <span class="text-[10px] bg-white px-3 py-1 rounded-full border border-gray-200 font-bold text-gray-400">LIHAT SEMUA</span>
                     </div>
                     <div class="overflow-x-auto">
@@ -311,6 +343,10 @@
 
             <div id="aspiration-management" class="w-full pb-10">
                 <livewire:admin.aspirations />
+            </div>
+
+            <div id="trust-management" class="w-full pb-10">
+                <livewire:admin.trust-management />
             </div>
         @endif
     </div>
