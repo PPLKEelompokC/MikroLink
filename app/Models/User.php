@@ -58,4 +58,23 @@ class User extends Authenticatable // implements MustVerifyEmail
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
+
+    /**
+     * Relasi ke semua setoran simpanan milik user ini
+     */
+    public function deposits()
+    {
+        return $this->hasMany(Deposit::class);
+    }
+
+    /**
+     * Helper: Total simpanan berdasarkan jenis dan status APPROVED
+     */
+    public function totalSimpanan(string $type): int
+    {
+        return $this->deposits()
+            ->where('type', $type)
+            ->where('status', 'APPROVED')
+            ->sum('amount');
+    }
 }
