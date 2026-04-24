@@ -9,6 +9,10 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    {{-- WAJIB: Tambahkan script Livewire & Flux agar komponen muncul --}}
+    @livewireStyles
+    @fluxStyles
+
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; margin: 0; overflow-x: hidden; }
 
@@ -28,7 +32,7 @@
         }
         .loader-hidden { opacity: 0; visibility: hidden; }
 
-        /* 2. DIAMOND PATTERN GLOBAL (GAK SAKIT MATA) */
+        /* DIAMOND PATTERN GLOBAL */
         .bg-global-diamond {
             position: fixed; inset: 0; z-index: -1;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='160' viewBox='0 0 300 160'%3E%3Cpath d='M150 0 L300 80 L150 160 L0 80 Z' fill='%23e4e7ec' fill-opacity='0.4' /%3E%3C/svg%3E");
@@ -36,18 +40,42 @@
             -webkit-mask-image: linear-gradient(to bottom, white 10%, transparent 80%);
             mask-image: linear-gradient(to bottom, white 10%, transparent 80%);
         }
+
+        /* Margin untuk konten agar tidak tertutup sidebar di desktop */
+        @media (min-width: 1024px) {
+            .has-sidebar { margin-left: 16rem; }
+        }
     </style>
 </head>
 <body>
+    {{-- Loader 3D MikroLink --}}
     <div id="loader">
         <img src="{{ asset('images/logo-mikrolink.png') }}" class="logo-3d">
     </div>
 
     <div class="bg-global-diamond"></div>
 
-    @yield('content')
+    {{-- 1. Tampilkan Sidebar hanya jika user sudah Login --}}
+    @auth
+        @include('components.layouts.app.sidebar')
+    @endauth
+
+    {{-- 2. Kontainer Utama --}}
+    <main class="{{ auth()->check() ? 'has-sidebar' : '' }}">
+        {{-- Untuk Blade biasa (Dashboard Lama/Login/Register) --}}
+        @yield('content')
+
+        {{-- Untuk Livewire Volt (Fitur Ajukan Pinjaman/Setor) --}}
+        @isset($slot)
+            {{ $slot }}
+        @endisset
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    {{-- WAJIB: Tambahkan script Livewire & Flux di bawah --}}
+    @livewireScripts
+    @fluxScripts
 
     <script>
         window.addEventListener("load", () => {

@@ -43,48 +43,56 @@ Route::get('/cara-kerja', function () {
     return view('caraKerja');
 })->name('caraKerja');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// --- Protected Routes (Must be Logged In) ---
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // Dashboard Utama
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', 'settings/profile');
-    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
-    Volt::route('settings/password', 'settings.password')->name('settings.password');
-    Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
-    Volt::route('simpanan/setor', 'simpanan.create-setoran')->name('simpanan.setor');
-    Volt::route('admin/simpanan/validasi', 'admin.simpanan.validasi-setoran')->name('admin.simpanan.validasi');
+    // User Settings (Digabung agar tidak duplikat)
+    Route::prefix('settings')->group(function () {
+        Route::redirect('/', 'settings/profile');
+        Volt::route('profile', 'settings.profile')->name('settings.profile');
+        Volt::route('password', 'settings.password')->name('settings.password');
+        Volt::route('appearance', 'settings.appearance')->name('settings.appearance');
+    });
+
+    // --- Fitur Anggota: Simpanan ---
+    Route::prefix('simpanan')->group(function () {
+        Volt::route('setor', 'simpanan.create-setoran')->name('simpanan.setor');
+    });
+
+    // --- Fitur Anggota: Pinjaman ---
+    Route::prefix('pinjaman')->group(function () {
+        Volt::route('ajukan', 'pinjaman.ajukan-pinjaman')->name('pinjaman.ajukan');
+    });
+
+    // --- Fitur Anggota: Komunitas & Dokumen ---
+    Route::get('/community/upload', function () {
+        return view('community.upload');
+    })->name('docs.upload.form');
+    
+    Route::post('/documents/upload', [CommunityDocumentController::class, 'store'])->name('docs.store');
+
+    // --- Admin & Manager Area (Keamanan Role) ---
+    Route::middleware(['role:Admin Koperasi,Manajer Koperasi'])->prefix('admin')->group(function () {
+        
+        // Manajemen Profil Koperasi
+        Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
+        Route::put('/koperasi/update', [KoperasiController::class, 'update'])->name('koperasi.update');
+        Route::post('/koperasi/adjust-capital', [KoperasiController::class, 'adjustCapital'])->name('koperasi.adjustCapital');
+
+        // Validasi Simpanan
+        Volt::route('simpanan/validasi', 'admin.simpanan.validasi-setoran')->name('admin.simpanan.validasi');
+
+        // Validasi Pinjaman
+        Volt::route('pinjaman/validasi', 'admin.pinjaman.validasi-pinjaman')->name('admin.pinjaman.validasi');
+
+        // Validasi Dokumen Komunitas
+        Route::get('/documents', [CommunityDocumentController::class, 'index'])->name('admin.docs.index');
+        Route::patch('/documents/{id}/status', [CommunityDocumentController::class, 'updateStatus'])->name('docs.update');
+    });
 });
 
-Route::middleware('auth')->group(function () {
-    Volt::route('/settings/profile', 'settings.profile')->name('settings.profile');
-    Volt::route('/settings/password', 'settings.password')->name('settings.password');
-    Volt::route('/settings/appearance', 'settings.appearance')->name('settings.appearance');
-});
-
-// --- Feature: Validasi Dokumen Komunitas (Fullstack) ---
-
-// 1. User Side: Halaman untuk komunitas mengunggah berkas
-Route::get('/community/upload', function () {
-    return view('community.upload'); // Pastikan file view ini sudah dibuat
-})->name('docs.upload.form');
-
-// 2. Action: Proses simpan dokumen yang diunggah
-Route::post('/documents/upload', [CommunityDocumentController::class, 'store'])
-    ->name('docs.store');
-
-// --- Admin Area (Gunakan prefix 'admin' agar rapi) ---
-Route::prefix('admin')->group(function () {
-
-    // 3. Admin Side: Halaman daftar semua dokumen yang masuk untuk divalidasi
-    Route::get('/documents', [CommunityDocumentController::class, 'index'])
-        ->name('admin.docs.index');
-
-    // 4. Action: Update status (Approve/Reject) dokumen
-    Route::patch('/documents/{id}/status', [CommunityDocumentController::class, 'updateStatus'])
-        ->name('docs.update');
-
-});
-
-// --- Livewire / Auth Routes (Bawaan Laravel Breeze/Volt) ---
+// --- Livewire / Auth Routes ---
 require __DIR__.'/auth.php';

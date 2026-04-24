@@ -208,7 +208,7 @@
     function handleAjukanPinjaman(event) {
         event.preventDefault();
         // TODO: Replace '#' with the actual route, e.g.: window.location.href = '/pinjaman/ajukan';
-        alert('Fitur Ajukan Pinjaman akan segera tersedia.');
+        window.location.href = "{{ route('pinjaman.ajukan') }}";
     }
 
     document.addEventListener('DOMContentLoaded', function () {
