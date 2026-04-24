@@ -12,8 +12,9 @@
         </div>
         <div class="hidden lg:flex items-center gap-8">
             <a href="#" class="font-bold text-[15px] text-[#e8a838]">Dashboard</a>
-            @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi']))
+            @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
                 <a href="{{ route('koperasi.edit') }}" class="font-bold text-[15px] text-emerald-600 hover:text-emerald-700 transition-colors">Manage Koperasi</a>
+                <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
             @endif
         </div>
         <div x-data="{ open: false }" class="relative">
@@ -33,7 +34,6 @@
                         <p class="text-sm font-bold text-gray-800">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
                     </div>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#e8a838] transition-colors">Edit Profile</a>
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">Logout</button>
@@ -45,380 +45,323 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Wrapper -->
     <div class="w-full max-w-[1400px] mx-auto px-10 py-12 flex flex-col gap-10 relative z-10">
         
-        <!-- Header Section -->
-        <div class="w-full flex items-center justify-between">
-            <div class="max-w-3xl">
-                <h1 class="text-[40px] font-bold text-gray-900 leading-tight tracking-tight">
-                    Selamat datang, {{ auth()->user()?->name ?? 'Admin' }}! Kelola profil koperasi dan pantau pergerakan modal secara real-time.
-                </h1>
-            </div>
-            <div class="hidden lg:block">
-                <img src="{{ asset('images/flying_girl.png') }}" alt="Flying Girl Illustration" class="w-[220px] h-auto opacity-90 object-contain">
-            </div>
-        </div>
-
-        <!-- Activity Summary (Replicating Mockup exactly but with FR-02 Data) -->
-        <div>
-            <h2 class="text-[16px] font-bold text-gray-800 mb-4">Ringkasan Aktivitas Hari Ini</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                <!-- Modal Tersedia Card (Functional) -->
-                <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-[14px] font-bold text-gray-800">Modal Tersedia</span>
-                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+        @if(auth()->user()->role === 'user')
+            <!-- MEMBER / USER DASHBOARD VIEW -->
+            <div class="flex flex-col gap-8">
+                <!-- Profile Header -->
+                <div class="flex items-center justify-between bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
+                    <div class="flex items-center gap-6">
+                        <div class="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold uppercase">
+                            {{ substr(auth()->user()->name, 0, 1) }}
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">{{ auth()->user()->name }}</h1>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Status Keanggotaan:</span>
+                                @if($kycStatus === 'VERIFIED')
+                                    <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-extrabold rounded-full border border-emerald-100 uppercase tracking-widest">Verified (KYC)</span>
+                                @else
+                                    <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-extrabold rounded-full border border-amber-100 uppercase tracking-widest">Pending Verification</span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-[32px] font-bold text-gray-900 mb-1 tracking-tight">Rp {{ number_format($availableCapital, 0, ',', '.') }}</div>
-                    <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ $likuiditas }}%</div>
-                    <div class="flex items-center text-[12px] font-bold text-emerald-500">
-                        <span>Stabil</span>
-                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                    <div class="hidden md:flex gap-4">
+                        <a href="{{ route('docs.upload.form') }}" class="px-6 py-3 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-2xl hover:bg-gray-50 transition-all">Upload Dokumen</a>
+                        <a href="{{ route('aspirationPortal') }}" class="px-6 py-3 bg-blue-600 text-white font-bold text-sm rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">Portal Aspirasi</a>
                     </div>
                 </div>
 
-                <!-- Total Transaksi Card (Replaces Skor Kredit visually) -->
-                <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm flex flex-col relative overflow-hidden items-center justify-center">
-                    <div class="absolute top-6 left-6 text-[14px] font-bold text-gray-800">Total Transaksi</div>
-                    <div class="absolute top-6 right-6 text-amber-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Trust Score Widget -->
+                    <div class="lg:col-span-1 bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
+                        <h3 class="text-gray-500 font-bold text-sm uppercase tracking-widest mb-6">Indeks Kepercayaan</h3>
+                        <div class="relative w-40 h-40 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="80" cy="80" r="70" stroke="currentColor" stroke-width="12" fill="transparent" class="text-gray-100" />
+                                <circle cx="80" cy="80" r="70" stroke="currentColor" stroke-width="12" fill="transparent" class="text-blue-600" 
+                                    stroke-dasharray="440" 
+                                    stroke-dashoffset="{{ 440 - (440 * $trustScore / 100) }}"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <div class="absolute flex flex-col items-center">
+                                <span class="text-4xl font-extrabold text-gray-900">{{ $trustScore }}</span>
+                                <span class="text-[10px] font-bold text-gray-400">SCORE</span>
+                            </div>
+                        </div>
+                        <p class="mt-6 text-sm text-gray-400 font-medium leading-relaxed px-4">
+                            Kelayakan pembiayaan Anda berdasarkan metrik keaktifan & administrasi.
+                        </p>
                     </div>
-                    <div class="mt-8 relative flex items-center justify-center w-28 h-28">
-                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path class="text-gray-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
-                            <path class="text-amber-500" stroke-dasharray="{{ min(100, $totalTransaksi * 5) }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
-                        </svg>
-                        <div class="absolute text-[24px] font-bold text-gray-900">{{ $totalTransaksi }}</div>
+
+                    <!-- Savings Cards Section -->
+                    <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col gap-4">
+                            <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Simpanan Pokok</p>
+                                <p class="text-xl font-extrabold text-gray-900 mt-1">Rp {{ number_format($simpananPokok, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col gap-4">
+                            <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Simpanan Wajib</p>
+                                <p class="text-xl font-extrabold text-gray-900 mt-1">Rp {{ number_format($simpananWajib, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm flex flex-col gap-4">
+                            <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Simpanan Sukarela</p>
+                                <p class="text-xl font-extrabold text-gray-900 mt-1">Rp {{ number_format($simpananSukarela, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                        <!-- Summary Card -->
+                        <div class="md:col-span-3 bg-gradient-to-r from-gray-900 to-gray-800 p-8 rounded-[32px] text-white flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Total Akumulasi Simpanan</p>
+                                <p class="text-3xl font-extrabold mt-2">Rp {{ number_format($simpananPokok + $simpananWajib + $simpananSukarela, 0, ',', '.') }}</p>
+                            </div>
+                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Update Terakhir Card (Replaces Dampak SDG visually) -->
-                <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-[14px] font-bold text-gray-800">Status Update</span>
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <!-- Aspiration Tracker -->
+                <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden mb-12">
+                    <div class="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
+                        <h3 class="font-bold text-gray-800">Pelacakan Aspirasi Terbaru</h3>
+                        <a href="{{ route('aspirationPortal') }}" class="text-xs font-bold text-blue-600 hover:underline">Lihat Semua</a>
                     </div>
-                    <div class="text-[28px] font-bold text-emerald-500 mb-1 tracking-tight truncate">{{ $terakhirDiperbarui }}</div>
-                    <div class="text-[12px] text-gray-500 mb-4">Pembaruan Modal Koperasi</div>
-                    <div class="flex items-center text-[12px] font-bold text-emerald-500">
-                        <span>Aktif</span>
-                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50/50">
+                                <tr class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <th class="px-8 py-4">Tanggal</th>
+                                    <th class="px-8 py-4">Subjek</th>
+                                    <th class="px-8 py-4 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                @forelse($userAspirations as $asp)
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-8 py-5 text-sm text-gray-500">{{ $asp->created_at->translatedFormat('d M Y') }}</td>
+                                        <td class="px-8 py-5 text-sm font-bold text-gray-900">{{ $asp->subject }}</td>
+                                        <td class="px-8 py-5">
+                                            <div class="flex justify-center">
+                                                @php
+                                                    $colors = ['pending' => 'bg-amber-50 text-amber-600', 'resolved' => 'bg-emerald-50 text-emerald-600', 'rejected' => 'bg-red-50 text-red-600'];
+                                                    $color = $colors[strtolower($asp->status)] ?? 'bg-gray-50 text-gray-600';
+                                                @endphp
+                                                <span class="px-2.5 py-1 rounded-md text-[10px] font-extrabold border {{ $color }} uppercase tracking-widest">{{ $asp->status }}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="px-8 py-12 text-center text-gray-400 italic text-sm">Belum ada data aspirasi diajukan.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
             </div>
-        </div>
-
-        <!-- Performa Kesehatan Finansial Section -->
-        <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 relative overflow-hidden">
-            <!-- Header -->
-            <div class="flex items-start justify-between mb-2">
-                <div>
-                    <h2 class="text-[22px] text-gray-900 leading-tight">
-                        <span>Peforma</span> <span class="font-bold">Kesehatan Finansial</span>
-                    </h2>
-                    <p class="text-[16px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
-                </div>
-                <a href="#" id="btn-ajukan-pinjaman" onclick="handleAjukanPinjaman(event)" class="bg-[#e8a838] hover:bg-[#d4952f] text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
-                    Ajukan Pinjaman
-                </a>
-            </div>
-
-            <!-- Chart Container -->
-            <div id="financialChart" class="w-full" style="min-height: 320px;"></div>
-        </div>
-
-        <!-- Bottom Grid Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-10">
+        @else
+            <!-- ADMIN / MANAGER DASHBOARD VIEW -->
             
-            <!-- Cooperative Profile Details Section -->
-            <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="px-3 py-1.5 bg-emerald-50/80 text-emerald-600 text-[12px] font-bold rounded-md">Profil Koperasi</div>
-                    @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi']))
-                    <a href="{{ route('koperasi.edit') }}" class="text-[12px] font-bold text-[#e8a838] bg-orange-50 px-4 py-1.5 rounded-full hover:bg-orange-100 transition-colors">Edit Profil</a>
-                    @endif
+            <div class="w-full flex items-center justify-between">
+                <div class="max-w-3xl">
+                    <h1 class="text-[40px] font-bold text-gray-900 leading-tight tracking-tight">
+                        Selamat datang, {{ auth()->user()->name }}! Kelola profil koperasi dan pantau pergerakan modal secara real-time.
+                    </h1>
                 </div>
-                
-                <div class="flex flex-col gap-6 mt-4">
-                    <div class="border-b border-gray-100 pb-4">
-                        <h4 class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-1">ID Koperasi</h4>
-                        <p class="text-[16px] font-bold text-gray-900">{{ $koperasi->id_koperasi }}</p>
+                <div class="hidden lg:block">
+                    <img src="{{ asset('images/flying_girl.png') }}" alt="Flying Girl Illustration" class="w-[220px] h-auto opacity-90 object-contain">
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-[16px] font-bold text-gray-800 mb-4">Ringkasan Aktivitas Hari Ini</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[14px] font-bold text-gray-800">Modal Tersedia</span>
+                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        </div>
+                        <div class="text-[32px] font-bold text-gray-900 mb-1 tracking-tight">Rp {{ number_format($availableCapital, 0, ',', '.') }}</div>
+                        <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ $likuiditas }}%</div>
+                        <div class="flex items-center text-[12px] font-bold text-emerald-500">
+                            <span>Stabil</span>
+                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                        </div>
                     </div>
-                    <div class="border-b border-gray-100 pb-4">
-                        <h4 class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nama Koperasi</h4>
-                        <p class="text-[16px] font-bold text-gray-900">{{ $koperasi->nama_koperasi }}</p>
+
+                    <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm flex flex-col relative overflow-hidden items-center justify-center">
+                        <div class="absolute top-6 left-6 text-[14px] font-bold text-gray-800">Total Transaksi</div>
+                        <div class="absolute top-6 right-6 text-amber-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <div class="mt-8 relative flex items-center justify-center w-28 h-28">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <path class="text-gray-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+                                <path class="text-amber-500" stroke-dasharray="{{ min(100, $totalTransaksi * 5) }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+                            </svg>
+                            <div class="absolute text-[24px] font-bold text-gray-900">{{ $totalTransaksi }}</div>
+                        </div>
                     </div>
+
+                    <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[14px] font-bold text-gray-800">Status Update</span>
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="text-[28px] font-bold text-emerald-500 mb-1 tracking-tight truncate">{{ $terakhirDiperbarui }}</div>
+                        <div class="text-[12px] text-gray-500 mb-4">Pembaruan Modal Koperasi</div>
+                        <div class="flex items-center text-[12px] font-bold text-emerald-500">
+                            <span>Aktif</span>
+                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 relative overflow-hidden">
+                <div class="flex items-start justify-between mb-2">
                     <div>
-                        <h4 class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-1">Alamat Operasional</h4>
-                        <p class="text-[14px] font-medium text-gray-700 leading-relaxed">{{ $koperasi->alamat }}</p>
+                        <h2 class="text-[22px] text-gray-900 leading-tight">
+                            <span>Peforma</span> <span class="font-bold">Kesehatan Finansial</span>
+                        </h2>
+                        <p class="text-[16px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
+                    </div>
+                    <a href="#" id="btn-ajukan-pinjaman" onclick="handleAjukanPinjaman(event)" class="bg-[#e8a838] hover:bg-[#d4952f] text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
+                        Ajukan Pinjaman
+                    </a>
+                </div>
+                <div id="financialChart" class="w-full" style="min-height: 320px;"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="px-3 py-1.5 bg-emerald-50/80 text-emerald-600 text-[12px] font-bold rounded-md">Profil Koperasi</div>
+                        @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi']))
+                            <a href="{{ route('koperasi.edit') }}" class="text-[12px] font-bold text-[#e8a838] bg-orange-50 px-4 py-1.5 rounded-full hover:bg-orange-100 transition-colors">Edit Profil</a>
+                        @endif
+                    </div>
+                    
+                    <div class="flex flex-col gap-6 mt-4">
+                        <div class="border-b border-gray-100 pb-4">
+                            <h4 class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-1">ID Koperasi</h4>
+                            <p class="text-[16px] font-bold text-gray-900">{{ $koperasi->id_koperasi }}</p>
+                        </div>
+                        <div class="border-b border-gray-100 pb-4">
+                            <h4 class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nama Koperasi</h4>
+                            <p class="text-[16px] font-bold text-gray-900">{{ $koperasi->nama_koperasi }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-1">Alamat Operasional</h4>
+                            <p class="text-[14px] font-medium text-gray-700 leading-relaxed">{{ $koperasi->alamat }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="px-3 py-1.5 bg-blue-50/80 text-blue-600 text-[12px] font-bold rounded-md">Riwayat Perubahan Modal</div>
+                        <span class="text-[10px] bg-white px-3 py-1 rounded-full border border-gray-200 font-bold text-gray-400">LIHAT SEMUA</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <tbody class="divide-y divide-gray-50">
+                                @forelse($capitalLogs as $log)
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-8 py-5">
+                                            <p class="text-xs font-bold text-black">{{ $log->type }}</p>
+                                            <p class="text-[10px] text-gray-400">{{ $log->action_by }}</p>
+                                        </td>
+                                        <td class="px-8 py-5 text-right font-extrabold text-emerald-600 text-sm">
+                                            Rp {{ number_format($log->amount, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-8 py-10 text-center text-gray-400 italic">Belum ada log tersedia.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Table Section (Capital Logs) -->
-            <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="px-3 py-1.5 bg-blue-50/80 text-blue-600 text-[12px] font-bold rounded-md">Riwayat Transaksi Modal</div>
-                    <div class="flex gap-2">
-                        <button class="text-[12px] font-bold text-gray-500 bg-gray-50 px-4 py-1.5 rounded-full hover:bg-gray-100 border border-gray-200 transition-colors">Export</button>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-[12px]">
-                        <thead class="text-gray-900 font-bold border-b border-gray-100">
-                            <tr>
-                                <th class="pb-3">ID Transaksi</th>
-                                <th class="pb-3">Anggota</th>
-                                <th class="pb-3">Jenis</th>
-                                <th class="pb-3">Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-600 font-medium">
-                            @forelse($capitalLogs as $log)
-                            <tr class="border-b border-gray-50 last:border-0">
-                                <td class="py-4">{{ $log->transaction_id }}</td>
-                                <td class="py-4">{{ $log->member_name }}</td>
-                                <td class="py-4">{{ $log->type }}</td>
-                                <td class="py-4 font-bold text-{{ $log->amount < 0 ? 'red' : 'emerald' }}-600">Rp {{ number_format($log->amount, 0, ',', '.') }}</td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="py-8 text-center text-gray-500 italic">Belum ada riwayat transaksi.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+            <div id="aspiration-management" class="w-full pb-10">
+                <livewire:admin.aspirations />
             </div>
-
-        </div>
+        @endif
     </div>
 @endsection
 
 @push('scripts')
 <script>
-    /**
-     * Placeholder function for "Ajukan Pinjaman" button.
-     * Replace the URL below with the actual route when the loan application page is ready.
-     */
     function handleAjukanPinjaman(event) {
         event.preventDefault();
-        // TODO: Replace '#' with the actual route, e.g.: window.location.href = '/pinjaman/ajukan';
-        window.location.href = "{{ route('pinjaman.ajukan') }}";
+        alert('Fitur Ajukan Pinjaman akan segera tersedia.');
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const chartLabels = @json($chartLabels);
-        const omzetData = @json($omzetData);
-        const creditScoreData = @json($creditScoreData);
-        const omzetPercentage = {{ $omzetPercentage }};
-        const latestCreditScore = {{ $latestCreditScore }};
+        @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
+            const chartLabels = @json($chartLabels ?? []);
+            const omzetData = @json($omzetData ?? []);
+            const creditScoreData = @json($creditScoreData ?? []);
+            const omzetPercentage = {{ $omzetPercentage ?? 0 }};
+            const latestCreditScore = {{ $latestCreditScore ?? 0 }};
 
-        if (chartLabels.length === 0) {
-            document.getElementById('financialChart').innerHTML =
-                '<div class="flex items-center justify-center h-64 text-gray-400 text-sm italic">Belum ada data performa finansial.</div>';
-            return;
-        }
+            const chartEl = document.getElementById('financialChart');
+            if (!chartEl) return;
 
-        const options = {
-            series: [
-                {
-                    name: 'Omzet',
-                    type: 'area',
-                    data: omzetData,
-                },
-                {
-                    name: 'Skor Kredit',
-                    type: 'line',
-                    data: creditScoreData,
-                },
-            ],
-            chart: {
-                height: 320,
-                type: 'line',
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                toolbar: { show: false },
-                zoom: { enabled: false },
-                dropShadow: {
-                    enabled: true,
-                    top: 4,
-                    left: 0,
-                    blur: 8,
-                    opacity: 0.12,
-                    color: ['#3b82f6', '#f59e0b'],
-                },
-                animations: {
-                    enabled: true,
-                    easing: 'easeinout',
-                    speed: 1200,
-                    animateGradually: { enabled: true, delay: 150 },
-                    dynamicAnimation: { enabled: true, speed: 350 },
-                },
-            },
-            colors: ['#3b82f6', '#f59e0b'],
-            fill: {
-                type: ['gradient', 'solid'],
-                gradient: {
-                    shade: 'light',
-                    type: 'vertical',
-                    shadeIntensity: 0.3,
-                    opacityFrom: 0.35,
-                    opacityTo: 0.05,
-                    stops: [0, 90, 100],
-                },
-            },
-            stroke: {
-                width: [3, 3],
-                curve: 'smooth',
-            },
-            markers: {
-                size: [0, 0],
-                hover: { sizeOffset: 5 },
-                strokeWidth: 3,
-                strokeColors: '#fff',
-                discrete: [
-                    {
-                        seriesIndex: 0,
-                        dataPointIndex: omzetData.length - 2,
-                        fillColor: '#3b82f6',
-                        strokeColor: '#fff',
-                        size: 6,
-                    },
-                    {
-                        seriesIndex: 1,
-                        dataPointIndex: creditScoreData.length - 2,
-                        fillColor: '#f59e0b',
-                        strokeColor: '#fff',
-                        size: 6,
-                    },
+            if (chartLabels.length === 0) {
+                chartEl.innerHTML = '<div class="flex items-center justify-center h-64 text-gray-400 text-sm italic">Belum ada data performa finansial.</div>';
+                return;
+            }
+
+            const options = {
+                series: [
+                    { name: 'Omzet', type: 'area', data: omzetData },
+                    { name: 'Skor Kredit', type: 'line', data: creditScoreData }
                 ],
-            },
-            labels: chartLabels,
-            xaxis: {
-                type: 'category',
-                labels: {
-                    style: {
-                        colors: '#9ca3af',
-                        fontSize: '12px',
-                        fontWeight: 500,
-                    },
+                chart: {
+                    height: 320, type: 'line', fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    toolbar: { show: false }, zoom: { enabled: false },
+                    dropShadow: { enabled: true, top: 4, left: 0, blur: 8, opacity: 0.12, color: ['#3b82f6', '#f59e0b'] }
                 },
-                axisBorder: { show: false },
-                axisTicks: { show: false },
-            },
-            yaxis: [
-                {
-                    show: false,
-                    min: 0,
-                },
-                {
-                    show: false,
-                    opposite: true,
-                    min: 0,
-                    max: 100,
-                },
-            ],
-            grid: {
-                show: true,
-                borderColor: '#f3f4f6',
-                strokeDashArray: 4,
-                xaxis: { lines: { show: false } },
-                yaxis: { lines: { show: true } },
-                padding: { top: 0, right: 10, bottom: 0, left: 10 },
-            },
-            legend: { show: false },
-            tooltip: {
-                shared: false,
-                intersect: true,
-                custom: function({ series, seriesIndex, dataPointIndex, w }) {
-                    const seriesName = w.globals.seriesNames[seriesIndex];
-                    let value = '';
-                    let bgColor = '';
-                    let textColor = '';
+                colors: ['#3b82f6', '#f59e0b'],
+                fill: { type: ['gradient', 'solid'], gradient: { shade: 'light', type: 'vertical', opacityFrom: 0.35, opacityTo: 0.05 } },
+                stroke: { width: [3, 3], curve: 'smooth' },
+                xaxis: { categories: chartLabels, labels: { style: { colors: '#9ca3af', fontSize: '12px', fontWeight: 500 } } },
+                yaxis: [{ show: false }, { show: false, opposite: true, min: 0, max: 100 }],
+                grid: { show: true, borderColor: '#f3f4f6', strokeDashArray: 4 },
+                legend: { show: false },
+                tooltip: { shared: true, intersect: false },
+            };
 
-                    if (seriesIndex === 0) {
-                        // Omzet
-                        const pct = series[0][dataPointIndex] > 0
-                            ? ((series[0][dataPointIndex] / Math.max(...omzetData)) * 100).toFixed(1)
-                            : '0';
-                        value = pct + '%';
-                        bgColor = '#eff6ff';
-                        textColor = '#3b82f6';
-                    } else {
-                        // Skor Kredit
-                        value = series[1][dataPointIndex].toFixed(0) + '%';
-                        bgColor = '#fffbeb';
-                        textColor = '#f59e0b';
-                    }
-
-                    return `<div style="
-                        background: ${bgColor};
-                        border: 1px solid ${textColor}20;
-                        border-radius: 8px;
-                        padding: 8px 14px;
-                        font-family: 'Plus Jakarta Sans', sans-serif;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                    ">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 13px; font-weight: 600; color: #374151;">${seriesName}</span>
-                            <span style="font-size: 15px; font-weight: 800; color: ${textColor};">${value}</span>
-                        </div>
-                    </div>`;
-                },
-            },
-            annotations: {
-                points: [
-                    {
-                        x: chartLabels[chartLabels.length - 2],
-                        y: omzetData[omzetData.length - 2],
-                        seriesIndex: 0,
-                        label: {
-                            text: 'Omzet  ' + omzetPercentage + '%',
-                            borderColor: '#3b82f6',
-                            borderWidth: 0,
-                            borderRadius: 8,
-                            style: {
-                                color: '#1e40af',
-                                background: '#dbeafe',
-                                fontSize: '12px',
-                                fontWeight: 700,
-                                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                padding: { left: 10, right: 10, top: 6, bottom: 6 },
-                            },
-                            offsetY: -15,
-                        },
-                    },
-                    {
-                        x: chartLabels[chartLabels.length - 2],
-                        y: creditScoreData[creditScoreData.length - 2],
-                        yAxisIndex: 1,
-                        seriesIndex: 1,
-                        label: {
-                            text: 'Skor Kredit  ' + latestCreditScore.toFixed(0) + '%',
-                            borderColor: '#f59e0b',
-                            borderWidth: 0,
-                            borderRadius: 8,
-                            style: {
-                                color: '#92400e',
-                                background: '#fef3c7',
-                                fontSize: '12px',
-                                fontWeight: 700,
-                                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                padding: { left: 10, right: 10, top: 6, bottom: 6 },
-                            },
-                            offsetY: -15,
-                        },
-                    },
-                ],
-            },
-        };
-
-        const chart = new ApexCharts(document.getElementById('financialChart'), options);
-        chart.render();
+            const chart = new ApexCharts(chartEl, options);
+            chart.render();
+        @endif
     });
 </script>
 @endpush

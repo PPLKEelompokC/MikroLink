@@ -145,22 +145,30 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-8 py-5 text-sm font-medium text-gray-600">19 April 2026</td>
-                            <td class="px-8 py-5 text-sm font-bold text-gray-900">Modal Usaha Warung Sembako</td>
-                            <td class="px-8 py-5">
-                                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 text-[11px] font-bold rounded-full uppercase">Ditinjau</span>
-                            </td>
-                            <td class="px-8 py-5 text-right font-bold text-[#013599] text-sm cursor-pointer hover:underline">Detail</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-8 py-5 text-sm font-medium text-gray-600">15 April 2026</td>
-                            <td class="px-8 py-5 text-sm font-bold text-gray-900">Beasiswa Anak Sekolah Dasar</td>
-                            <td class="px-8 py-5">
-                                <span class="px-3 py-1 bg-green-100 text-green-700 text-[11px] font-bold rounded-full uppercase">Disetujui</span>
-                            </td>
-                            <td class="px-8 py-5 text-right font-bold text-[#013599] text-sm cursor-pointer hover:underline">Detail</td>
-                        </tr>
+                        @forelse($aspirations as $aspiration)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-8 py-5 text-sm font-medium text-gray-600">{{ $aspiration->created_at->format('d M Y') }}</td>
+                                <td class="px-8 py-5 text-sm font-bold text-gray-900">{{ $aspiration->subject }}</td>
+                                <td class="px-8 py-5">
+                                    @php
+                                        $statusStyles = [
+                                            'pending' => 'bg-amber-50 text-amber-600 border border-amber-100',
+                                            'resolved' => 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+                                            'rejected' => 'bg-red-50 text-red-600 border border-red-100',
+                                        ];
+                                        $style = $statusStyles[strtolower($aspiration->status)] ?? 'bg-gray-50 text-gray-600 border border-gray-100';
+                                    @endphp
+                                    <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase {{ $style }}">
+                                        {{ $aspiration->status }}
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5 text-right font-bold text-[#013599] text-sm cursor-pointer hover:underline">Detail</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-8 py-10 text-center text-gray-400 italic">Belum ada aspirasi yang diajukan.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

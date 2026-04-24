@@ -3,11 +3,65 @@
 namespace App\Http\Controllers;
 
 use App\Models\Koperasi;
+use App\Models\Aspiration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+        
+        if ($user && $user->role === 'user') {
+            // Data for Member (User)
+            $trustScore = 50; 
+            $simpananPokok = 0;
+            $simpananWajib = 0;
+            $simpananSukarela = 0;
+
+            if (Schema::hasTable('trust_metrics')) {
+                $trustScore = DB::table('trust_metrics')->where('user_id', $user->id)->value('score') ?? 50;
+            }
+            
+            if (Schema::hasTable('simpanans')) {
+                $simpananData = DB::table('simpanans')
+                    ->where('user_id', $user->id)
+                    ->where('status', 'approved')
+                    ->select('jenis_simpanan', DB::raw('SUM(nominal) as total'))
+                    ->groupBy('jenis_simpanan')
+                    ->pluck('total', 'jenis_simpanan');
+
+                $simpananPokok = $simpananData->get('Pokok', 0);
+                $simpananWajib = $simpananData->get('Wajib', 0);
+                $simpananSukarela = $simpananData->get('Sukarela', 0);
+            }
+
+            $userAspirations = Aspiration::where('user_id', $user->id)
+                ->latest()
+                ->take(3)
+                ->get();
+
+            $kycStatus = 'PENDING';
+            if (Schema::hasTable('community_documents')) {
+                $kycStatus = DB::table('community_documents')
+                    ->where('user_id', $user->id)
+                    ->where('status', 'approved')
+                    ->exists() ? 'VERIFIED' : 'PENDING';
+            }
+
+            return view('dashboard', compact(
+                'trustScore',
+                'simpananPokok',
+                'simpananWajib',
+                'simpananSukarela',
+                'userAspirations',
+                'kycStatus'
+            ));
+        }
+
+        // --- Existing Admin Logic ---
         $koperasi = Koperasi::with(['capitalLogs', 'financialRecords'])->firstOrCreate(
             ['id_koperasi' => 'KOP-001'],
             ['nama_koperasi' => 'Koperasi MikroLink', 'alamat' => 'Jl. Merdeka No 1', 'saldo_kas' => 350500000]
