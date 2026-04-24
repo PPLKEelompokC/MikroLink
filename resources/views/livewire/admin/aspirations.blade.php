@@ -31,8 +31,8 @@ new class extends Component {
             <h2 class="text-xl font-extrabold text-gray-900">Aspiration Management Portal</h2>
             <p class="text-xs text-gray-400 font-medium">Kelola dan tinjau semua aspirasi dari anggota koperasi.</p>
         </div>
-        <div class="bg-blue-50 px-4 py-2 rounded-xl">
-            <span class="text-blue-600 text-xs font-bold uppercase tracking-widest">Admin Control Panel</span>
+        <div class="bg-orange-50 px-4 py-2 rounded-xl">
+            <span class="text-[#e8a838] text-xs font-bold uppercase tracking-widest">Admin Control Panel</span>
         </div>
     </div>
 
