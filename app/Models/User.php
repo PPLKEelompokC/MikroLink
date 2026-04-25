@@ -77,4 +77,12 @@ class User extends Authenticatable // implements MustVerifyEmail
             ->where('status', 'APPROVED')
             ->sum('amount');
     }
+
+    /**
+     * Get the trust metric associated with the user.
+     */
+    public function trustMetric()
+    {
+        return $this->hasOne(TrustMetric::class);
+    }
 }

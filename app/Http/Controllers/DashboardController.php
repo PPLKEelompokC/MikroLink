@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Koperasi;
 use App\Models\Aspiration;
 use App\Models\Deposit;
+use App\Models\TrustMetric;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -18,11 +19,13 @@ class DashboardController extends Controller
         if ($user && $user->role === 'user') {
 
             // --- Trust Score ---
-            $trustScore = 50;
+            $trustMetric = $user->trustMetric;
+            $trustScore  = $trustMetric ? $trustMetric->final_index : 50;
+
             if (Schema::hasTable('trust_metrics')) {
                 $trustScore = DB::table('trust_metrics')
                     ->where('user_id', $user->id)
-                    ->value('score') ?? 50;
+                    ->value('score') ?? $trustScore;
             }
 
             // --- Simpanan (dari tabel deposits) ---
@@ -46,6 +49,7 @@ class DashboardController extends Controller
             }
 
             return view('dashboard', compact(
+                'trustMetric',
                 'trustScore',
                 'simpananPokok',
                 'simpananWajib',

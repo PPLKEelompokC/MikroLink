@@ -12,8 +12,8 @@
         <div class="hidden lg:flex items-center gap-8">
             <a href="#" class="font-bold text-[15px] text-[#e8a838]">Dashboard</a>
             @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
+                {{-- Conflict 1 resolved: gabung nav links dari kedua branch --}}
                 <a href="{{ route('koperasi.edit') }}" class="font-bold text-[15px] text-emerald-600 hover:text-emerald-700 transition-colors">Manage Koperasi</a>
-                {{-- Link Validasi Setoran untuk Admin --}}
                 <a href="{{ route('admin.simpanan.validasi') }}"
                     class="font-bold text-[15px] text-orange-600 hover:text-orange-700 transition-colors flex items-center gap-1.5">
                     Validasi Setoran
@@ -24,6 +24,7 @@
                     @endif
                 </a>
                 <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
+                <a href="#trust-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Trust Index</a>
             @endif
         </div>
         <div x-data="{ open: false }" class="relative">
@@ -104,6 +105,37 @@
                         <p class="mt-6 text-sm text-gray-400 font-medium leading-relaxed px-4">
                             Kelayakan pembiayaan Anda berdasarkan metrik keaktifan & administrasi.
                         </p>
+
+                        {{-- Progress Bar dari main --}}
+                        <div class="w-full mt-8 space-y-4 px-2">
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                    <span>Partisipasi</span>
+                                    <span class="text-[#e8a838]">{{ $trustMetric->participation_score ?? 50 }}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#e8a838] rounded-full transition-all duration-1000" style="width: {{ $trustMetric->participation_score ?? 50 }}%"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                    <span>Integritas</span>
+                                    <span class="text-[#e8a838]">{{ $trustMetric->integrity_score ?? 50 }}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#e8a838] rounded-full transition-all duration-1000" style="width: {{ $trustMetric->integrity_score ?? 50 }}%"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                    <span>Konsistensi</span>
+                                    <span class="text-[#e8a838]">{{ $trustMetric->reliability_score ?? 50 }}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-[#e8a838] rounded-full transition-all duration-1000" style="width: {{ $trustMetric->reliability_score ?? 50 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -146,7 +178,7 @@
                     </div>
                 </div>
 
-                {{-- ✅ SECTION BARU: Riwayat Setoran Terbaru --}}
+                {{-- Riwayat Setoran Terbaru --}}
                 <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
                     <div class="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
                         <div class="flex items-center gap-3">
@@ -291,6 +323,7 @@
                             <span class="text-[14px] font-bold text-gray-800">Modal Tersedia</span>
                             <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                         </div>
+                        {{-- Conflict 2 resolved: pakai ?? untuk safety --}}
                         <div class="text-[32px] font-bold text-gray-900 mb-1 tracking-tight">Rp {{ number_format($availableCapital ?? 0, 0, ',', '.') }}</div>
                         <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ $likuiditas ?? 0 }}%</div>
                         <div class="flex items-center text-[12px] font-bold text-emerald-500">
@@ -318,6 +351,7 @@
                             <span class="text-[14px] font-bold text-gray-800">Status Update</span>
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
+                        {{-- Conflict 3 resolved: pakai emerald-500 dari branch kamu + ?? untuk safety --}}
                         <div class="text-[28px] font-bold text-emerald-500 mb-1 tracking-tight truncate">{{ $terakhirDiperbarui ?? '-' }}</div>
                         <div class="text-[12px] text-gray-500 mb-4">Pembaruan Modal Koperasi</div>
                         <div class="flex items-center text-[12px] font-bold text-emerald-500">
@@ -398,6 +432,11 @@
 
             <div id="aspiration-management" class="w-full pb-10">
                 <livewire:admin.aspirations />
+            </div>
+
+            {{-- Trust management dari main --}}
+            <div id="trust-management" class="w-full pb-10">
+                <livewire:admin.trust-management />
             </div>
         @endif
     </div>
