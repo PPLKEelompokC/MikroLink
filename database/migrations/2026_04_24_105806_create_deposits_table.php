@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('community_documents', function (Blueprint $table) {
+        Schema::create('deposits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('document_name');
-            $table->string('file_path');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->text('note')->nullable();
+            $table->decimal('amount', 15, 2); // Nominal setoran
+            $table->enum('type', ['POKOK', 'WAJIB', 'SUKARELA']); 
+            $table->string('proof_path'); 
+            $table->enum('status', ['PENDING', 'APPROVED', 'REJECTED'])->default('PENDING');
+            $table->text('admin_note')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('community_documents');
+        Schema::dropIfExists('deposits');
     }
 };

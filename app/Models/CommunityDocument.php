@@ -9,7 +9,7 @@ class CommunityDocument extends Model
 {
     
     protected $fillable = [
-        'community_id', 
+        'user_id', 
         'document_name', 
         'file_path', 
         'status', 
