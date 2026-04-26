@@ -10,7 +10,7 @@
     <nav class="w-full h-[100px] flex justify-between items-center bg-white/90 backdrop-blur-sm px-12 border-b border-[#e4e4e4] sticky top-0 z-50">
         <div class="flex items-center">
             <a href="{{ route('home') }}">
-                <img src="{{ asset('images/Logo Mikrolink.png') }}" class="w-[130px] h-auto">
+                <img src="{{ asset('images/logo-mikrolink.png') }}" class="w-[130px] h-auto">
             </a>
         </div>
         <div class="flex items-center gap-10">
@@ -26,7 +26,7 @@
         <div class="text-center mb-10">
             <div class="mb-6 flex justify-center">
                 <div class="border border-[#e8a838]/30 bg-white px-6 py-2 rounded-full flex items-center gap-3 shadow-sm">
-                    <img src="{{ asset('images/Logo Mikrolink.png') }}" class="h-6 w-auto">
+                    <img src="{{ asset('images/logo-mikrolink.png') }}" class="h-6 w-auto">
                     <span class="font-bold text-gray-900 text-[14px]">Anggota MikroLink</span>
                 </div>
             </div>
@@ -35,7 +35,7 @@
         </div>
 
         <div class="w-full max-w-[480px] bg-white border border-[#e4e4e4] p-10 rounded-[32px] shadow-2xl shadow-gray-100">
-            <form action="#" method="POST" class="space-y-6">
+            <form action="{{ route('register') }}" method="POST" class="space-y-6">
                 @csrf
                 
                 <div class="text-left">

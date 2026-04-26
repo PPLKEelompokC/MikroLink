@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'MikroLink')</title>
-    
+   
     <script src="https://cdn.tailwindcss.com"></script>
+    {{-- Alpine.js DIHAPUS dari sini karena Livewire sudah include otomatis --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+   
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; margin: 0; overflow-x: hidden; }
 
@@ -27,7 +28,6 @@
         }
         .loader-hidden { opacity: 0; visibility: hidden; }
 
-        /* 2. DIAMOND PATTERN GLOBAL (GAK SAKIT MATA) */
         .bg-global-diamond {
             position: fixed; inset: 0; z-index: -1;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='160' viewBox='0 0 300 160'%3E%3Cpath d='M150 0 L300 80 L150 160 L0 80 Z' fill='%23e4e7ec' fill-opacity='0.4' /%3E%3C/svg%3E");
@@ -39,12 +39,18 @@
 </head>
 <body>
     <div id="loader">
-        <img src="{{ asset('images/Logo Mikrolink.png') }}" class="logo-3d">
+        <img src="{{ asset('images/logo-mikrolink.png') }}" class="logo-3d">
     </div>
 
     <div class="bg-global-diamond"></div>
 
+    {{-- Untuk Livewire Volt (pakai $slot) --}}
+    {{ $slot ?? '' }}
+
+    {{-- Untuk Blade biasa (pakai @section/@yield) --}}
     @yield('content')
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <script>
         window.addEventListener("load", () => {
@@ -52,5 +58,7 @@
             setTimeout(() => { loader.classList.add("loader-hidden"); }, 700);
         });
     </script>
+
+    @stack('scripts')
 </body>
 </html>

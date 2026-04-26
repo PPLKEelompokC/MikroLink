@@ -6,6 +6,7 @@
     <title>Portal Aspirasi - MikroLink</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -31,18 +32,37 @@
     <nav class="w-full h-[80px] flex justify-between items-center bg-white/90 backdrop-blur-sm px-12 border-b border-[#e4e4e4] sticky top-0 z-50">
         <div class="flex items-center gap-8">
             <a href="{{ route('home') }}">
-                <img src="{{ asset('images/Logo Mikrolink.png') }}" alt="Logo" class="w-[110px] h-auto object-contain">
+                <img src="{{ asset('images/logo-mikrolink.png') }}" alt="Logo" class="w-[110px] h-auto object-contain">
             </a>
             <div class="h-6 w-[1px] bg-gray-200"></div>
             <span class="font-bold text-gray-800 text-sm tracking-tight uppercase">Portal Aspirasi Warga</span>
         </div>
-        <div class="flex items-center gap-6">
-            <div class="text-right">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Pejuang Ekonomi</p>
-                <p class="text-sm font-extrabold text-gray-800">Asep Jagung</p>
+        <div x-data="{ open: false }" class="relative flex items-center gap-6">
+            <div class="text-right hidden sm:block">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ Auth::check() ? (Auth::user()->role ?? 'Pejuang Ekonomi') : 'Pejuang Ekonomi' }}</p>
+                <p class="text-sm font-extrabold text-gray-800">{{ Auth::user()->name ?? 'Guest' }}</p>
             </div>
-            <div class="w-12 h-12 bg-gradient-to-tr from-[#e8a838] to-[#ffa200] rounded-full border-2 border-white shadow-md flex items-center justify-center text-white font-bold">
-                MD
+            
+            <button @click="open = !open" @click.away="open = false" class="focus:outline-none flex items-center gap-2">
+                <div class="w-12 h-12 bg-gradient-to-tr from-[#e8a838] to-[#ffa200] rounded-full border-2 border-white shadow-md flex items-center justify-center text-white font-bold hover:scale-105 transition-transform">
+                    {{ Auth::check() ? strtoupper(substr(Auth::user()->name, 0, 2)) : 'GU' }}
+                </div>
+            </button>
+
+            <div x-show="open" x-transition.opacity.duration.200ms class="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50" style="display: none;">
+                @if(Auth::check())
+                    <div class="px-4 py-2 border-b border-gray-50 sm:hidden">
+                        <p class="text-sm font-bold text-gray-800">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                    </div>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#e8a838] transition-colors">Edit Profile</a>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">Logout</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#e8a838] transition-colors">Login</a>
+                @endif
             </div>
         </div>
     </nav>
@@ -125,22 +145,30 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-8 py-5 text-sm font-medium text-gray-600">19 April 2026</td>
-                            <td class="px-8 py-5 text-sm font-bold text-gray-900">Modal Usaha Warung Sembako</td>
-                            <td class="px-8 py-5">
-                                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 text-[11px] font-bold rounded-full uppercase">Ditinjau</span>
-                            </td>
-                            <td class="px-8 py-5 text-right font-bold text-[#013599] text-sm cursor-pointer hover:underline">Detail</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-8 py-5 text-sm font-medium text-gray-600">15 April 2026</td>
-                            <td class="px-8 py-5 text-sm font-bold text-gray-900">Beasiswa Anak Sekolah Dasar</td>
-                            <td class="px-8 py-5">
-                                <span class="px-3 py-1 bg-green-100 text-green-700 text-[11px] font-bold rounded-full uppercase">Disetujui</span>
-                            </td>
-                            <td class="px-8 py-5 text-right font-bold text-[#013599] text-sm cursor-pointer hover:underline">Detail</td>
-                        </tr>
+                        @forelse($aspirations as $aspiration)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-8 py-5 text-sm font-medium text-gray-600">{{ $aspiration->created_at->format('d M Y') }}</td>
+                                <td class="px-8 py-5 text-sm font-bold text-gray-900">{{ $aspiration->subject }}</td>
+                                <td class="px-8 py-5">
+                                    @php
+                                        $statusStyles = [
+                                            'pending' => 'bg-amber-50 text-amber-600 border border-amber-100',
+                                            'resolved' => 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+                                            'rejected' => 'bg-red-50 text-red-600 border border-red-100',
+                                        ];
+                                        $style = $statusStyles[strtolower($aspiration->status)] ?? 'bg-gray-50 text-gray-600 border border-gray-100';
+                                    @endphp
+                                    <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase {{ $style }}">
+                                        {{ $aspiration->status }}
+                                    </span>
+                                </td>
+                                <td class="px-8 py-5 text-right font-bold text-[#013599] text-sm cursor-pointer hover:underline">Detail</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-8 py-10 text-center text-gray-400 italic">Belum ada aspirasi yang diajukan.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
