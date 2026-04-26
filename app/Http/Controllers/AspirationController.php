@@ -18,7 +18,8 @@ class AspirationController extends Controller
     {
         // Load aspirations along with the user data
         $aspirations = Aspiration::with('user')->latest()->get();
-        return view('admin-dashboard', compact('aspirations'));
+        $pendingDepositsCount = \App\Models\Deposit::where('status', 'PENDING')->count();
+        return view('admin-dashboard', compact('aspirations', 'pendingDepositsCount'));
     }
 
     public function store(Request $request)

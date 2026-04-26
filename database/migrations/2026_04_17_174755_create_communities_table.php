@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('community_documents_table_v2', function (Blueprint $table) {
+        Schema::create('communities', function (Blueprint $table) {
             $table->id();
+            $table->string('nama_komunitas');
+            $table->text('deskripsi')->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('community_documents_table_v2');
+        Schema::dropIfExists('communities');
     }
 };
