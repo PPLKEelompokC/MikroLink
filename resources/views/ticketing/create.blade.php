@@ -4,7 +4,7 @@
     {{-- NAVBAR --}}
     <nav class="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
         <div class="flex items-center gap-2">
-            <img src="{{ asset('images/mikrolink-logo.png') }}" alt="MikroLink" class="h-10 w-auto"
+            <img src="{{ asset('images/logo-mikrolink.png') }}" alt="MikroLink" class="h-10 w-auto"
                 onerror="this.style.display='none'; document.getElementById('nav-logo-fb2').style.display='flex';">
             <div id="nav-logo-fb2" class="hidden items-center gap-1">
                 <div class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
