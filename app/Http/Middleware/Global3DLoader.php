@@ -12,7 +12,7 @@ class Global3DLoader
     {
         $response = $next($request);
 
-        if (app()->environment('testing')) {
+        if (app()->environment('testing') || $request->isMethod('POST')) {
             return $response;
         }
 
@@ -39,7 +39,7 @@ class Global3DLoader
                 .loader-hidden { opacity: 0; visibility: hidden; }
             </style>
             <div id='global-loader'>
-                <img src='" . asset('images/Logo Mikrolink.png') . "' class='logo-premium-intro'>
+                <img src='" . asset('images/logo-mikrolink.png') . "' class='logo-premium-intro'>
             </div>
             <script>
                 window.addEventListener('load', () => {
