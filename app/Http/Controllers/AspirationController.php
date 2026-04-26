@@ -11,14 +11,15 @@ class AspirationController extends Controller
     public function indexUser()
     {
         $aspirations = Aspiration::where('user_id', auth()->id())->latest()->get();
-        return view('dashboard', compact('aspirations'));
+        return view('aspirationPortal', compact('aspirations'));
     }
 
     public function indexAdmin()
     {
         // Load aspirations along with the user data
         $aspirations = Aspiration::with('user')->latest()->get();
-        return view('admin-dashboard', compact('aspirations'));
+        $pendingDepositsCount = \App\Models\Deposit::where('status', 'PENDING')->count();
+        return view('admin-dashboard', compact('aspirations', 'pendingDepositsCount'));
     }
 
     public function store(Request $request)

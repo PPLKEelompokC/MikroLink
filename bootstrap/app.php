@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
-        $middleware->append(\App\Http\Middleware\Global3DLoader::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\Global3DLoader::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

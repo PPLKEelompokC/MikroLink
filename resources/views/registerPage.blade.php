@@ -35,7 +35,7 @@
         </div>
 
         <div class="w-full max-w-[480px] bg-white border border-[#e4e4e4] p-10 rounded-[32px] shadow-2xl shadow-gray-100">
-            <form action="#" method="POST" class="space-y-6">
+            <form action="{{ route('register') }}" method="POST" class="space-y-6">
                 @csrf
                 
                 <div class="text-left">

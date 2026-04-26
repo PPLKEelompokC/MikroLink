@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Koperasi extends Model
 {
     protected $table = 'koperasi';
+
     protected $primaryKey = 'id_koperasi';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -18,18 +22,23 @@ class Koperasi extends Model
         'saldo_kas',
     ];
 
-    public function capitalLogs()
+    public function capitalLogs(): HasMany
     {
         return $this->hasMany(CapitalLog::class, 'koperasi_id', 'id_koperasi');
     }
 
-    public function updateSaldo(float $amount, string $type = 'Penyesuaian Modal', string $memberName = null): void
+    public function financialRecords(): HasMany
+    {
+        return $this->hasMany(FinancialRecord::class, 'koperasi_id', 'id_koperasi');
+    }
+
+    public function updateSaldo(float $amount, string $type = 'Penyesuaian Modal', ?string $memberName = null): void
     {
         $this->saldo_kas += $amount;
         $this->save();
 
         $this->capitalLogs()->create([
-            'transaction_id' => 'PN-' . date('Y') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
+            'transaction_id' => 'PN-'.date('Y').'-'.str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
             'type' => $type,
             'amount' => $amount,
             'status' => 'Disetujui',

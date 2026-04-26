@@ -22,11 +22,7 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            if (in_array(Auth::user()->role, ['Admin Koperasi', 'Manajer Koperasi'])) {
-                return redirect()->intended(route('dashboard', absolute: false));
-            }
-
-            return redirect()->intended(route('home', absolute: false));
+            return redirect()->intended(route('dashboard', absolute: false));
         }
 
         throw ValidationException::withMessages([
