@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FundAllocationController;
 use App\Http\Controllers\KoperasiController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -84,6 +85,18 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
         // Fitur: Validasi Setoran Simpanan
         // Mengarah ke resources/views/livewire/admin/validasi-setoran.blade.php
         Volt::route('/simpanan/validasi', 'admin.validasi-setoran')->name('simpanan.validasi');
+
+        // FR-18: AI Strategic Fund Allocation
+        Route::prefix('fund-allocation')->name('fund-allocation.')->group(function () {
+            Route::get('/', [FundAllocationController::class, 'index'])->name('index');
+            Route::post('/analyze', [FundAllocationController::class, 'triggerAnalysis'])
+                ->middleware('role:Manajer Koperasi')
+                ->name('analyze');
+            Route::get('/{fundAllocation}', [FundAllocationController::class, 'show'])->name('show');
+            Route::patch('/{fundAllocation}/status', [FundAllocationController::class, 'updateStatus'])
+                ->middleware('role:Manajer Koperasi')
+                ->name('updateStatus');
+        });
     });
 
 require __DIR__.'/auth.php';

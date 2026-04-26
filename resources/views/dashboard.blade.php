@@ -23,6 +23,12 @@
                         </span>
                     @endif
                 </a>
+                <a href="{{ route('admin.fund-allocation.index') }}" class="font-bold text-[15px] text-violet-600 hover:text-violet-700 transition-colors flex items-center gap-1.5">
+                    AI Fund Allocation
+                    @if(isset($pendingAllocationsCount) && $pendingAllocationsCount > 0)
+                        <span class="inline-flex items-center justify-center w-5 h-5 bg-violet-500 text-white text-[10px] font-extrabold rounded-full">{{ $pendingAllocationsCount }}</span>
+                    @endif
+                </a>
                 <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
                 <a href="#trust-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Trust Index</a>
             @endif
@@ -361,6 +367,34 @@
                     </div>
                 </div>
             </div>
+
+            {{-- FR-18: AI Fund Allocation Notification Card --}}
+            @if(auth()->user()->role === 'Manajer Koperasi')
+                <div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-200">
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                    <div class="relative flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-5 h-5 text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                <span class="text-[11px] font-bold text-violet-200 uppercase tracking-widest">AI Strategic Fund Allocation</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-1">Analisis Dana Idle Koperasi</h3>
+                            <p class="text-violet-200 text-sm">
+                                @if(isset($pendingAllocationsCount) && $pendingAllocationsCount > 0)
+                                    Ada <span class="font-bold text-white">{{ $pendingAllocationsCount }} rekomendasi</span> alokasi dana menunggu review Anda.
+                                @else
+                                    Jalankan analisis AI untuk mendapatkan rekomendasi alokasi dana strategis.
+                                @endif
+                            </p>
+                        </div>
+                        <a href="{{ route('admin.fund-allocation.index') }}" class="bg-white text-indigo-700 font-bold px-5 py-3 rounded-xl hover:bg-violet-50 transition-all shadow-lg flex items-center gap-2 flex-shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                            Lihat Rekomendasi
+                        </a>
+                    </div>
+                </div>
+            @endif
 
             <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 relative overflow-hidden">
                 <div class="flex items-start justify-between mb-2">
