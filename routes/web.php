@@ -85,6 +85,10 @@ Route::middleware(['auth'])->group(function () {
     // Fitur: Setoran Simpanan (Sisi Anggota)
     Volt::route('/simpanan/setor', 'simpanan.create-setoran')->name('simpanan.setor');
 
+    // Fitur: Pinjaman (Sisi Anggota)
+    Volt::route('/pinjaman/ajukan', 'pinjaman.ajukan-pinjaman')->name('pinjaman.ajukan');
+    Volt::route('/pinjaman/tracking', 'pinjaman.tracking-pinjaman')->name('pinjaman.tracking');
+
     // Pengaturan Profil (Volt)
     Volt::route('/settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('/settings/password', 'settings.password')->name('settings.password');
@@ -149,6 +153,10 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
         // Fitur: Validasi Setoran Simpanan
         // Mengarah ke resources/views/livewire/admin/validasi-setoran.blade.php
         Volt::route('/simpanan/validasi', 'admin.validasi-setoran')->name('simpanan.validasi');
+
+        // Fitur: Validasi / Tracking Pinjaman
+        // Mengarah ke resources/views/livewire/admin/disbursement-tracking.blade.php
+        Volt::route('/pinjaman/validasi', 'admin.disbursement-tracking')->name('pinjaman.validasi');
     });
 
 require __DIR__.'/auth.php';

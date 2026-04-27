@@ -23,6 +23,7 @@
                         </span>
                     @endif
                 </a>
+                <a href="{{ route('admin.pinjaman.validasi') }}" class="font-bold text-[15px] text-indigo-600 hover:text-indigo-700 transition-colors">Validasi Pinjaman</a>
                 <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
                 <a href="#trust-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Trust Index</a>
             @endif
@@ -80,6 +81,14 @@
                         <a href="{{ route('simpanan.setor') }}" wire:navigate class="px-6 py-3 bg-emerald-600 text-white font-bold text-sm rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                             Setor Simpanan
+                        </a>
+                        <a href="{{ route('pinjaman.ajukan') }}" wire:navigate class="px-6 py-3 bg-[#e8a838] text-white font-bold text-sm rounded-2xl hover:bg-[#d4952f] shadow-lg shadow-amber-100 transition-all flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Ajukan Pinjaman
+                        </a>
+                        <a href="{{ route('pinjaman.tracking') }}" wire:navigate class="px-6 py-3 bg-indigo-600 text-white font-bold text-sm rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            Lacak Pinjaman
                         </a>
                         <a href="{{ route('docs.upload.form') }}" class="px-6 py-3 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-2xl hover:bg-gray-50 transition-all">Upload Dokumen</a>
                         <a href="{{ route('aspirationPortal') }}" class="px-6 py-3 bg-blue-600 text-white font-bold text-sm rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">Portal Aspirasi</a>
@@ -370,8 +379,8 @@
                         </h2>
                         <p class="text-[16px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
                     </div>
-                    <a href="#" id="btn-ajukan-pinjaman" onclick="handleAjukanPinjaman(event)" class="bg-[#e8a838] hover:bg-[#d4952f] text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
-                        Ajukan Pinjaman
+                    <a href="{{ route('admin.pinjaman.validasi') }}" wire:navigate class="bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
+                        Kelola Pinjaman
                     </a>
                 </div>
                 <div id="financialChart" class="w-full" style="min-height: 320px;"></div>
@@ -444,11 +453,6 @@
 
 @push('scripts')
 <script>
-    function handleAjukanPinjaman(event) {
-        event.preventDefault();
-        alert('Fitur Ajukan Pinjaman akan segera tersedia.');
-    }
-
     document.addEventListener('DOMContentLoaded', function () {
         @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
             const chartLabels = @json($chartLabels ?? []);
