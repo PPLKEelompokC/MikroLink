@@ -11,8 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('trust_metrics')) {
-        if (!Schema::hasTable('trust_metrics')) {
+        if (! Schema::hasTable('trust_metrics')) {
             Schema::create('trust_metrics', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -26,7 +25,7 @@ return new class extends Migration
             });
         } else {
             Schema::table('trust_metrics', function (Blueprint $table) {
-                if (!Schema::hasColumn('trust_metrics', 'score')) {
+                if (! Schema::hasColumn('trust_metrics', 'score')) {
                     $table->integer('score')->nullable()->after('user_id');
                 }
             });
