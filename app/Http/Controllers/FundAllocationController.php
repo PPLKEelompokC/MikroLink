@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ProcessAiFundAllocation;
+use App\Jobs\AnalyzeIdleFundsJob;
 use App\Models\FundAllocation;
+use App\Models\IdleFundSnapshot;
 use App\Models\Koperasi;
 use App\Services\AiAllocationService;
 use Illuminate\Http\RedirectResponse;
@@ -15,21 +16,28 @@ class FundAllocationController extends Controller
     public function __construct(private AiAllocationService $aiAllocationService) {}
 
     /**
-     * List all fund allocation recommendations.
+     * List all fund allocation recommendations with optional status filter.
      */
     public function index(Request $request): View
     {
-        $query = FundAllocation::with(['snapshot', 'reviewer']);
+        $statusFilter = $request->query('status');
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $allocations = $query->latest()
+        $allocations = FundAllocation::with(['snapshot', 'reviewer'])
+            ->when($statusFilter && in_array($statusFilter, ['pending', 'approved', 'rejected']), function ($query) use ($statusFilter) {
+                $query->where('status', $statusFilter);
+            })
+            ->latest()
             ->paginate(15)
-            ->withQueryString();
+            ->appends($request->query());
 
-        return view('admin.fund-allocation.index', compact('allocations'));
+        $statusCounts = [
+            'all' => FundAllocation::count(),
+            'pending' => FundAllocation::where('status', 'pending')->count(),
+            'approved' => FundAllocation::where('status', 'approved')->count(),
+            'rejected' => FundAllocation::where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.fund-allocation.index', compact('allocations', 'statusFilter', 'statusCounts'));
     }
 
     /**
@@ -43,31 +51,33 @@ class FundAllocationController extends Controller
     }
 
     /**
-     * Trigger AI analysis for the cooperative's idle funds.
+     * Trigger AI analysis for the cooperative's idle funds (dispatched to queue).
      */
-    public function triggerAnalysis(): RedirectResponse
+    public function triggerAnalysis(Request $request): RedirectResponse
     {
         $koperasi = Koperasi::firstOrFail();
 
-        // 1. Guard: Check if already analyzed today
-        if ($this->aiAllocationService->hasRecentAnalysis($koperasi)) {
-            return redirect()
-                ->route('admin.fund-allocation.index')
-                ->with('error', 'Analisis untuk hari ini sudah dijalankan. Silakan cek daftar rekomendasi di bawah.');
+        // Check for existing analysis today
+        $existingSnapshot = IdleFundSnapshot::where('koperasi_id', $koperasi->id_koperasi)
+            ->where('snapshot_date', now()->toDateString())
+            ->first();
+
+        if ($existingSnapshot) {
+            $hasAllocations = FundAllocation::where('snapshot_id', $existingSnapshot->id)->exists();
+
+            if ($hasAllocations && ! $request->has('force')) {
+                return redirect()
+                    ->route('admin.fund-allocation.index')
+                    ->with('error', 'Analisis untuk hari ini sudah pernah dijalankan. Gunakan tombol "Jalankan Ulang" jika ingin menganalisis ulang.');
+            }
         }
 
-        try {
-            // 2. Dispatch async job
-            ProcessAiFundAllocation::dispatch($koperasi);
+        // Dispatch with skipDuplicateCheck since we already checked
+        AnalyzeIdleFundsJob::dispatchSync($koperasi, skipDuplicateCheck: true);
 
-            return redirect()
-                ->route('admin.fund-allocation.index')
-                ->with('success', 'Analisis AI sedang berjalan di latar belakang. Silakan tunggu beberapa saat dan refresh halaman ini.');
-        } catch (\Exception $exception) {
-            return redirect()
-                ->route('admin.fund-allocation.index')
-                ->with('error', 'Gagal menjadwalkan analisis AI: '.$exception->getMessage());
-        }
+        return redirect()
+            ->route('admin.fund-allocation.index')
+            ->with('success', 'Analisis AI selesai. Rekomendasi baru telah ditambahkan.');
     }
 
     /**

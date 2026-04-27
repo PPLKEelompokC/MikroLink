@@ -12,10 +12,15 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Str;
 
 class AiAllocationService
 {
+    /**
+     * The name of the AI model that actually produced the response.
+     * Updated by the driver methods when a fallback model is used.
+     */
+    protected string $lastUsedModelName = 'unknown';
+
     /**
      * Build the aggregated financial payload from the cooperative's data.
      *
@@ -98,27 +103,28 @@ class AiAllocationService
     /**
      * Send the financial payload to the configured AI engine and return parsed recommendations.
      *
-     * @return array{recommendations: array, model_used: string}
+     * @return array<int, array{category: string, amount: float, confidence: float, reasoning: string}>
      */
     public function requestAiRecommendation(IdleFundSnapshot $snapshot, array $payload): array
     {
         $driver = config('services.ai_allocation.driver', 'llamacpp');
         $timeout = config('services.ai_allocation.timeout', 120);
+        $driverConfig = config("services.ai_allocation.{$driver}", []);
+
+        // Default model name from config (overridden by callGoogleAi when fallback is used)
+        $this->lastUsedModelName = $driverConfig['model'] ?? $driver;
 
         $prompt = $this->buildPrompt($payload);
 
         try {
-            $response = match ($driver) {
+            $rawResponse = match ($driver) {
                 'llamacpp' => $this->callLlamaCpp($prompt, $timeout),
                 'openrouter' => $this->callOpenRouter($prompt, $timeout),
                 'google' => $this->callGoogleAi($prompt, $timeout),
                 default => throw new \InvalidArgumentException("Unsupported AI driver: {$driver}"),
             };
 
-            return [
-                'recommendations' => $this->parseAiResponse($response['content'], $driver),
-                'model_used' => $response['model'],
-            ];
+            return $this->parseAiResponse($rawResponse, $driver);
         } catch (\Exception $exception) {
             Log::error('AI allocation request failed', [
                 'driver' => $driver,
@@ -126,10 +132,9 @@ class AiAllocationService
                 'error' => $exception->getMessage(),
             ]);
 
-            return [
-                'recommendations' => $this->getFallbackRecommendations($payload),
-                'model_used' => 'Rule-based Fallback',
-            ];
+            $this->lastUsedModelName = 'fallback-rule-based';
+
+            return $this->getFallbackRecommendations($payload);
         }
     }
 
@@ -138,7 +143,7 @@ class AiAllocationService
      *
      * @param  array<int, array{category: string, amount: float, confidence: float, reasoning: string}>  $recommendations
      */
-    public function storeAllocations(IdleFundSnapshot $snapshot, array $recommendations, string $modelUsed): Collection
+    public function storeAllocations(IdleFundSnapshot $snapshot, array $recommendations): Collection
     {
         $allocations = collect();
 
@@ -150,7 +155,7 @@ class AiAllocationService
                 'allocation_category' => $recommendation['category'],
                 'confidence_score' => $recommendation['confidence'],
                 'reasoning' => $recommendation['reasoning'],
-                'ai_model_used' => $modelUsed,
+                'ai_model_used' => $this->lastUsedModelName,
                 'status' => 'pending',
             ]);
 
@@ -167,24 +172,12 @@ class AiAllocationService
     {
         $payload = $this->buildFinancialPayload($koperasi);
         $snapshot = $this->createSnapshot($koperasi, $payload);
-
-        $result = $this->requestAiRecommendation($snapshot, $payload);
-
-        $allocations = $this->storeAllocations($snapshot, $result['recommendations'], $result['model_used']);
+        $recommendations = $this->requestAiRecommendation($snapshot, $payload);
+        $allocations = $this->storeAllocations($snapshot, $recommendations);
 
         $this->notifyManagers($snapshot, $allocations);
 
         return $allocations;
-    }
-
-    /**
-     * Check if a koperasi has already been analyzed today.
-     */
-    public function hasRecentAnalysis(Koperasi $koperasi): bool
-    {
-        return FundAllocation::where('koperasi_id', $koperasi->id_koperasi)
-            ->whereDate('created_at', now()->toDateString())
-            ->exists();
     }
 
     /**
@@ -246,16 +239,15 @@ PROMPT;
     /**
      * Call the local llama.cpp server (OpenAI-compatible API).
      */
-    protected function callLlamaCpp(string $prompt, int $timeout): array
+    protected function callLlamaCpp(string $prompt, int $timeout): string
     {
         $baseUrl = config('services.ai_allocation.llamacpp.base_url', 'http://127.0.0.1:8080');
-        $model = config('services.ai_allocation.llamacpp.model');
 
         $response = Http::timeout($timeout)
             ->connectTimeout(5)
             ->retry([1000, 3000])
             ->post("{$baseUrl}/v1/chat/completions", [
-                'model' => $model,
+                'model' => config('services.ai_allocation.llamacpp.model'),
                 'messages' => [
                     ['role' => 'system', 'content' => 'You are a cooperative financial advisor AI. Always respond with valid JSON only.'],
                     ['role' => 'user', 'content' => $prompt],
@@ -266,20 +258,16 @@ PROMPT;
             ])
             ->throw();
 
-        return [
-            'content' => $response->json('choices.0.message.content', '[]'),
-            'model' => $response->json('model', $model),
-        ];
+        return $response->json('choices.0.message.content', '[]');
     }
 
     /**
      * Call the OpenRouter API (OpenAI-compatible).
      */
-    protected function callOpenRouter(string $prompt, int $timeout): array
+    protected function callOpenRouter(string $prompt, int $timeout): string
     {
         $baseUrl = config('services.ai_allocation.openrouter.base_url', 'https://openrouter.ai/api/v1');
         $apiKey = config('services.ai_allocation.openrouter.api_key');
-        $model = config('services.ai_allocation.openrouter.model');
 
         if (empty($apiKey)) {
             throw new \RuntimeException('OpenRouter API key is not configured. Set AI_OPENROUTER_API_KEY in .env');
@@ -294,7 +282,7 @@ PROMPT;
                 'X-Title' => 'MikroLink Fund Allocation',
             ])
             ->post("{$baseUrl}/chat/completions", [
-                'model' => $model,
+                'model' => config('services.ai_allocation.openrouter.model'),
                 'messages' => [
                     ['role' => 'system', 'content' => 'You are a cooperative financial advisor AI. Always respond with valid JSON only.'],
                     ['role' => 'user', 'content' => $prompt],
@@ -304,20 +292,17 @@ PROMPT;
             ])
             ->throw();
 
-        return [
-            'content' => $response->json('choices.0.message.content', '[]'),
-            'model' => $response->json('model', $model),
-        ];
+        return $response->json('choices.0.message.content', '[]');
     }
 
     /**
      * Call the Google AI Studio (Gemini) API.
      */
-    protected function callGoogleAi(string $prompt, int $timeout): array
+    protected function callGoogleAi(string $prompt, int $timeout): string
     {
         $baseUrl = config('services.ai_allocation.google.base_url', 'https://generativelanguage.googleapis.com/v1beta');
         $apiKey = config('services.ai_allocation.google.api_key');
-        $primaryModel = config('services.ai_allocation.google.model', 'gemini-2.0-flash');
+        $primaryModel = config('services.ai_allocation.google.model', 'gemini-3-flash-preview');
         $fallbackModels = config('services.ai_allocation.google.fallback_models', []);
 
         if (empty($apiKey)) {
@@ -325,11 +310,10 @@ PROMPT;
         }
 
         // Assemble model queue: primary first, then fallbacks
-        $modelQueue = array_merge([$primaryModel], $fallbackModels);
-        $lastModel = end($modelQueue);
-        reset($modelQueue);
+        $modelQueue = array_values(array_merge([$primaryModel], $fallbackModels));
+        $lastIndex = count($modelQueue) - 1;
 
-        foreach ($modelQueue as $model) {
+        foreach ($modelQueue as $index => $model) {
             try {
                 $generationConfig = [
                     'temperature' => 0.3,
@@ -337,7 +321,7 @@ PROMPT;
                 ];
 
                 // Only Gemini models support responseMimeType for structured JSON output
-                if (Str::startsWith($model, 'gemini')) {
+                if (str_starts_with($model, 'gemini')) {
                     $generationConfig['responseMimeType'] = 'application/json';
                 }
 
@@ -356,26 +340,24 @@ PROMPT;
                     ])
                     ->throw();
 
-                // Successful response, return content and the actual model used
-                return [
-                    'content' => $response->json('candidates.0.content.parts.0.text', '[]'),
-                    'model' => $model,
-                ];
+                // Track which model actually succeeded
+                $this->lastUsedModelName = $model;
+
+                return $response->json('candidates.0.content.parts.0.text', '[]');
             } catch (\Throwable $e) {
-                // Log the failure and continue to the next fallback model
                 Log::warning('Google AI model failed, trying fallback if available', [
                     'model' => $model,
                     'error' => $e->getMessage(),
                 ]);
 
                 // If this was the last model in the queue, rethrow
-                if ($model === $lastModel) {
+                if ($index === $lastIndex) {
                     throw $e;
                 }
             }
         }
 
-        // Should never reach here, but fallback just in case
+        // Should never reach here, but safety net
         throw new \RuntimeException('All Google AI models failed');
     }
 
