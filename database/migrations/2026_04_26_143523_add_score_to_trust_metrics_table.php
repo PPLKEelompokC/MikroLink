@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('trust_metrics', function (Blueprint $table) {
-            $table->integer('score')->nullable()->after('user_id');
-        });
+        if (Schema::hasTable('trust_metrics')) {
+            Schema::table('trust_metrics', function (Blueprint $table) {
+                if (!Schema::hasColumn('trust_metrics', 'score')) {
+                    $table->integer('score')->nullable()->after('user_id');
+                }
+            });
+        }
     }
 
     /**
@@ -21,8 +25,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('trust_metrics', function (Blueprint $table) {
-            $table->dropColumn('score');
-        });
+        if (Schema::hasTable('trust_metrics')) {
+            Schema::table('trust_metrics', function (Blueprint $table) {
+                if (Schema::hasColumn('trust_metrics', 'score')) {
+                    $table->dropColumn('score');
+                }
+            });
+        }
     }
 };
