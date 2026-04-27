@@ -63,6 +63,9 @@ Route::middleware(['auth'])->group(function () {
     // Fitur: Download Akta Setoran PDF
     Route::get('/simpanan/akta/{id}', [AktaSetoranController::class, 'download'])
         ->name('simpanan.akta.download');
+    // Fitur: Pinjaman (Sisi Anggota)
+    Volt::route('/pinjaman/ajukan', 'pinjaman.ajukan-pinjaman')->name('pinjaman.ajukan');
+    Volt::route('/pinjaman/tracking', 'pinjaman.tracking-pinjaman')->name('pinjaman.tracking');
 
     // Pengaturan Profil (Volt)
     Volt::route('/settings/profile', 'settings.profile')->name('settings.profile');
@@ -99,6 +102,9 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
 
         // Aspirasi Admin
         Route::patch('/aspiration/{id}/status', [AspirationController::class, 'updateStatus'])->name('aspiration.update');
+        // Fitur: Validasi / Tracking Pinjaman
+        // Mengarah ke resources/views/livewire/admin/disbursement-tracking.blade.php
+        Volt::route('/pinjaman/validasi', 'admin.disbursement-tracking')->name('pinjaman.validasi');
     });
 
 require __DIR__.'/auth.php';
