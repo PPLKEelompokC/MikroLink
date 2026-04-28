@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FundAllocationController;
 use App\Http\Controllers\KoperasiController;
 use App\Http\Controllers\AktaSetoranController;
 use App\Http\Controllers\TicketController;
@@ -100,6 +101,17 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
         // Validasi Setoran Simpanan
         Volt::route('/simpanan/validasi', 'admin.validasi-setoran')->name('simpanan.validasi');
 
+        // FR-18: AI Strategic Fund Allocation
+        Route::prefix('fund-allocation')->name('fund-allocation.')->group(function () {
+            Route::get('/', [FundAllocationController::class, 'index'])->name('index');
+            Route::post('/analyze', [FundAllocationController::class, 'triggerAnalysis'])
+                ->middleware('role:Manajer Koperasi')
+                ->name('analyze');
+            Route::get('/{fundAllocation}', [FundAllocationController::class, 'show'])->name('show');
+            Route::patch('/{fundAllocation}/status', [FundAllocationController::class, 'updateStatus'])
+                ->middleware('role:Manajer Koperasi')
+                ->name('updateStatus');
+        });
         // Aspirasi Admin
         Route::patch('/aspiration/{id}/status', [AspirationController::class, 'updateStatus'])->name('aspiration.update');
         // Fitur: Validasi / Tracking Pinjaman
