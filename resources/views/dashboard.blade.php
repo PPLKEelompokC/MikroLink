@@ -12,7 +12,6 @@
         <div class="hidden lg:flex items-center gap-8">
             <a href="#" class="font-bold text-[15px] text-[#e8a838]">Dashboard</a>
             @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
-                {{-- Conflict 1 resolved: gabung nav links dari kedua branch --}}
                 <a href="{{ route('koperasi.edit') }}" class="font-bold text-[15px] text-emerald-600 hover:text-emerald-700 transition-colors">Manage Koperasi</a>
                 <a href="{{ route('admin.simpanan.validasi') }}"
                     class="font-bold text-[15px] text-orange-600 hover:text-orange-700 transition-colors flex items-center gap-1.5">
@@ -29,6 +28,7 @@
                         <span class="inline-flex items-center justify-center w-5 h-5 bg-violet-500 text-white text-[10px] font-extrabold rounded-full">{{ $pendingAllocationsCount }}</span>
                     @endif
                 </a>
+                <a href="{{ route('admin.pinjaman.validasi') }}" class="font-bold text-[15px] text-indigo-600 hover:text-indigo-700 transition-colors">Validasi Pinjaman</a>
                 <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
                 <a href="#trust-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Trust Index</a>
             @endif
@@ -87,6 +87,14 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                             Setor Simpanan
                         </a>
+                        <a href="{{ route('pinjaman.ajukan') }}" wire:navigate class="px-6 py-3 bg-[#e8a838] text-white font-bold text-sm rounded-2xl hover:bg-[#d4952f] shadow-lg shadow-amber-100 transition-all flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Ajukan Pinjaman
+                        </a>
+                        <a href="{{ route('pinjaman.tracking') }}" wire:navigate class="px-6 py-3 bg-indigo-600 text-white font-bold text-sm rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            Lacak Pinjaman
+                        </a>
                         <a href="{{ route('docs.upload.form') }}" class="px-6 py-3 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-2xl hover:bg-gray-50 transition-all">Upload Dokumen</a>
                         <a href="{{ route('aspirationPortal') }}" class="px-6 py-3 bg-blue-600 text-white font-bold text-sm rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">Portal Aspirasi</a>
                     </div>
@@ -112,7 +120,6 @@
                             Kelayakan pembiayaan Anda berdasarkan metrik keaktifan & administrasi.
                         </p>
 
-                        {{-- Progress Bar dari main --}}
                         <div class="w-full mt-8 space-y-4 px-2">
                             <div class="space-y-1.5">
                                 <div class="flex justify-between items-center text-[10px] font-bold tracking-widest text-gray-400 uppercase">
@@ -212,6 +219,7 @@
                                     <th class="px-8 py-4">Nominal</th>
                                     <th class="px-8 py-4 text-center">Status</th>
                                     <th class="px-8 py-4">Catatan Admin</th>
+                                    <th class="px-8 py-4 text-center">Akta</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50">
@@ -255,10 +263,33 @@
                                                 {{ $deposit->admin_note ?? '-' }}
                                             </p>
                                         </td>
+                                        {{-- Kolom Akta PDF --}}
+                                        <td class="px-8 py-5 text-center">
+                                            @if ($deposit->status === 'APPROVED')
+                                                <a href="{{ route('simpanan.akta.download', $deposit->id) }}"
+                                                    target="_blank"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                    </svg>
+                                                    PDF
+                                                </a>
+                                            @elseif ($deposit->status === 'REJECTED')
+                                                <span class="text-red-500">
+                                                    <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                                    </svg>
+                                                </span>
+                                            @else
+                                                <span class="px-2.5 py-1 bg-gray-100 text-gray-400 text-xs font-semibold rounded-lg">
+                                                    Menunggu
+                                                </span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-8 py-12 text-center text-gray-400 italic text-sm">
+                                        <td colspan="6" class="px-8 py-12 text-center text-gray-400 italic text-sm">
                                             Belum ada riwayat setoran.
                                         </td>
                                     </tr>
@@ -329,7 +360,6 @@
                             <span class="text-[14px] font-bold text-gray-800">Modal Tersedia</span>
                             <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                         </div>
-                        {{-- Conflict 2 resolved: pakai ?? untuk safety --}}
                         <div class="text-[32px] font-bold text-gray-900 mb-1 tracking-tight">Rp {{ number_format($availableCapital ?? 0, 0, ',', '.') }}</div>
                         <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ $likuiditas ?? 0 }}%</div>
                         <div class="flex items-center text-[12px] font-bold text-emerald-500">
@@ -357,7 +387,6 @@
                             <span class="text-[14px] font-bold text-gray-800">Status Update</span>
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        {{-- Conflict 3 resolved: pakai emerald-500 dari branch kamu + ?? untuk safety --}}
                         <div class="text-[28px] font-bold text-emerald-500 mb-1 tracking-tight truncate">{{ $terakhirDiperbarui ?? '-' }}</div>
                         <div class="text-[12px] text-gray-500 mb-4">Pembaruan Modal Koperasi</div>
                         <div class="flex items-center text-[12px] font-bold text-emerald-500">
@@ -404,8 +433,8 @@
                         </h2>
                         <p class="text-[16px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
                     </div>
-                    <a href="#" id="btn-ajukan-pinjaman" onclick="handleAjukanPinjaman(event)" class="bg-[#e8a838] hover:bg-[#d4952f] text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
-                        Ajukan Pinjaman
+                    <a href="{{ route('admin.pinjaman.validasi') }}" wire:navigate class="bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
+                        Kelola Pinjaman
                     </a>
                 </div>
                 <div id="financialChart" class="w-full" style="min-height: 320px;"></div>
@@ -468,7 +497,6 @@
                 <livewire:admin.aspirations />
             </div>
 
-            {{-- Trust management dari main --}}
             <div id="trust-management" class="w-full pb-10">
                 <livewire:admin.trust-management />
             </div>
@@ -478,11 +506,6 @@
 
 @push('scripts')
 <script>
-    function handleAjukanPinjaman(event) {
-        event.preventDefault();
-        alert('Fitur Ajukan Pinjaman akan segera tersedia.');
-    }
-
     document.addEventListener('DOMContentLoaded', function () {
         @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
             const chartLabels = @json($chartLabels ?? []);

@@ -36,7 +36,7 @@ test('dashboard displays financial chart data for authenticated users', function
     $response->assertViewHas('latestCreditScore');
     $response->assertSee('Kesehatan Finansial');
     $response->assertSee('Tren Pertumbuhan Omzet Harian');
-    $response->assertSee('Ajukan Pinjaman');
+    $response->assertSee('Kelola Pinjaman');
 });
 
 test('dashboard chart data is ordered by date ascending', function () {

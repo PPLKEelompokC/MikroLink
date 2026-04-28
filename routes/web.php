@@ -7,6 +7,8 @@ use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FundAllocationController;
 use App\Http\Controllers\KoperasiController;
+use App\Http\Controllers\AktaSetoranController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -16,7 +18,7 @@ use Livewire\Volt\Volt;
 |--------------------------------------------------------------------------
 */
 
-// --- Public Routes (Landing & Auth) ---
+// --- Public Routes ---
 Route::get('/', function () {
     return view('landingPage');
 })->name('home');
@@ -40,7 +42,7 @@ Route::get('/cara-kerja', function () {
 // --- Authenticated Routes ---
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard (Akses untuk semua role yang terdaftar)
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('role:Admin Koperasi,Manajer Koperasi,user,admin')
         ->name('dashboard');
@@ -49,8 +51,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/aspiration', [AspirationController::class, 'indexUser'])->name('aspirationPortal');
     Route::post('/aspiration/store', [AspirationController::class, 'store'])->name('aspiration.store');
 
-    // Fitur: Setoran Simpanan (Sisi Anggota)
+    // Pusat Bantuan & Ticketing
+    Route::view('/pusat-bantuan', 'pusat-bantuan')->name('pusat-bantuan');
+    Route::get('/ticketing', [TicketController::class, 'index'])->name('ticketing.index');
+    Route::get('/ticketing/create', [TicketController::class, 'create'])->name('ticketing.create');
+    Route::post('/ticketing', [TicketController::class, 'store'])->name('ticketing.store');
+    Route::get('/ticketing/{ticket}', [TicketController::class, 'show'])->name('ticketing.show');
+
+    // Fitur: Setoran Simpanan (Anggota)
     Volt::route('/simpanan/setor', 'simpanan.create-setoran')->name('simpanan.setor');
+
+    // Fitur: Download Akta Setoran PDF
+    Route::get('/simpanan/akta/{id}', [AktaSetoranController::class, 'download'])
+        ->name('simpanan.akta.download');
+    // Fitur: Pinjaman (Sisi Anggota)
+    Volt::route('/pinjaman/ajukan', 'pinjaman.ajukan-pinjaman')->name('pinjaman.ajukan');
+    Volt::route('/pinjaman/tracking', 'pinjaman.tracking-pinjaman')->name('pinjaman.tracking');
 
     // Pengaturan Profil (Volt)
     Volt::route('/settings/profile', 'settings.profile')->name('settings.profile');
@@ -75,15 +91,14 @@ Route::middleware(['auth'])->group(function () {
 // --- Admin Area (Prefix: /admin) ---
 Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
     ->prefix('admin')
-    ->name('admin.')  // ← prefix name agar semua route admin punya prefix 'admin.'
+    ->name('admin.')
     ->group(function () {
 
         // Validasi Dokumen Komunitas
         Route::get('/documents', [CommunityDocumentController::class, 'index'])->name('docs.index');
         Route::patch('/documents/{id}/status', [CommunityDocumentController::class, 'updateStatus'])->name('docs.update');
 
-        // Fitur: Validasi Setoran Simpanan
-        // Mengarah ke resources/views/livewire/admin/validasi-setoran.blade.php
+        // Validasi Setoran Simpanan
         Volt::route('/simpanan/validasi', 'admin.validasi-setoran')->name('simpanan.validasi');
 
         // FR-18: AI Strategic Fund Allocation
@@ -97,6 +112,11 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
                 ->middleware('role:Manajer Koperasi')
                 ->name('updateStatus');
         });
+        // Aspirasi Admin
+        Route::patch('/aspiration/{id}/status', [AspirationController::class, 'updateStatus'])->name('aspiration.update');
+        // Fitur: Validasi / Tracking Pinjaman
+        // Mengarah ke resources/views/livewire/admin/disbursement-tracking.blade.php
+        Volt::route('/pinjaman/validasi', 'admin.disbursement-tracking')->name('pinjaman.validasi');
     });
 
 require __DIR__.'/auth.php';
