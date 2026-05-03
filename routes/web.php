@@ -64,8 +64,9 @@ Route::middleware(['auth'])->group(function () {
     // Fitur: Download Akta Setoran PDF
     Route::get('/simpanan/akta/{id}', [AktaSetoranController::class, 'download'])
         ->name('simpanan.akta.download');
+
     // Fitur: Pinjaman (Sisi Anggota)
-    Volt::route('/pinjaman/ajukan', 'pinjaman.ajukan-pinjaman')->name('pinjaman.ajukan');
+    Volt::route('/pinjaman/ajukan', 'pinjaman.create-pinjaman')->name('pinjaman.ajukan');
     Volt::route('/pinjaman/tracking', 'pinjaman.tracking-pinjaman')->name('pinjaman.tracking');
 
     // Pengaturan Profil (Volt)
@@ -112,11 +113,18 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
                 ->middleware('role:Manajer Koperasi')
                 ->name('updateStatus');
         });
+
         // Aspirasi Admin
         Route::patch('/aspiration/{id}/status', [AspirationController::class, 'updateStatus'])->name('aspiration.update');
-        // Fitur: Validasi / Tracking Pinjaman
-        // Mengarah ke resources/views/livewire/admin/disbursement-tracking.blade.php
+
+        // Fitur: Validasi / Tracking Pinjaman (existing)
         Volt::route('/pinjaman/validasi', 'admin.disbursement-tracking')->name('pinjaman.validasi');
+
+        // Fitur: Workflow Persetujuan Berjenjang ✅
+        Volt::route('/pinjaman/review-admin', 'admin.review-pinjaman')->name('pinjaman.review');
+
+        // Khusus Manajer Koperasi
+        Volt::route('/pinjaman/review-manajer', 'admin.review-pinjaman-manajer')->name('pinjaman.review.manajer');
     });
 
 require __DIR__.'/auth.php';

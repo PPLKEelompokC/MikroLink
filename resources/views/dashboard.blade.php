@@ -29,6 +29,33 @@
                     @endif
                 </a>
                 <a href="{{ route('admin.pinjaman.validasi') }}" class="font-bold text-[15px] text-indigo-600 hover:text-indigo-700 transition-colors">Validasi Pinjaman</a>
+
+                {{-- Review Pinjaman untuk Admin ✅ --}}
+                @if(in_array(auth()->user()->role, ['Admin Koperasi', 'admin']))
+                    <a href="{{ route('admin.pinjaman.review') }}"
+                        class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1.5">
+                        Review Pinjaman
+                        @if(isset($pendingLoansCount) && $pendingLoansCount > 0)
+                            <span class="inline-flex items-center justify-center w-5 h-5 bg-blue-500 text-white text-[10px] font-extrabold rounded-full">
+                                {{ $pendingLoansCount }}
+                            </span>
+                        @endif
+                    </a>
+                @endif
+
+                {{-- Review Final untuk Manajer ✅ --}}
+                @if(auth()->user()->role === 'Manajer Koperasi')
+                    <a href="{{ route('admin.pinjaman.review.manajer') }}"
+                        class="font-bold text-[15px] text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-1.5">
+                        Review Final Pinjaman
+                        @if(isset($pendingManajerLoansCount) && $pendingManajerLoansCount > 0)
+                            <span class="inline-flex items-center justify-center w-5 h-5 bg-purple-500 text-white text-[10px] font-extrabold rounded-full">
+                                {{ $pendingManajerLoansCount }}
+                            </span>
+                        @endif
+                    </a>
+                @endif
+
                 <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
                 <a href="#trust-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Trust Index</a>
             @endif
