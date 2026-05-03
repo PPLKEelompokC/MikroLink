@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Koperasi;
 use App\Models\Aspiration;
 use App\Models\Deposit;
-use App\Models\TrustMetric;
-use Illuminate\Support\Facades\DB;
+use App\Models\FundAllocation;
+use App\Models\Koperasi;
+use App\Models\Loan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
@@ -20,7 +21,7 @@ class DashboardController extends Controller
 
             // --- Trust Score ---
             $trustMetric = $user->trustMetric;
-            $trustScore  = $trustMetric ? $trustMetric->final_index : 50;
+            $trustScore = $trustMetric ? $trustMetric->final_index : 50;
 
             if (Schema::hasTable('trust_metrics')) {
                 $trustScore = DB::table('trust_metrics')
@@ -69,10 +70,10 @@ class DashboardController extends Controller
             ]
         );
 
-        $availableCapital    = $koperasi->saldo_kas;
-        $likuiditas          = $koperasi->cekLikuiditas();
-        $totalTransaksi      = $koperasi->capitalLogs->count();
-        $terakhirDiperbarui  = $koperasi->capitalLogs->last()
+        $availableCapital   = $koperasi->saldo_kas;
+        $likuiditas         = $koperasi->cekLikuiditas();
+        $totalTransaksi     = $koperasi->capitalLogs->count();
+        $terakhirDiperbarui = $koperasi->capitalLogs->last()
             ? $koperasi->capitalLogs->last()->created_at->diffForHumans()
             : 'Belum ada transaksi';
         $capitalLogs = $koperasi->capitalLogs()->latest()->take(5)->get();
@@ -95,6 +96,17 @@ class DashboardController extends Controller
         // --- Badge Setoran Pending untuk Admin ---
         $pendingDepositsCount = Deposit::where('status', 'PENDING')->count();
 
+        // --- FR-18: Pending AI Fund Allocation Recommendations ---
+        $pendingAllocationsCount = FundAllocation::where('status', 'pending')->count();
+
+        // --- Badge Pinjaman untuk Workflow Berjenjang ✅ ---
+        $pendingLoansCount = 0;
+        $pendingManajerLoansCount = 0;
+        if (Schema::hasTable('loans')) {
+            $pendingLoansCount        = Loan::where('status', 'Baru')->count();
+            $pendingManajerLoansCount = Loan::where('status', 'Dalam Review')->count();
+        }
+
         return view('dashboard', compact(
             'koperasi',
             'availableCapital',
@@ -108,6 +120,9 @@ class DashboardController extends Controller
             'omzetPercentage',
             'latestCreditScore',
             'pendingDepositsCount',
+            'pendingAllocationsCount',
+            'pendingLoansCount',           
+            'pendingManajerLoansCount',    
         ));
     }
 }

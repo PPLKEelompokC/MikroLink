@@ -1,11 +1,11 @@
-<x-layouts.app.header title="Pusat Bantuan">
+<x-layouts.blank title="Pusat Bantuan">
     <div class="min-h-screen bg-white font-sans" style="font-family: 'Instrument Sans', sans-serif;">
 
         {{-- TOP NAVBAR --}}
         <nav class="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
             <div class="flex items-center gap-2">
                 {{-- Logo --}}
-                <img src="{{ asset('images/mikrolink-logo.png') }}" alt="MikroLink" class="h-12 w-auto"
+                <img src="{{ asset('images/logo-mikrolink.png') }}" alt="MikroLink" class="h-12 w-auto"
                 onerror="this.style.display='none'; document.getElementById('logo-text').style.display='flex';">
                 <div id="logo-text" class="hidden items-center gap-1">
                     <div class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
@@ -299,4 +299,4 @@
         </section>
 
     </div>
-</x-layouts.app.header>
+</x-layouts.blank>

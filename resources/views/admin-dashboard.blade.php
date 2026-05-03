@@ -149,6 +149,7 @@
                 <h1 class="text-[28px] font-extrabold text-black tracking-tight mb-1">Rekapitulasi Aspirasi Warga</h1>
                 <p class="text-gray-500 font-medium text-sm">Tinjau, setujui, atau tolak permohonan dukungan mandiri dari para anggota.</p>
             </div>
+            <livewire:admin.report-export />
         </div>
 
         {{-- Tabel Aspirasi --}}

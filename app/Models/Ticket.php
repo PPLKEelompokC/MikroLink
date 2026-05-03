@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Ticket extends Model
 {
+    use Auditable;
     use HasFactory;
 
     protected $fillable = [
@@ -32,42 +34,43 @@ class Ticket extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
-            'open'        => 'Terbuka',
+        return match ($this->status) {
+            'open' => 'Terbuka',
             'in_progress' => 'Diproses',
-            'resolved'    => 'Selesai',
-            'closed'      => 'Ditutup',
-            default       => 'Terbuka',
+            'resolved' => 'Selesai',
+            'closed' => 'Ditutup',
+            default => 'Terbuka',
         };
     }
 
     public function getCategoryLabelAttribute(): string
     {
-        return match($this->category) {
-            'umum'       => 'Umum',
-            'pinjaman'   => 'Pinjaman',
+        return match ($this->category) {
+            'umum' => 'Umum',
+            'pinjaman' => 'Pinjaman',
             'pembayaran' => 'Pembayaran',
-            'teknis'     => 'Teknis',
-            'lainnya'    => 'Lainnya',
-            default      => 'Umum',
+            'teknis' => 'Teknis',
+            'lainnya' => 'Lainnya',
+            default => 'Umum',
         };
     }
 
     public function getPriorityLabelAttribute(): string
     {
-        return match($this->priority) {
-            'low'    => 'Rendah',
+        return match ($this->priority) {
+            'low' => 'Rendah',
             'medium' => 'Sedang',
-            'high'   => 'Tinggi',
-            default  => 'Sedang',
+            'high' => 'Tinggi',
+            default => 'Sedang',
         };
     }
 
     public static function generateTicketNumber(): string
     {
         $prefix = 'TKT';
-        $date   = now()->format('Ymd');
-        $last   = static::whereDate('created_at', today())->count() + 1;
-        return $prefix . '-' . $date . '-' . str_pad($last, 4, '0', STR_PAD_LEFT);
+        $date = now()->format('Ymd');
+        $last = static::whereDate('created_at', today())->count() + 1;
+
+        return $prefix.'-'.$date.'-'.str_pad($last, 4, '0', STR_PAD_LEFT);
     }
 }

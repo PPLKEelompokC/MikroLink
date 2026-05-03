@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TrustMetric extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'user_id',
         'participation_score',
@@ -30,10 +33,10 @@ class TrustMetric extends Model
      */
     public function calculateFinalIndex(): float
     {
-        $this->final_index = ($this->participation_score * 0.4) + 
-                             ($this->integrity_score * 0.4) + 
+        $this->final_index = ($this->participation_score * 0.4) +
+                             ($this->integrity_score * 0.4) +
                              ($this->reliability_score * 0.2);
-        
+
         return $this->final_index;
     }
 

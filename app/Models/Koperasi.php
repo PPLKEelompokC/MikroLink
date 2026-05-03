@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Koperasi extends Model
 {
+    use Auditable;
+
     protected $table = 'koperasi';
 
     protected $primaryKey = 'id_koperasi';
@@ -20,6 +23,7 @@ class Koperasi extends Model
         'nama_koperasi',
         'alamat',
         'saldo_kas',
+        'total_outstanding_loans',
     ];
 
     public function capitalLogs(): HasMany
@@ -30,6 +34,16 @@ class Koperasi extends Model
     public function financialRecords(): HasMany
     {
         return $this->hasMany(FinancialRecord::class, 'koperasi_id', 'id_koperasi');
+    }
+
+    public function idleFundSnapshots(): HasMany
+    {
+        return $this->hasMany(IdleFundSnapshot::class, 'koperasi_id', 'id_koperasi');
+    }
+
+    public function fundAllocations(): HasMany
+    {
+        return $this->hasMany(FundAllocation::class, 'koperasi_id', 'id_koperasi');
     }
 
     public function updateSaldo(float $amount, string $type = 'Penyesuaian Modal', ?string $memberName = null): void
