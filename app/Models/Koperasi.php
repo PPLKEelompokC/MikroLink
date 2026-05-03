@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Koperasi extends Model
 {
+    use Auditable;
+
     protected $table = 'koperasi';
 
     protected $primaryKey = 'id_koperasi';
