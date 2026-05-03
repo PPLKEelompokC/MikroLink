@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LoanStage extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'loan_id',
         'stage_order',
@@ -20,7 +23,7 @@ class LoanStage extends Model
     protected function casts(): array
     {
         return [
-            'completed'    => 'boolean',
+            'completed' => 'boolean',
             'completed_at' => 'datetime',
         ];
     }

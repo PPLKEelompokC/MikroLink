@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
+use Database\Factories\LoanFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class Loan extends Model
 {
-    /** @use HasFactory<\Database\Factories\LoanFactory> */
+    use Auditable;
+
+    /** @use HasFactory<LoanFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -29,9 +32,9 @@ class Loan extends Model
     protected function casts(): array
     {
         return [
-            'amount'           => 'decimal:2',
+            'amount' => 'decimal:2',
             'progress_percentage' => 'integer',
-            'disbursed_at'     => 'datetime',
+            'disbursed_at' => 'datetime',
         ];
     }
 
@@ -42,7 +45,7 @@ class Loan extends Model
     {
         static::creating(function (Loan $loan): void {
             if (empty($loan->loan_id_number)) {
-                $year  = now()->year;
+                $year = now()->year;
                 $count = static::whereYear('created_at', $year)->count() + 1;
                 $loan->loan_id_number = sprintf('PN-%s-%03d', $year, $count);
             }
@@ -64,7 +67,7 @@ class Loan extends Model
      */
     public function recalculateProgress(): void
     {
-        $total     = $this->stages()->count();
+        $total = $this->stages()->count();
         $completed = $this->stages()->where('completed', true)->count();
 
         $percentage = $total > 0 ? (int) round(($completed / $total) * 100) : 0;
@@ -80,8 +83,8 @@ class Loan extends Model
 
         $this->update([
             'progress_percentage' => $percentage,
-            'status'              => $status,
-            'disbursed_at'        => $completed >= $total ? ($this->disbursed_at ?? now()) : null,
+            'status' => $status,
+            'disbursed_at' => $completed >= $total ? ($this->disbursed_at ?? now()) : null,
         ]);
     }
 }

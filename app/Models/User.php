@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Casts\MaskedEmail;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Auditable;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,7 +13,9 @@ use Illuminate\Support\Str;
 
 class User extends Authenticatable // implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use Auditable;
+
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -45,7 +50,7 @@ class User extends Authenticatable // implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'email' => \App\Casts\MaskedEmail::class,
+            'email' => MaskedEmail::class,
         ];
     }
 
@@ -85,5 +90,13 @@ class User extends Authenticatable // implements MustVerifyEmail
     public function trustMetric()
     {
         return $this->hasOne(TrustMetric::class);
+    }
+
+    /**
+     * Get all audit trails associated with the user.
+     */
+    public function auditTrails()
+    {
+        return $this->hasMany(AuditTrail::class);
     }
 }

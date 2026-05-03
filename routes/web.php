@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AktaSetoranController;
 use App\Http\Controllers\AspirationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -7,7 +8,6 @@ use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FundAllocationController;
 use App\Http\Controllers\KoperasiController;
-use App\Http\Controllers\AktaSetoranController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -117,6 +117,14 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
         // Fitur: Validasi / Tracking Pinjaman
         // Mengarah ke resources/views/livewire/admin/disbursement-tracking.blade.php
         Volt::route('/pinjaman/validasi', 'admin.disbursement-tracking')->name('pinjaman.validasi');
+    });
+
+// --- Super Admin Area ---
+Route::middleware(['auth', 'role:super_admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Volt::route('/audit-trails', 'admin.audit-trails')->name('audit-trails');
     });
 
 require __DIR__.'/auth.php';
