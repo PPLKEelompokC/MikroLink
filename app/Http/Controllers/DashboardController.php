@@ -6,6 +6,7 @@ use App\Models\Aspiration;
 use App\Models\Deposit;
 use App\Models\FundAllocation;
 use App\Models\Koperasi;
+use App\Models\Loan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -29,8 +30,8 @@ class DashboardController extends Controller
             }
 
             // --- Simpanan (dari tabel deposits) ---
-            $simpananPokok = $user->totalSimpanan('POKOK');
-            $simpananWajib = $user->totalSimpanan('WAJIB');
+            $simpananPokok    = $user->totalSimpanan('POKOK');
+            $simpananWajib    = $user->totalSimpanan('WAJIB');
             $simpananSukarela = $user->totalSimpanan('SUKARELA');
 
             // --- Aspirasi Terbaru ---
@@ -64,14 +65,14 @@ class DashboardController extends Controller
             ['id_koperasi' => 'KOP-001'],
             [
                 'nama_koperasi' => 'Koperasi MikroLink',
-                'alamat' => 'Jl. Merdeka No 1',
-                'saldo_kas' => 350500000,
+                'alamat'        => 'Jl. Merdeka No 1',
+                'saldo_kas'     => 350500000,
             ]
         );
 
-        $availableCapital = $koperasi->saldo_kas;
-        $likuiditas = $koperasi->cekLikuiditas();
-        $totalTransaksi = $koperasi->capitalLogs->count();
+        $availableCapital   = $koperasi->saldo_kas;
+        $likuiditas         = $koperasi->cekLikuiditas();
+        $totalTransaksi     = $koperasi->capitalLogs->count();
         $terakhirDiperbarui = $koperasi->capitalLogs->last()
             ? $koperasi->capitalLogs->last()->created_at->diffForHumans()
             : 'Belum ada transaksi';
@@ -82,14 +83,14 @@ class DashboardController extends Controller
             ->orderBy('record_date', 'asc')
             ->get();
 
-        $chartLabels = $financialRecords->map(fn ($r) => $r->record_date->translatedFormat('M Y'))->values()->toArray();
-        $omzetData = $financialRecords->pluck('omzet')->values()->toArray();
+        $chartLabels     = $financialRecords->map(fn ($r) => $r->record_date->translatedFormat('M Y'))->values()->toArray();
+        $omzetData       = $financialRecords->pluck('omzet')->values()->toArray();
         $creditScoreData = $financialRecords->pluck('credit_score')->values()->toArray();
 
-        $latestOmzet = $financialRecords->last()?->omzet ?? 0;
+        $latestOmzet       = $financialRecords->last()?->omzet ?? 0;
         $latestCreditScore = $financialRecords->last()?->credit_score ?? 0;
 
-        $maxOmzet = max($omzetData ?: [1]);
+        $maxOmzet        = max($omzetData ?: [1]);
         $omzetPercentage = $maxOmzet > 0 ? round(($latestOmzet / $maxOmzet) * 100, 1) : 0;
 
         // --- Badge Setoran Pending untuk Admin ---
@@ -97,6 +98,14 @@ class DashboardController extends Controller
 
         // --- FR-18: Pending AI Fund Allocation Recommendations ---
         $pendingAllocationsCount = FundAllocation::where('status', 'pending')->count();
+
+        // --- Badge Pinjaman untuk Workflow Berjenjang ✅ ---
+        $pendingLoansCount = 0;
+        $pendingManajerLoansCount = 0;
+        if (Schema::hasTable('loans')) {
+            $pendingLoansCount        = Loan::where('status', 'Baru')->count();
+            $pendingManajerLoansCount = Loan::where('status', 'Dalam Review')->count();
+        }
 
         return view('dashboard', compact(
             'koperasi',
@@ -112,6 +121,8 @@ class DashboardController extends Controller
             'latestCreditScore',
             'pendingDepositsCount',
             'pendingAllocationsCount',
+            'pendingLoansCount',           
+            'pendingManajerLoansCount',    
         ));
     }
 }

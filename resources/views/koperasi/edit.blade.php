@@ -47,7 +47,10 @@
 
 <div class="w-full max-w-4xl mx-auto px-10 py-12 relative z-10">
     <div class="bg-white rounded-2xl shadow-sm border border-neutral-200 p-8">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Manajemen Profil Koperasi</h1>
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Manajemen Profil Koperasi</h1>
+            <livewire:admin.report-export />
+        </div>
 
         @if(session('success'))
             <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded mb-6">

@@ -285,14 +285,17 @@
             </div>
 
         @else
-            <div class="w-full flex items-center justify-between">
+            <div class="w-full flex items-center justify-between gap-6">
                 <div class="max-w-3xl">
                     <h1 class="text-[40px] font-bold text-gray-900 leading-tight tracking-tight">
                         Selamat datang, {{ auth()->user()->name }}! Kelola profil koperasi dan pantau pergerakan modal secara real-time.
                     </h1>
                 </div>
-                <div class="hidden lg:block">
-                    <img src="{{ asset('images/flying_girl.png') }}" alt="Flying Girl Illustration" class="w-[220px] h-auto opacity-90 object-contain">
+                <div class="flex items-center gap-4">
+                    <livewire:admin.report-export />
+                    <div class="hidden lg:block">
+                        <img src="{{ asset('images/flying_girl.png') }}" alt="Flying Girl Illustration" class="w-[220px] h-auto opacity-90 object-contain">
+                    </div>
                 </div>
             </div>
 

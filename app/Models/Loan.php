@@ -27,14 +27,22 @@ class Loan extends Model
         'progress_percentage',
         'notes',
         'disbursed_at',
+        'reviewed_by_admin',
+        'admin_note',
+        'admin_reviewed_at',
+        'reviewed_by_manajer',
+        'manajer_note',
+        'manajer_reviewed_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'amount' => 'decimal:2',
+            'amount'              => 'decimal:2',
             'progress_percentage' => 'integer',
-            'disbursed_at' => 'datetime',
+            'disbursed_at'        => 'datetime',
+            'admin_reviewed_at'   => 'datetime',
+            'manajer_reviewed_at' => 'datetime',
         ];
     }
 
@@ -60,6 +68,17 @@ class Loan extends Model
     public function stages(): HasMany
     {
         return $this->hasMany(LoanStage::class)->orderBy('stage_order');
+    }
+
+    // ✅ Relasi workflow berjenjang
+    public function adminReviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by_admin');
+    }
+
+    public function manajerReviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by_manajer');
     }
 
     /**
