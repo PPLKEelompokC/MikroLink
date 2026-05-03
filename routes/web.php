@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware('role:Admin Koperasi,Manajer Koperasi,user,admin')
+        ->middleware('role:Admin Koperasi,Manajer Koperasi,user,admin,super_admin')
         ->name('dashboard');
 
     // Portal Aspirasi
@@ -74,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('/settings/appearance', 'settings.appearance')->name('settings.appearance');
 
     // Koperasi Management (Admin/Manager)
-    Route::middleware('role:Admin Koperasi,Manajer Koperasi')->group(function () {
+    Route::middleware('role:Admin Koperasi,Manajer Koperasi,super_admin')->group(function () {
         Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
         Route::put('/koperasi/update', [KoperasiController::class, 'update'])->name('koperasi.update');
         Route::post('/koperasi/adjust-capital', [KoperasiController::class, 'adjustCapital'])->name('koperasi.adjustCapital');
@@ -89,7 +89,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // --- Admin Area (Prefix: /admin) ---
-Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
+Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin,super_admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -105,11 +105,11 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
         Route::prefix('fund-allocation')->name('fund-allocation.')->group(function () {
             Route::get('/', [FundAllocationController::class, 'index'])->name('index');
             Route::post('/analyze', [FundAllocationController::class, 'triggerAnalysis'])
-                ->middleware('role:Manajer Koperasi')
+                ->middleware('role:Manajer Koperasi,super_admin')
                 ->name('analyze');
             Route::get('/{fundAllocation}', [FundAllocationController::class, 'show'])->name('show');
             Route::patch('/{fundAllocation}/status', [FundAllocationController::class, 'updateStatus'])
-                ->middleware('role:Manajer Koperasi')
+                ->middleware('role:Manajer Koperasi,super_admin')
                 ->name('updateStatus');
         });
         // Aspirasi Admin

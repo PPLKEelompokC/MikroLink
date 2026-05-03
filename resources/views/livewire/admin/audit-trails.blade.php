@@ -2,9 +2,10 @@
 
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 use App\Models\AuditTrail;
 
-new class extends Component {
+new #[Layout('layouts.app')] class extends Component {
     use WithPagination;
 
     public ?AuditTrail $selectedTrail = null;
@@ -32,8 +33,22 @@ new class extends Component {
 }; ?>
 
 <div>
+    @include('components.navbar')
+
+    <div class="w-full max-w-7xl mx-auto py-10 px-6">
+        {{-- Tombol Back --}}
+    <div class="mb-6">
+        <a href="{{ route('dashboard') }}" wire:navigate
+            class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Kembali ke Dashboard
+        </a>
+    </div>
+
     {{-- Card Container --}}
-    <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-[32px] border border-neutral-200 shadow-sm overflow-hidden mb-6">
         {{-- Header --}}
         <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/30">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -198,4 +213,5 @@ new class extends Component {
             </div>
         </div>
     @endif
+    </div>
 </div>
