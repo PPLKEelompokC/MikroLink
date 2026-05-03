@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KoperasiController;
 use App\Http\Controllers\AktaSetoranController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\LiterasiController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -83,6 +84,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/documents/upload', [CommunityDocumentController::class, 'store'])->name('docs.store');
 });
+    // Literasi Keuangan (Publik, tapi harus login untuk akses penuh)
+    Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/literasi', [LiterasiController::class, 'index'])->name('literasi.index');
+    Route::get('/literasi/{slug}', [LiterasiController::class, 'show'])->name('literasi.show')->where('slug', '[a-z0-9-]+');
+    });
 
 // --- Admin Area (Prefix: /admin) ---
 Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin'])
