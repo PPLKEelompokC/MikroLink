@@ -61,6 +61,9 @@ Route::middleware(['auth'])->group(function () {
     // Fitur: Setoran Simpanan (Anggota)
     Volt::route('/simpanan/setor', 'simpanan.create-setoran')->name('simpanan.setor');
 
+    // Fitur: Penarikan Simpanan Sukarela (Anggota)
+    Volt::route('/simpanan/tarik', 'simpanan.tarik-simpanan')->name('simpanan.tarik');
+
     // Fitur: Download Akta Setoran PDF
     Route::get('/simpanan/akta/{id}', [AktaSetoranController::class, 'download'])
         ->name('simpanan.akta.download');
@@ -101,6 +104,9 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin,super_adm
 
         // Validasi Setoran Simpanan
         Volt::route('/simpanan/validasi', 'admin.validasi-setoran')->name('simpanan.validasi');
+
+        // Validasi Penarikan Simpanan
+        Volt::route('/simpanan/tarik-validasi', 'admin.validasi-penarikan')->name('simpanan.tarik.validasi');
 
         // FR-18: AI Strategic Fund Allocation
         Route::prefix('fund-allocation')->name('fund-allocation.')->group(function () {
