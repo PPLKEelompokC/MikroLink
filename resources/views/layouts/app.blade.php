@@ -38,9 +38,17 @@
     </style>
 </head>
 <body>
-    <div id="loader">
-        <img src="{{ asset('images/logo-mikrolink.png') }}" class="logo-3d">
-    </div>
+    {{-- Bungkus loader dengan @persist agar Livewire mengabaikannya saat navigasi SPA --}}
+    @persist('global-loader')
+        <div 
+            id="loader" 
+            x-data="{ hidden: false }" 
+            x-init="setTimeout(() => hidden = true, 700)" 
+            :class="{ 'loader-hidden': hidden }"
+        >
+            <img src="{{ asset('images/logo-mikrolink.png') }}" class="logo-3d">
+        </div>
+    @endpersist
 
     <div class="bg-global-diamond"></div>
 
@@ -51,13 +59,6 @@
     @yield('content')
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-    <script>
-        window.addEventListener("load", () => {
-            const loader = document.getElementById("loader");
-            setTimeout(() => { loader.classList.add("loader-hidden"); }, 700);
-        });
-    </script>
 
     @stack('scripts')
 </body>
