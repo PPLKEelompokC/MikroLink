@@ -99,4 +99,30 @@ class User extends Authenticatable // implements MustVerifyEmail
     {
         return $this->hasMany(AuditTrail::class);
     }
+
+    /**
+     * Relasi ke semua penarikan simpanan milik user ini
+     */
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class);
+    }
+
+    /**
+     * Saldo simpanan sukarela yang tersedia untuk ditarik.
+     * Mengurangi total deposit SUKARELA APPROVED dengan total penarikan APPROVED + PENDING.
+     */
+    public function availableSukarelaBalance(): float
+    {
+        $totalDeposit = $this->deposits()
+            ->where('type', 'SUKARELA')
+            ->where('status', 'APPROVED')
+            ->sum('amount');
+
+        $totalWithdrawn = $this->withdrawals()
+            ->whereIn('status', ['APPROVED', 'PENDING'])
+            ->sum('amount');
+
+        return max(0, $totalDeposit - $totalWithdrawn);
+    }
 }
