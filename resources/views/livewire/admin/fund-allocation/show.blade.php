@@ -1,56 +1,26 @@
-@extends('layouts.app')
+<?php
 
-@section('title', 'Detail Rekomendasi - MikroLink')
+use App\Models\FundAllocation;
+use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
 
-@section('content')
-    <nav class="w-full h-[80px] flex justify-between items-center bg-white/80 backdrop-blur-md px-10 border-b border-[#e4e4e4] sticky top-0 z-50">
-        <div class="flex items-center">
-            <a href="{{ route('dashboard') }}">
-                <img src="{{ asset('images/logo-mikrolink.png') }}" alt="MikroLink Logo" class="w-[120px] h-auto">
-            </a>
-        </div>
-        <div class="hidden lg:flex items-center gap-8">
-            <a href="{{ route('dashboard') }}" class="font-bold text-[15px] text-gray-600 hover:text-[#e8a838] transition-colors">Dashboard</a>
-            @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
-                <a href="{{ route('koperasi.edit') }}" class="font-bold text-[15px] text-emerald-600 hover:text-emerald-700 transition-colors">Manage Koperasi</a>
-                <a href="{{ route('admin.simpanan.validasi') }}"
-                    class="font-bold text-[15px] text-orange-600 hover:text-orange-700 transition-colors flex items-center gap-1.5">
-                    Validasi Setoran
-                </a>
-                <a href="{{ route('admin.fund-allocation.index') }}" class="font-bold text-[15px] text-violet-600 hover:text-violet-700 transition-colors">
-                    AI Fund Allocation
-                </a>
-                <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
-                <a href="#trust-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Trust Index</a>
-            @endif
-        </div>
-        <div x-data="{ open: false }" class="relative">
-            <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 focus:outline-none">
-                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-inner hover:bg-gray-400 transition-colors">
-                    @if(auth()->check())
-                        {{ auth()->user()->initials() }}
-                    @else
-                        GU
-                    @endif
-                </div>
-            </button>
+new #[Layout('layouts.app')] class extends Component {
+    public FundAllocation $fundAllocation;
 
-            <div x-show="open" x-transition.opacity.duration.200ms class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50" style="display: none;">
-                @if(auth()->check())
-                    <div class="px-4 py-2 border-b border-gray-50">
-                        <p class="text-sm font-bold text-gray-800">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
-                    </div>
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">Logout</button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#e8a838] transition-colors">Login</a>
-                @endif
-            </div>
-        </div>
-    </nav>
+    public function updateStatus(string $status): void
+    {
+        $this->fundAllocation->update([
+            'status' => $status,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        session()->flash('success', 'Status rekomendasi berhasil diperbarui.');
+    }
+}; ?>
+
+<div>
+    @include('components.navbar')
 
     <div class="w-full max-w-[1400px] mx-auto px-10 py-12 flex flex-col gap-8 relative z-10">
 
@@ -63,7 +33,7 @@
         @endif
 
         {{-- Back link --}}
-        <a href="{{ route('admin.fund-allocation.index') }}" class="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 w-fit">
+        <a href="{{ route('admin.fund-allocation.index') }}" wire:navigate class="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 w-fit">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             Kembali ke Daftar
         </a>
@@ -149,24 +119,14 @@
                     <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
                         <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Tindakan</h3>
                         <div class="flex flex-col gap-3">
-                            <form method="POST" action="{{ route('admin.fund-allocation.updateStatus', $fundAllocation) }}">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="status" value="approved">
-                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-100">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    Setujui Rekomendasi
-                                </button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.fund-allocation.updateStatus', $fundAllocation) }}">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="status" value="rejected">
-                                <button type="submit" class="w-full bg-white border-2 border-red-200 hover:bg-red-50 text-red-600 font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    Tolak Rekomendasi
-                                </button>
-                            </form>
+                            <button wire:click="updateStatus('approved')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Setujui Rekomendasi
+                            </button>
+                            <button wire:click="updateStatus('rejected')" class="w-full bg-white border-2 border-red-200 hover:bg-red-50 text-red-600 font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                Tolak Rekomendasi
+                            </button>
                         </div>
                     </div>
                 @endif
@@ -199,4 +159,4 @@
             </div>
         </div>
     </div>
-@endsection
+</div>

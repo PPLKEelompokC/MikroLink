@@ -79,7 +79,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Koperasi Management (Admin/Manager)
     Route::middleware('role:Admin Koperasi,Manajer Koperasi,super_admin')->group(function () {
-        Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
+        // Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
+        Volt::route('/koperasi/edit', 'admin.profile')->name('koperasi.edit');
         Route::put('/koperasi/update', [KoperasiController::class, 'update'])->name('koperasi.update');
         Route::post('/koperasi/adjust-capital', [KoperasiController::class, 'adjustCapital'])->name('koperasi.adjustCapital');
     });
@@ -110,14 +111,13 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin,super_adm
 
         // FR-18: AI Strategic Fund Allocation
         Route::prefix('fund-allocation')->name('fund-allocation.')->group(function () {
-            Route::get('/', [FundAllocationController::class, 'index'])->name('index');
-            Route::post('/analyze', [FundAllocationController::class, 'triggerAnalysis'])
+            Volt::route('/', 'admin.fund-allocation.index')
                 ->middleware('role:Manajer Koperasi,super_admin')
-                ->name('analyze');
-            Route::get('/{fundAllocation}', [FundAllocationController::class, 'show'])->name('show');
-            Route::patch('/{fundAllocation}/status', [FundAllocationController::class, 'updateStatus'])
+                ->name('index');
+                
+            Volt::route('/{fundAllocation}', 'admin.fund-allocation.show')
                 ->middleware('role:Manajer Koperasi,super_admin')
-                ->name('updateStatus');
+                ->name('show');
         });
 
         // Aspirasi Admin
