@@ -4,13 +4,10 @@ use App\Models\Deposit;
 use App\Models\User;
 use App\Models\Withdrawal;
 use App\Notifications\WithdrawalStatusUpdated;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Volt\Volt;
-
-uses(RefreshDatabase::class);
 
 // ── Member Tests ──────────────────────────────────────────────────
 
@@ -179,7 +176,7 @@ it('admin can approve withdrawal with proof upload', function () {
     Volt::actingAs($admin)
         ->test('admin.validasi-penarikan')
         ->call('lihatDetail', $withdrawal->id)
-        ->set('proofFile', UploadedFile::fake()->image('bukti.jpg'))
+        ->set('proofFile', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
         ->set('adminNote', 'Dana sudah ditransfer')
         ->call('approve', $withdrawal->id)
         ->assertDispatched('notif');
