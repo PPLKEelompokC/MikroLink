@@ -44,7 +44,20 @@ return [
         'openrouter' => [
             'base_url' => env('AI_OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'),
             'api_key' => env('AI_OPENROUTER_API_KEY'),
-            'model' => env('AI_OPENROUTER_MODEL', 'qwen/qwen3-8b:free'),
+            // Primary model. When rate-limited, OpenRouter automatically tries fallback_models below.
+            'model' => env('AI_OPENROUTER_MODEL', 'google/gemini-2.5-flash'),
+            // Fallback models tried in order when the primary is rate-limited.
+            // NOTE: OpenRouter's `models` array allows max 3 items total (primary + 2 fallbacks).
+            // Gemini fallbacks use your BYOK Google AI key (Google AI Studio provider).
+            // Gemma is open-source and hosted on third-party providers, so BYOK won't apply to it.
+            'fallback_models' => [
+                'google/gemini-3-flash-preview',      // Gemini fallback (BYOK applies, uses your quota)
+                'google/gemma-3-27b-it:free',         // Gemma last resort (completely free on OpenRouter)
+            ],
+            // Provider routing: OpenRouter will try this provider first (BYOK), then fall
+            // back to any other available provider for the model if it fails.
+            // Set to null/empty to let OpenRouter load-balance freely across all providers.
+            'prefer_provider' => env('AI_OPENROUTER_PREFER_PROVIDER', 'Google AI Studio'),
         ],
         'google' => [
             'base_url' => env('AI_GOOGLE_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),

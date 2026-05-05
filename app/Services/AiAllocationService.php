@@ -262,7 +262,11 @@ PROMPT;
     }
 
     /**
-     * Call the OpenRouter API (OpenAI-compatible).
+     * Call the OpenRouter API (OpenAI-compatible) with multi-model Google AI fallback.
+     *
+     * Sends the primary Google Gemini model plus all configured fallback models in a single
+     * request using OpenRouter's `models` array. OpenRouter handles rate-limit detection
+     * and model switching automatically. All models prefer Google AI Studio via BYOK.
      */
     protected function callOpenRouter(string $prompt, int $timeout): string
     {
@@ -273,24 +277,62 @@ PROMPT;
             throw new \RuntimeException('OpenRouter API key is not configured. Set AI_OPENROUTER_API_KEY in .env');
         }
 
+        $primaryModel = config('services.ai_allocation.openrouter.model');
+        $fallbackModels = config('services.ai_allocation.openrouter.fallback_models', []);
+        $preferProvider = config('services.ai_allocation.openrouter.prefer_provider');
+
+        // Build headers
+        $headers = [
+            'Authorization' => "Bearer {$apiKey}",
+            'HTTP-Referer' => config('app.url', 'http://localhost'),
+            'X-Title' => 'MikroLink Fund Allocation',
+        ];
+
+        // Assemble full model list: primary first, then fallbacks.
+        // OpenRouter's `models` array enables automatic per-model rate-limit failover
+        // without any extra round-trips — it all happens in a single API call.
+        // Hard cap at 3 items — OpenRouter enforces this limit on the `models` array.
+        $allModels = array_slice(
+            array_values(array_filter(
+                array_merge([$primaryModel], $fallbackModels)
+            )),
+            0,
+            3
+        );
+
+        // Build request body using `models` (plural) for multi-model fallback support
+        $body = [
+            'models' => $allModels,
+            'messages' => [
+                ['role' => 'system', 'content' => 'You are a cooperative financial advisor AI. Always respond with valid JSON only.'],
+                ['role' => 'user', 'content' => $prompt],
+            ],
+            'temperature' => 0.3,
+            'max_tokens' => 2048,
+        ];
+
+        // Prefer Google AI Studio (BYOK) across all models in the fallback chain.
+        // `order` is a soft preference — OpenRouter still falls back to other providers
+        // if Google AI Studio is unavailable for any given model.
+        if (! empty($preferProvider)) {
+            $body['provider'] = [
+                'order' => [$preferProvider],
+                'allow_fallbacks' => true,
+            ];
+        }
+
         $response = Http::timeout($timeout)
             ->connectTimeout(5)
             ->retry([1000, 3000])
-            ->withHeaders([
-                'Authorization' => "Bearer {$apiKey}",
-                'HTTP-Referer' => config('app.url', 'http://localhost'),
-                'X-Title' => 'MikroLink Fund Allocation',
-            ])
-            ->post("{$baseUrl}/chat/completions", [
-                'model' => config('services.ai_allocation.openrouter.model'),
-                'messages' => [
-                    ['role' => 'system', 'content' => 'You are a cooperative financial advisor AI. Always respond with valid JSON only.'],
-                    ['role' => 'user', 'content' => $prompt],
-                ],
-                'temperature' => 0.3,
-                'max_tokens' => 2048,
-            ])
+            ->withHeaders($headers)
+            ->post("{$baseUrl}/chat/completions", $body)
             ->throw();
+
+        // Track which model OpenRouter actually used (may differ from primary when rate-limited)
+        $usedModel = $response->json('model');
+        if (! empty($usedModel)) {
+            $this->lastUsedModelName = $usedModel;
+        }
 
         return $response->json('choices.0.message.content', '[]');
     }
