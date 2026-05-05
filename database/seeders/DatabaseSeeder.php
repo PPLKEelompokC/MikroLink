@@ -9,13 +9,21 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        User::updateOrCreate(
+            ['email' => 'superadmin@mikrolink.test'],
+            [
+                'name' => 'Super Admin',
+                'password' => bcrypt('password'),
+                'role' => 'super_admin', // ← tambah ini
+            ]
+        );
         // Admin Koperasi
         User::updateOrCreate(
             ['email' => 'admin@mikrolink.com'],
             [
-                'name'     => 'Admin User',
+                'name' => 'Admin',
                 'password' => bcrypt('password'),
-                'role'     => 'Admin Koperasi', // ← tambah ini
+                'role' => 'admin', // ← tambah ini
             ]
         );
 
@@ -23,9 +31,9 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'manajer@mikrolink.com'],
             [
-                'name'     => 'Manajer User',
+                'name' => 'Manajer',
                 'password' => bcrypt('password'),
-                'role'     => 'Manajer Koperasi',
+                'role' => 'manager',
             ]
         );
 
@@ -33,9 +41,9 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'anggota@mikrolink.com'],
             [
-                'name'     => 'Anggota User',
+                'name' => 'Anggota',
                 'password' => bcrypt('password'),
-                'role'     => 'user',
+                'role' => 'user',
             ]
         );
 
