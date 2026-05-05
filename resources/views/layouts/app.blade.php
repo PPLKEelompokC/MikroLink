@@ -6,7 +6,6 @@
     <title>@yield('title', 'MikroLink')</title>
    
     <script src="https://cdn.tailwindcss.com"></script>
-    {{-- Alpine.js DIHAPUS dari sini karena Livewire sudah include otomatis --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
    
     <style>
@@ -23,10 +22,10 @@
             filter: drop-shadow(0 15px 30px rgba(232, 168, 56, 0.2));
         }
         @keyframes flip3d {
-            0% { transform: perspective(400px) rotateY(0deg); }
+            0%   { transform: perspective(400px) rotateY(0deg); }
             100% { transform: perspective(400px) rotateY(360deg); }
         }
-        .loader-hidden { opacity: 0; visibility: hidden; }
+        .loader-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
         .bg-global-diamond {
             position: fixed; inset: 0; z-index: -1;
@@ -38,12 +37,12 @@
     </style>
 </head>
 <body>
-    {{-- Bungkus loader dengan @persist agar Livewire mengabaikannya saat navigasi SPA --}}
+    {{-- 3D Loader --}}
     @persist('global-loader')
-        <div 
-            id="loader" 
-            x-data="{ hidden: false }" 
-            x-init="setTimeout(() => hidden = true, 700)" 
+        <div
+            id="loader"
+            x-data="{ hidden: false }"
+            x-init="setTimeout(() => hidden = true, 700)"
             :class="{ 'loader-hidden': hidden }"
         >
             <img src="{{ asset('images/logo-mikrolink.png') }}" class="logo-3d">
@@ -51,6 +50,9 @@
     @endpersist
 
     <div class="bg-global-diamond"></div>
+
+    {{-- Navbar --}}
+    @include('components.navbar')
 
     {{-- Untuk Livewire Volt (pakai $slot) --}}
     {{ $slot ?? '' }}
