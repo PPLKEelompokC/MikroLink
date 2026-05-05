@@ -60,7 +60,6 @@ new #[Layout('layouts.app')] class extends Component {
 }; ?>
 
 <div>
-    @include('components.navbar')
 
     <div class="w-full max-w-4xl mx-auto px-10 py-12 relative z-10">
         <div class="bg-white rounded-2xl shadow-sm border border-neutral-200 p-8">

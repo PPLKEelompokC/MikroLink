@@ -33,7 +33,6 @@ new #[Layout('layouts.app')] class extends Component {
 }; ?>
 
 <div>
-    @include('components.navbar')
 
     <div class="w-full max-w-7xl mx-auto py-10 px-6">
         {{-- Tombol Back --}}

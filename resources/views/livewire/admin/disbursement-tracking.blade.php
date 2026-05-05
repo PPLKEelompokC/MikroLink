@@ -1,10 +1,11 @@
 <?php
 
 use Livewire\Volt\Component;
+use Livewire\Attributes\Layout;
 use App\Models\Loan;
 use App\Models\LoanStage;
 
-new class extends Component {
+new #[Layout('layouts.app')] class extends Component {
 
     public ?Loan $selectedLoan = null;
     public string $filterStatus = '';
@@ -83,6 +84,19 @@ new class extends Component {
 }; ?>
 
 <div>
+    <div class="w-full max-w-7xl mx-auto py-10 px-6">
+
+        {{-- Tombol Back --}}
+        <div class="mb-6">
+            <a href="{{ route('dashboard') }}" wire:navigate
+                class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Dashboard
+            </a>
+        </div>
+
     {{-- Toast --}}
     <div
         x-data="{ show: false, message: '', type: 'success' }"
@@ -389,4 +403,5 @@ new class extends Component {
             win.print();
         });
     </script>
+    </div>{{-- /.w-full.max-w-7xl --}}
 </div>
