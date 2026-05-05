@@ -6,7 +6,6 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\FundAllocationController;
 use App\Http\Controllers\KoperasiController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
@@ -44,7 +43,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware('role:Admin Koperasi,Manajer Koperasi,user,admin,super_admin')
+        ->middleware('role:admin,manager,user,admin,super_admin')
         ->name('dashboard');
 
     // Portal Aspirasi
@@ -78,7 +77,7 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('/settings/appearance', 'settings.appearance')->name('settings.appearance');
 
     // Koperasi Management (Admin/Manager)
-    Route::middleware('role:Admin Koperasi,Manajer Koperasi,super_admin')->group(function () {
+    Route::middleware('role:admin,manager,super_admin')->group(function () {
         // Route::get('/koperasi/edit', [KoperasiController::class, 'edit'])->name('koperasi.edit');
         Volt::route('/koperasi/edit', 'admin.profile')->name('koperasi.edit');
         Route::put('/koperasi/update', [KoperasiController::class, 'update'])->name('koperasi.update');
@@ -94,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // --- Admin Area (Prefix: /admin) ---
-Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin,super_admin'])
+Route::middleware(['auth', 'role:admin,manager,admin,super_admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -112,11 +111,11 @@ Route::middleware(['auth', 'role:Admin Koperasi,Manajer Koperasi,admin,super_adm
         // FR-18: AI Strategic Fund Allocation
         Route::prefix('fund-allocation')->name('fund-allocation.')->group(function () {
             Volt::route('/', 'admin.fund-allocation.index')
-                ->middleware('role:Manajer Koperasi,super_admin')
+                ->middleware('role:manager,super_admin')
                 ->name('index');
-                
+
             Volt::route('/{fundAllocation}', 'admin.fund-allocation.show')
-                ->middleware('role:Manajer Koperasi,super_admin')
+                ->middleware('role:manager,super_admin')
                 ->name('show');
         });
 
