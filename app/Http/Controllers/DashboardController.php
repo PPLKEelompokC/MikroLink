@@ -7,6 +7,8 @@ use App\Models\Deposit;
 use App\Models\FundAllocation;
 use App\Models\Koperasi;
 use App\Models\Loan;
+use App\Models\TrustMetric;
+use App\Models\LiterasiArtikel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -48,6 +50,18 @@ class DashboardController extends Controller
                     ->where('status', 'approved')
                     ->exists() ? 'VERIFIED' : 'PENDING';
             }
+            // --- Return View ---
+            $artikelTerbaru = LiterasiArtikel::published()->latest()->take(3)->get();
+            return view('dashboard', compact(
+                'trustMetric',
+                'trustScore',
+                'simpananPokok',
+                'simpananWajib',
+                'simpananSukarela',
+                'userAspirations',
+                'kycStatus',
+                'artikelTerbaru',
+            ));
 
             return view('dashboard', compact(
                 'trustMetric',

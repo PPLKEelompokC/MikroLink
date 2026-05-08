@@ -3,6 +3,56 @@
 @section('title', 'Dashboard - MikroLink')
 
 @section('content')
+    <nav class="w-full h-[80px] flex justify-between items-center bg-white/80 backdrop-blur-md px-10 border-b border-[#e4e4e4] sticky top-0 z-50">
+        <div class="flex items-center">
+            <a href="{{ route('dashboard') }}">
+                <img src="{{ asset('images/logo-mikrolink.png') }}" alt="MikroLink Logo" class="w-[120px] h-auto">
+            </a>
+        </div>
+        <div class="hidden lg:flex items-center gap-8">
+            <a href="#" class="font-bold text-[15px] text-[#e8a838]">Dashboard</a>
+            @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
+                <a href="{{ route('koperasi.edit') }}" class="font-bold text-[15px] text-emerald-600 hover:text-emerald-700 transition-colors">Manage Koperasi</a>
+                <a href="{{ route('admin.simpanan.validasi') }}"
+                    class="font-bold text-[15px] text-orange-600 hover:text-orange-700 transition-colors flex items-center gap-1.5">
+                    Validasi Setoran
+                    @if(isset($pendingDepositsCount) && $pendingDepositsCount > 0)
+                        <span class="inline-flex items-center justify-center w-5 h-5 bg-orange-500 text-white text-[10px] font-extrabold rounded-full">
+                            {{ $pendingDepositsCount }}
+                        </span>
+                    @endif
+                </a>
+                <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
+                <a href="#trust-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Trust Index</a>
+            @endif
+        </div>
+        <div x-data="{ open: false }" class="relative">
+            <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 focus:outline-none">
+                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-inner hover:bg-gray-400 transition-colors">
+                    @if(auth()->check())
+                        {{ auth()->user()->initials() }}
+                    @else
+                        GU
+                    @endif
+                </div>
+            </button>
+            
+            <div x-show="open" x-transition.opacity.duration.200ms class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50" style="display: none;">
+                @if(auth()->check())
+                    <div class="px-4 py-2 border-b border-gray-50">
+                        <p class="text-sm font-bold text-gray-800">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">Logout</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#e8a838] transition-colors">Login</a>
+                @endif
+            </div>
+        </div>
+    </nav>
 
     <div class="w-full max-w-[1400px] mx-auto px-10 py-12 flex flex-col gap-10 relative z-10">
         
@@ -287,6 +337,43 @@
                 </div>
             </div>
 
+            {{-- WIDGET RUANG TUMBUH --}}
+            @if(isset($artikelTerbaru) && $artikelTerbaru->isNotEmpty())
+            <div class="flex flex-col gap-5 mb-12">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">📚 Ruang Tumbuh</h2>
+                        <p class="text-gray-400 text-sm mt-0.5">Tingkatkan literasi finansialmu</p>
+                    </div>
+                    <a href="{{ route('literasi.index') }}"
+                       class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1a2340] text-white text-sm font-bold rounded-2xl hover:bg-[#2d3a5c] transition-all">
+                        📚 Buka Ruang Tumbuh →
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    @foreach($artikelTerbaru as $artikel)
+                    @php $katInfo = \App\Models\LiterasiArtikel::daftarKategori()[$artikel->kategori] ?? ['icon' => '📄', 'label' => $artikel->kategori]; @endphp
+                    <a href="{{ route('literasi.show', $artikel->slug) }}"
+                       class="group bg-white border border-gray-100 rounded-[20px] p-5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-lg flex-shrink-0">
+                                {{ $katInfo['icon'] }}
+                            </div>
+                            <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest">{{ $katInfo['label'] }}</span>
+                        </div>
+                        <h3 class="font-bold text-gray-800 text-sm leading-snug group-hover:text-[#e8a838] transition-colors">
+                            {{ $artikel->judul }}
+                        </h3>
+                        <div class="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
+                            <span class="text-xs text-gray-400">⏱ {{ $artikel->estimasi_baca }} menit</span>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase">{{ $artikel->labelLevel() }}</span>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            
         @else
             <div class="w-full flex items-center justify-between gap-6">
                 <div class="max-w-3xl">
@@ -300,9 +387,8 @@
                         <img src="{{ asset('images/flying_girl.png') }}" alt="Flying Girl Illustration" class="w-[220px] h-auto opacity-90 object-contain">
                     </div>
                 </div>
-            </div>
-
-            <div>
+            </div>   
+                <div>           
                 <h2 class="text-[16px] font-bold text-gray-800 mb-4">Ringkasan Aktivitas Hari Ini</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white rounded-2xl p-6 border border-neutral-200 shadow-sm flex flex-col justify-between">
@@ -450,6 +536,18 @@
             <div id="trust-management" class="w-full pb-10">
                 <livewire:admin.trust-management />
             </div>
+            {{-- Tombol Ruang Tumbuh untuk Admin --}}
+            <a href="{{ route('literasi.index') }}"
+            class="w-full flex items-center justify-between bg-transparent border-2 border-[#1a2340] text-[#1a2340] px-8 py-5 rounded-[24px] hover:bg-[#1a2340] hover:text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group">
+                <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-[#1a2340]/10 group-hover:bg-white/10 rounded-2xl flex items-center justify-center text-2xl transition-all">📚</div>
+                <div>
+                    <p class="font-bold text-lg leading-tight">Ruang Tumbuh – Literasi Finansial</p>
+                    <p class="text-[#1a2340]/60 group-hover:text-white/60 text-sm transition-all">6 artikel tersedia · Mulai belajar sekarang</p>
+                </div>
+                </div>
+                <span class="text-[#1a2340]/40 group-hover:text-white group-hover:translate-x-1 transition-all text-2xl font-bold">→</span>
+            </a>
         @endif
     </div>
 @endsection
