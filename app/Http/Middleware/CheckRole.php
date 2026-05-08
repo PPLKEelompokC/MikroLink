@@ -13,9 +13,29 @@ class CheckRole
      *
      * @param  Closure(Request): (Response)  $next
      */
+
+    /**
+     * Role aliases: maps display names (stored in DB) → internal route keys.
+     */
+    protected array $aliases = [
+        'Admin Koperasi'   => 'admin',
+        'Manajer Koperasi' => 'manager',
+        'Super Admin'      => 'super_admin',
+    ];
+
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (! $request->user() || ! in_array($request->user()->role, $roles)) {
+        $user = $request->user();
+
+        if (! $user) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        // Normalize: map display name → internal key, fallback to raw role value
+        $normalizedRole = $this->aliases[$user->role] ?? $user->role;
+
+        // Accept if either the raw role or the normalized role matches
+        if (! in_array($normalizedRole, $roles) && ! in_array($user->role, $roles)) {
             abort(403, 'Unauthorized access.');
         }
 

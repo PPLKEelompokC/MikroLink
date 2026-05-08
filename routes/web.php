@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware('role:admin,manager,user,admin,super_admin')
+        ->middleware('role:admin,manager,user,super_admin,Admin Koperasi,Manajer Koperasi')
         ->name('dashboard');
 
     // Portal Aspirasi
