@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Aspiration;
 use App\Models\Deposit;
+use App\Models\FinancialRecord;
 use App\Models\FundAllocation;
 use App\Models\Koperasi;
 use App\Models\Loan;
@@ -61,16 +62,6 @@ class DashboardController extends Controller
                 'userAspirations',
                 'kycStatus',
                 'artikelTerbaru',
-            ));
-
-            return view('dashboard', compact(
-                'trustMetric',
-                'trustScore',
-                'simpananPokok',
-                'simpananWajib',
-                'simpananSukarela',
-                'userAspirations',
-                'kycStatus'
             ));
         }
 
