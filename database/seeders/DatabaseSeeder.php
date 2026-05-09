@@ -48,5 +48,6 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(LoanSeeder::class);
+        $this->call(NeracaKeuanganSeeder::class);
     }
 }

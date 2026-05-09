@@ -24,6 +24,7 @@
                 </a>
                 <a href="#aspiration-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Aspirations Portal</a>
                 <a href="#trust-management" class="font-bold text-[15px] text-blue-600 hover:text-blue-700 transition-colors">Trust Index</a>
+                <a href="{{ route('admin.neraca.index') }}" class="font-bold text-[15px] text-indigo-700 hover:text-indigo-800 transition-colors">📊 Neraca</a>
             @endif
         </div>
         <div x-data="{ open: false }" class="relative">
@@ -474,6 +475,27 @@
                     </a>
                 </div>
                 <div id="financialChart" class="w-full" style="min-height: 320px;"></div>
+            </div>
+
+            {{-- Neraca Keuangan Widget --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <livewire:admin.neraca-widget />
+                <div class="md:col-span-2 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl p-6 text-white flex items-center justify-between relative overflow-hidden shadow-lg shadow-indigo-100">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div class="relative">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg class="w-4 h-4 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span class="text-[11px] font-bold text-indigo-200 uppercase tracking-widest">Laporan Neraca Otomatis</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1">Neraca Keuangan Koperasi</h3>
+                        <p class="text-indigo-200 text-sm max-w-sm">Laporan posisi keuangan otomatis — Aset, Kewajiban, dan Ekuitas — digenerate langsung dari data transaksi real-time.</p>
+                    </div>
+                    <a href="{{ route('admin.neraca.index') }}"
+                       class="relative bg-white text-indigo-700 font-bold px-5 py-3 rounded-xl hover:bg-indigo-50 transition-all shadow-lg flex items-center gap-2 flex-shrink-0 ml-6">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                        Buka Laporan
+                    </a>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

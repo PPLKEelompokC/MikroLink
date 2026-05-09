@@ -99,7 +99,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
 // --- Admin Area (Prefix: /admin) ---
-Route::middleware(['auth', 'role:admin,manager,admin,super_admin'])
+Route::middleware(['auth', 'role:admin,manager,super_admin,Admin Koperasi,Manajer Koperasi,Super Admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -133,6 +133,9 @@ Route::middleware(['auth', 'role:admin,manager,admin,super_admin'])
 
         // Fitur: Workflow Persetujuan Berjenjang ✅
         Volt::route('/pinjaman/review-admin', 'admin.review-pinjaman')->name('pinjaman.review');
+
+        // Fitur: Neraca Keuangan Otomatis
+        Volt::route('/neraca', 'admin.neraca-keuangan')->name('neraca.index');
 
         // Khusus Manajer Koperasi
         Volt::route('/pinjaman/review-manajer', 'admin.review-pinjaman-manajer')->name('pinjaman.review.manajer');
