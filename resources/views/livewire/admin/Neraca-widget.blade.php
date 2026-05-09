@@ -32,6 +32,7 @@ new class extends Component {
 
     public function autoGenerate(NeracaKeuanganService $service): void
     {
+        if (! Schema::hasTable('neraca_keuangan')) return;
         $koperasi = Koperasi::where('id_koperasi', 'KOP-001')->first();
         if ($koperasi) {
             $service->generate($koperasi, Carbon::now()->startOfMonth());

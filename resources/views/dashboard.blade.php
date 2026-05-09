@@ -477,7 +477,8 @@
                 <div id="financialChart" class="w-full" style="min-height: 320px;"></div>
             </div>
 
-            {{-- Neraca Keuangan Widget --}}
+            {{-- Neraca Keuangan Widget (Admin & Manajer only) --}}
+            @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin', 'manager', 'super_admin', 'Super Admin']))
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <livewire:admin.neraca-widget />
                 <div class="md:col-span-2 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl p-6 text-white flex items-center justify-between relative overflow-hidden shadow-lg shadow-indigo-100">
@@ -497,6 +498,7 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
