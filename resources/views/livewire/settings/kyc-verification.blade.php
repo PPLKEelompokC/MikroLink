@@ -45,9 +45,9 @@ new class extends Component {
 
         $this->isProcessing = true;
 
-        // OCR Simulation: Using data from the provided KTP image for accuracy
-        $this->nik = '3171234567890123';
-        $this->fullName = 'MIRA SETIAWAN';
+        // OCR Simulation: Dynamic based on user or randomized for testing
+        $this->nik = '3171' . rand(100000000000, 999999999999);
+        $this->fullName = Auth::user()->name; 
 
         // Real Upload to Private Storage
         $path = $this->ktp_photo->store('kyc-docs', 'local');
@@ -134,15 +134,18 @@ new class extends Component {
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="bg-gray-50 rounded-3xl p-6 border border-gray-100">
-                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Hasil Pembacaan KTP (OCR)</h4>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hasil Pembacaan KTP (OCR)</h4>
+                        <span class="text-[9px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-md font-bold">SILAKAN KOREKSI JIKA SALAH</span>
+                    </div>
                     <div class="space-y-4">
                         <div>
-                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">NIK</p>
-                            <p class="text-lg font-extrabold text-gray-900 tracking-tighter">{{ $nik }}</p>
+                            <label class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1 block">NIK</label>
+                            <input type="text" wire:model="nik" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-bold text-gray-900 focus:ring-amber-500 focus:border-amber-500">
                         </div>
                         <div>
-                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Nama Lengkap</p>
-                            <p class="text-lg font-extrabold text-gray-900 tracking-tighter">{{ $fullName }}</p>
+                            <label class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1 block">Nama Lengkap (Sesuai KTP)</label>
+                            <input type="text" wire:model="fullName" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-bold text-gray-900 focus:ring-amber-500 focus:border-amber-500">
                         </div>
                     </div>
                 </div>
