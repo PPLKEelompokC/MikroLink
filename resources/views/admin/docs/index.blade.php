@@ -28,9 +28,9 @@
             <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                 {{-- KTP Preview --}}
                 <div class="relative h-48 bg-gray-100 group cursor-pointer">
-                    {{-- Try to show the real uploaded file, fallback to sample image --}}
+                    {{-- Try to show the real uploaded file via secure route, fallback to sample image --}}
                     @php
-                        $fileUrl = asset('storage/' . $doc->file_path);
+                        $fileUrl = route('admin.docs.view', $doc->id);
                         $isKtp = Str::contains(strtolower($doc->document_name), 'ktp') || Str::contains(strtolower($doc->file_path), 'ktp');
                     @endphp
 

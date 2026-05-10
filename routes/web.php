@@ -107,6 +107,11 @@ Route::middleware(['auth', 'role:admin,manager,super_admin,Admin Koperasi,Manaje
         // Validasi Dokumen Komunitas
         Route::get('/documents', [CommunityDocumentController::class, 'index'])->name('docs.index');
         Route::patch('/documents/{id}/status', [CommunityDocumentController::class, 'updateStatus'])->name('docs.update');
+        Route::get('/documents/{id}/view', function ($id) {
+            $doc = \App\Models\CommunityDocument::findOrFail($id);
+            if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($doc->file_path)) abort(404);
+            return \Illuminate\Support\Facades\Storage::disk('local')->response($doc->file_path);
+        })->name('docs.view');
 
         // Validasi Setoran Simpanan
         Volt::route('/simpanan/validasi', 'admin.validasi-setoran')->name('simpanan.validasi');

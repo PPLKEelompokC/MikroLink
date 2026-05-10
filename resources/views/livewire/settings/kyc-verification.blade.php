@@ -49,8 +49,8 @@ new class extends Component {
         $this->nik = '3171234567890123';
         $this->fullName = 'MIRA SETIAWAN';
 
-        // Real Upload to Storage
-        $path = $this->ktp_photo->store('kyc-docs', 'public');
+        // Real Upload to Private Storage
+        $path = $this->ktp_photo->store('kyc-docs', 'local');
 
         // Save to DB
         CommunityDocument::updateOrCreate(
