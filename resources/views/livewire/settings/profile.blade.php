@@ -69,49 +69,68 @@ new class extends Component {
     }
 }; ?>
 
-<section class="w-full">
+<section class="w-full max-w-5xl mx-auto space-y-8 pb-20">
     @include('partials.settings-heading')
 
-    <x-settings.layout heading="Profile" subheading="Update your name and email address">
-        <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="name" label="{{ __('Name') }}" type="text" name="name" required autofocus autocomplete="name" />
-
-            <div>
-                <flux:input wire:model="email" label="{{ __('Email') }}" type="email" name="email" required autocomplete="email" />
-
-                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail &&! auth()->user()->hasVerifiedEmail())
-                    <div>
-                        <p class="mt-2 text-sm text-gray-800">
-                            {{ __('Your email address is unverified.') }}
-
-                            <button
-                                wire:click.prevent="resendVerificationNotification"
-                                class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >
-                                {{ __('Click here to re-send the verification email.') }}
-                            </button>
-                        </p>
-
-                        @if (session('status') === 'verification-link-sent')
-                            <p class="mt-2 text-sm font-medium text-green-600">
-                                {{ __('A new verification link has been sent to your email address.') }}
-                            </p>
-                        @endif
-                    </div>
-                @endif
-            </div>
-
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full">{{ __('Save') }}</flux:button>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {{-- Left Side: Basic Info & KYC --}}
+        <div class="lg:col-span-2 space-y-8">
+            {{-- Card 1: Informasi Dasar --}}
+            <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-8 py-6 border-b border-gray-50 bg-gray-50/30">
+                    <h3 class="text-lg font-bold text-gray-900">Informasi Dasar</h3>
+                    <p class="text-sm text-gray-500">Data profil keanggotaan Anda di MikroLink.</p>
                 </div>
+                <div class="p-8">
+                    <form wire:submit="updateProfileInformation" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <flux:input wire:model="name" label="{{ __('Name') }}" type="text" name="name" required autofocus />
+                            <flux:input wire:model="email" label="{{ __('Email') }}" type="email" name="email" required />
+                        </div>
 
-                <x-action-message class="me-3" on="profile-updated">
-                    {{ __('Saved.') }}
-                </x-action-message>
+                        <div class="flex items-center gap-4">
+                            <flux:button variant="primary" type="submit" class="bg-amber-500 hover:bg-amber-600 border-none shadow-lg shadow-amber-100 px-8">
+                                {{ __('Simpan Profil') }}
+                            </flux:button>
+                            <x-action-message on="profile-updated">
+                                {{ __('Berhasil disimpan.') }}
+                            </x-action-message>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
 
-        <livewire:settings.delete-user-form />
-    </x-settings.layout>
+            {{-- Card 2: KYC Verification (PBI-01) --}}
+            <livewire:settings.kyc-verification />
+        </div>
+
+        {{-- Right Side: Security --}}
+        <div class="lg:col-span-1 space-y-8">
+            <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+                <div class="px-8 py-6 border-b border-gray-50 bg-gray-50/30">
+                    <h3 class="text-lg font-bold text-gray-900">Keamanan</h3>
+                    <p class="text-sm text-gray-500">Proteksi akun & pengaturan privasi.</p>
+                </div>
+                <div class="p-8 space-y-8">
+                    <livewire:settings.password />
+                    
+                    <flux:separator variant="subtle" />
+                    
+                    <div class="pt-4">
+                        <livewire:settings.delete-user-form />
+                    </div>
+                </div>
+            </div>
+
+            {{-- Info Card --}}
+            <div class="bg-indigo-900 rounded-[32px] p-8 text-white relative overflow-hidden shadow-xl">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="relative">
+                    <svg class="w-8 h-8 text-indigo-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <h4 class="font-bold mb-2">Privasi Terjamin</h4>
+                    <p class="text-xs text-indigo-200 leading-relaxed">Seluruh data identitas dan transaksi Anda dilindungi dengan enkripsi tingkat tinggi sesuai standar keamanan perbankan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>

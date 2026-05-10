@@ -23,9 +23,9 @@ new class extends Component {
 }; ?>
 
 <section class="mt-10 space-y-6">
-    <div class="relative mb-5">
-        <flux:heading>{{ __('Delete Account') }}</flux:heading>
-        <flux:subheading>{{ __('Delete your account and all of its resources') }}</flux:subheading>
+    <div>
+        <h3 class="text-sm font-extrabold text-red-600 uppercase tracking-widest">{{ __('Zona Bahaya') }}</h3>
+        <p class="text-xs text-gray-500 mt-1">{{ __('Hapus akun Anda dan semua sumber dayanya secara permanen.') }}</p>
     </div>
 
     <flux:modal.trigger name="confirm-user-deletion">

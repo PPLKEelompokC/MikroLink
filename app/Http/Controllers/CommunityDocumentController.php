@@ -13,54 +13,26 @@ class CommunityDocumentController extends Controller
      */
     public function index()
     {
-        //
+        $documents = CommunityDocument::with('user')->latest()->get();
+        return view('admin.docs.index', compact('documents'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Update the status of a document.
      */
-    public function create()
+    public function updateStatus(Request $request, $id)
     {
-        //
-    }
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'note' => 'nullable|string',
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $document = CommunityDocument::findOrFail($id);
+        $document->update([
+            'status' => $request->status,
+            'note' => $request->note,
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(CommunityDocument $communityDocument)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CommunityDocument $communityDocument)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, CommunityDocument $communityDocument)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(CommunityDocument $communityDocument)
-    {
-        //
+        return redirect()->back()->with('success', 'Status dokumen berhasil diperbarui.');
     }
 }

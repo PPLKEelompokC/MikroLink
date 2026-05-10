@@ -85,6 +85,19 @@ class User extends Authenticatable // implements MustVerifyEmail
     }
 
     /**
+     * Optimization: Ambil semua total simpanan dalam satu query
+     */
+    public function getAllSimpananTotals(): array
+    {
+        return $this->deposits()
+            ->where('status', 'APPROVED')
+            ->select('type', \Illuminate\Support\Facades\DB::raw('SUM(amount) as total'))
+            ->groupBy('type')
+            ->pluck('total', 'type')
+            ->toArray();
+    }
+
+    /**
      * Get the trust metric associated with the user.
      */
     public function trustMetric()

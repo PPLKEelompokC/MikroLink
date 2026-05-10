@@ -10,80 +10,116 @@
     <div class="hidden lg:flex items-center gap-1">
         {{-- Dashboard — visible to all authenticated users --}}
         <a href="{{ route('dashboard') }}" wire:navigate
-            class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all">
+            class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold {{ request()->routeIs('dashboard') ? 'text-[#e8a838] bg-amber-50' : 'text-gray-500 hover:text-[#e8a838] hover:bg-amber-50' }} transition-all">
             Dashboard
         </a>
 
         @auth
             @php $role = auth()->user()->role; @endphp
 
-            {{-- Admin + Manager + Super Admin links --}}
+            {{-- --- USER ONLY LINKS --- --}}
+            @if ($role === 'user')
+                <a href="{{ route('aspirationPortal') }}" wire:navigate
+                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold {{ request()->routeIs('aspirationPortal') ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50' }} transition-all">
+                    Aspirasi
+                </a>
+
+                <div x-data="{ open: false }" class="relative">
+                    <button @mouseover="open = true" @mouseleave="open = false"
+                        class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all flex items-center gap-1">
+                        Simpanan
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open" @mouseover="open = true" @mouseleave="open = false"
+                        class="absolute left-0 mt-0 w-44 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                        <a href="{{ route('simpanan.setor') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Setor Simpanan</a>
+                        <a href="{{ route('simpanan.tarik') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Tarik Simpanan</a>
+                    </div>
+                </div>
+
+                <div x-data="{ open: false }" class="relative">
+                    <button @mouseover="open = true" @mouseleave="open = false"
+                        class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all flex items-center gap-1">
+                        Pinjaman
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open" @mouseover="open = true" @mouseleave="open = false"
+                        class="absolute left-0 mt-0 w-44 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                        <a href="{{ route('pinjaman.ajukan') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Ajukan Pinjaman</a>
+                        <a href="{{ route('pinjaman.tracking') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Lacak Pinjaman</a>
+                    </div>
+                </div>
+
+                <a href="{{ route('literasi.index') }}" wire:navigate
+                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold {{ request()->routeIs('literasi.*') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500 hover:text-indigo-600 hover:bg-indigo-50' }} transition-all">
+                    Ruang Tumbuh
+                </a>
+            @endif
+
+            {{-- --- ADMIN + MANAGER + SUPER ADMIN LINKS --- --}}
             @if (in_array($role, ['admin', 'manager', 'super_admin', 'Admin Koperasi', 'Manajer Koperasi', 'Super Admin']))
 
                 <a href="{{ route('koperasi.edit') }}" wire:navigate
-                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all">
+                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold {{ request()->routeIs('koperasi.edit') ? 'text-[#e8a838] bg-amber-50' : 'text-gray-500 hover:text-[#e8a838] hover:bg-amber-50' }} transition-all">
                     Koperasi
                 </a>
 
-                <a href="{{ route('admin.simpanan.validasi') }}" wire:navigate
-                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all flex items-center gap-1.5">
-                    Validasi Setoran
-                    @if(isset($pendingDepositsCount) && $pendingDepositsCount > 0)
-                        <span class="inline-flex items-center justify-center w-4 h-4 bg-[#e8a838] text-white text-[9px] font-extrabold rounded-full">
-                            {{ $pendingDepositsCount }}
-                        </span>
-                    @endif
-                </a>
+                <div x-data="{ open: false }" class="relative">
+                    <button @mouseover="open = true" @mouseleave="open = false"
+                        class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all flex items-center gap-1">
+                        Validasi
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open" @mouseover="open = true" @mouseleave="open = false"
+                        class="absolute left-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                        <a href="{{ route('admin.simpanan.validasi') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838] flex justify-between">
+                            Validasi Setoran
+                            @if(isset($pendingDepositsCount) && $pendingDepositsCount > 0)
+                                <span class="bg-[#e8a838] text-white px-1.5 rounded-full text-[9px]">{{ $pendingDepositsCount }}</span>
+                            @endif
+                        </a>
+                        <a href="{{ route('admin.simpanan.tarik.validasi') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Validasi Penarikan</a>
+                        <a href="{{ route('admin.docs.index') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Validasi KYC</a>
+                    </div>
+                </div>
 
-                <a href="{{ route('admin.simpanan.tarik.validasi') }}" wire:navigate
-                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all">
-                    Validasi Penarikan
-                </a>
-
-                <a href="{{ route('admin.pinjaman.review') }}" wire:navigate
-                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all">
-                    Review Pinjaman
-                </a>
-
-                <a href="{{ route('admin.pinjaman.validasi') }}" wire:navigate
-                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all">
-                    Tracking Pinjaman
-                </a>
+                <div x-data="{ open: false }" class="relative">
+                    <button @mouseover="open = true" @mouseleave="open = false"
+                        class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all flex items-center gap-1">
+                        Pinjaman
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open" @mouseover="open = true" @mouseleave="open = false"
+                        class="absolute left-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                        <a href="{{ route('admin.pinjaman.review') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Review (Admin)</a>
+                        @if (in_array($role, ['manager', 'super_admin', 'Manajer Koperasi', 'Super Admin']))
+                            <a href="{{ route('admin.pinjaman.review.manajer') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Review (Manajer)</a>
+                        @endif
+                        <a href="{{ route('admin.pinjaman.validasi') }}" wire:navigate class="block px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-[#e8a838]">Tracking Pinjaman</a>
+                    </div>
+                </div>
 
                 <a href="{{ route('admin.neraca.index') }}" wire:navigate
                     class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold {{ request()->routeIs('admin.neraca.*') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500 hover:text-indigo-600 hover:bg-indigo-50' }} transition-all flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     Neraca
                 </a>
 
             @endif
 
-            {{-- Manager + Super Admin only --}}
+            {{-- --- MANAGER + SUPER ADMIN ONLY LINKS --- --}}
             @if (in_array($role, ['manager', 'super_admin', 'Manajer Koperasi', 'Super Admin']))
-
-                <a href="{{ route('admin.pinjaman.review.manajer') }}" wire:navigate
-                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all">
-                    Review Manajer
-                </a>
-
                 <a href="{{ route('admin.fund-allocation.index') }}" wire:navigate
-                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all flex items-center gap-1.5">
-                    AI Fund Allocation
-                    @if(isset($pendingAllocationsCount) && $pendingAllocationsCount > 0)
-                        <span class="inline-flex items-center justify-center w-4 h-4 bg-[#e8a838] text-white text-[9px] font-extrabold rounded-full">{{ $pendingAllocationsCount }}</span>
-                    @endif
+                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold {{ request()->routeIs('admin.fund-allocation.*') ? 'text-violet-600 bg-violet-50' : 'text-gray-500 hover:text-violet-600 hover:bg-violet-50' }} transition-all flex items-center gap-1.5">
+                    AI Alokasi
                 </a>
-
             @endif
 
-            {{-- Super Admin only --}}
+            {{-- --- SUPER ADMIN ONLY LINKS --- --}}
             @if (in_array($role, ['super_admin', 'Super Admin']))
-
                 <a href="{{ route('admin.audit-trails') }}" wire:navigate
-                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all">
+                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold {{ request()->routeIs('admin.audit-trails') ? 'text-emerald-600 bg-emerald-50' : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50' }} transition-all">
                     Audit Trail
                 </a>
-
             @endif
         @endauth
     </div>
