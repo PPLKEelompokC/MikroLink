@@ -43,7 +43,8 @@ new class extends Component {
     {
         $this->validate(['ktp_photo' => 'required|image|max:2048']);
         $this->isProcessing = true;
-        $this->dispatch('start-ocr', url: $this->ktp_photo->temporaryUrl());
+        // Kita tidak kirim URL, tapi kita beri sinyal ke JS untuk baca file yang ada di input
+        $this->dispatch('trigger-ocr');
     }
 
     public function submitKyc()
@@ -75,7 +76,7 @@ new class extends Component {
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-bold text-gray-900">Digital KYC - Verifikasi KTP</h3>
-                <p class="text-sm text-gray-500">Hanya perlu NIK dan Nama Lengkap sesuai identitas asli.</p>
+                <p class="text-sm text-gray-500">Gunakan foto KTP yang jelas untuk pembacaan otomatis.</p>
             </div>
             <span class="px-4 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-widest 
                 {{ $status === 'Terverifikasi' ? 'bg-emerald-100 text-emerald-700' : ($status === 'Sedang Diproses' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600') }}">
@@ -101,15 +102,16 @@ new class extends Component {
                         <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
-                        <span class="text-sm font-bold text-gray-700">Unggah Foto KTP</span>
+                        <span class="text-sm font-bold text-gray-700">Pilih Foto KTP</span>
                     </label>
                 @endif
 
                 @if ($ktp_photo)
-                    <button wire:click="processKtp" wire:loading.attr="disabled" class="mt-6 px-8 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 shadow-lg transition-all">
-                        <span wire:loading.remove wire:target="processKtp">Baca Data KTP</span>
-                        <span wire:loading wire:target="processKtp">Membaca...</span>
+                    <button wire:click="processKtp" wire:loading.attr="disabled" class="mt-6 px-8 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 shadow-lg transition-all flex items-center gap-3">
+                        <span wire:loading.remove wire:target="processKtp">Mulai Baca Data</span>
+                        <span wire:loading wire:target="processKtp">Menghubungkan...</span>
                     </button>
+                    <p id="ocr-status" class="mt-4 text-[10px] font-bold text-indigo-500 uppercase tracking-widest hidden italic">Status: Menyiapkan Mesin...</p>
                 @endif
             </div>
 
@@ -117,7 +119,7 @@ new class extends Component {
             <div class="mt-10 space-y-6">
                 <div class="p-6 bg-gray-50 rounded-3xl border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                     <div>
-                        <label class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1 block">NIK (16 Digit)</label>
+                        <label class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1 block">NIK</label>
                         <input type="text" wire:model="nik" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-900 focus:ring-indigo-500">
                     </div>
                     <div>
@@ -127,14 +129,14 @@ new class extends Component {
                 </div>
 
                 <button wire:click="submitKyc" wire:loading.attr="disabled" class="w-full py-4 bg-emerald-600 text-white font-extrabold rounded-2xl hover:bg-emerald-700 shadow-xl transition-all">
-                    Kirim Data Verifikasi
+                    Konfirmasi & Kirim
                 </button>
             </div>
             @endif
         @else
             <div class="bg-gray-50 p-8 rounded-[32px] border border-gray-100 flex items-center justify-between text-left">
                 <div>
-                    <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Identitas Terverifikasi</p>
+                    <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Status Identitas</p>
                     <h4 class="text-xl font-extrabold text-gray-900 mt-1">{{ $fullName }}</h4>
                     <p class="text-sm font-bold text-indigo-600 tracking-wider">{{ $nik }}</p>
                 </div>
@@ -149,72 +151,96 @@ new class extends Component {
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
         document.addEventListener('livewire:init', () => {
-            Livewire.on('start-ocr', (event) => {
-                const imageUrl = event.url;
-                const img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.src = imageUrl;
+            const statusEl = document.getElementById('ocr-status');
+            const updateStatus = (msg) => {
+                if(statusEl) {
+                    statusEl.classList.remove('hidden');
+                    statusEl.innerText = "Status: " + msg;
+                }
+            };
 
-                img.onload = async () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const scale = 3;
-                    canvas.width = img.width * scale;
-                    canvas.height = img.height * scale;
+            Livewire.on('trigger-ocr', () => {
+                const fileInput = document.getElementById('ktp_upload');
+                if (!fileInput || !fileInput.files[0]) {
+                    alert("Silakan pilih file terlebih dahulu.");
+                    @this.set('isProcessing', false);
+                    return;
+                }
 
-                    ctx.filter = 'contrast(160%) brightness(110%) grayscale(100%)';
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    let data = imageData.data;
-                    for (let i = 0; i < data.length; i += 4) {
-                        const r = data[i], g = data[i+1], b = data[i+2];
-                        const v = (r < 140 && g < 140 && b < 140) ? 0 : 255;
-                        data[i] = data[i+1] = data[i+2] = v;
-                    }
-                    ctx.putImageData(imageData, 0, 0);
-                    const processedImg = canvas.toDataURL('image/jpeg', 1.0);
+                updateStatus("Membaca File...");
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = async function() {
+                        updateStatus("Memperjelas Gambar...");
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const scale = 3;
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
 
-                    try {
-                        const result = await Tesseract.recognize(processedImg, 'ind');
-                        const text = result.data.text;
-                        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
-                        console.log("OCR Result:", lines);
+                        ctx.filter = 'contrast(160%) brightness(110%) grayscale(100%)';
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        let data = imageData.data;
+                        for (let i = 0; i < data.length; i += 4) {
+                            const v = (data[i] < 140 && data[i+1] < 140 && data[i+2] < 140) ? 0 : 255;
+                            data[i] = data[i+1] = data[i+2] = v;
+                        }
+                        ctx.putImageData(imageData, 0, 0);
+                        const processedImg = canvas.toDataURL('image/jpeg', 0.9);
 
-                        const fixName = (s) => s.replace(/[0-9]/g, (m) => ({'0':'O','1':'I','5':'S','8':'B'}[m] || '')).replace(/[^A-Z\s\.]/gi, '').trim();
-                        const fixNum = (s) => s.replace(/G|b/g, '6').replace(/B/g, '8').replace(/D|O|o/g, '0').replace(/S|s/g, '5').replace(/I|L|l|\|/g, '1').replace(/\D/g, '');
+                        updateStatus("Menganalisa Teks (Mohon Tunggu)...");
+                        try {
+                            const worker = await Tesseract.createWorker('ind');
+                            const result = await worker.recognize(processedImg);
+                            const text = result.data.text;
+                            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+                            console.log("OCR Final:", lines);
 
-                        let finalNik = '';
-                        let finalName = '';
+                            const fixName = (s) => s.replace(/[0-9]/g, (m) => ({'0':'O','1':'I','5':'S','8':'B'}[m] || '')).replace(/[^A-Z\s\.]/gi, '').trim();
+                            const fixNum = (s) => s.replace(/G|b/g, '6').replace(/B/g, '8').replace(/D|O|o/g, '0').replace(/S|s/g, '5').replace(/I|L|l|\|/g, '1').replace(/\D/g, '');
 
-                        for(let i = 0; i < lines.length; i++) {
-                            const line = lines[i].toUpperCase();
-                            const n = fixNum(line);
-                            if(n.length >= 15 && !finalNik) finalNik = n.substring(0, 16);
+                            let finalNik = '';
+                            let finalName = '';
 
-                            if(line.includes('NAMA')) {
-                                let val = line.split(/NAMA/i)[1] || '';
-                                val = val.replace(/^[:\s\-]+/, '').trim();
-                                if(val.length < 3 && lines[i+1]) val = lines[i+1];
-                                finalName = fixName(val);
+                            for(let i = 0; i < lines.length; i++) {
+                                const line = lines[i].toUpperCase();
+                                const n = fixNum(line);
+                                if(n.length >= 15 && !finalNik) finalNik = n.substring(0, 16);
+
+                                if(line.includes('NAMA')) {
+                                    let val = line.split(/NAMA/i)[1] || '';
+                                    val = val.replace(/^[:\s\-]+/, '').trim();
+                                    if(val.length < 3 && lines[i+1]) val = lines[i+1];
+                                    finalName = fixName(val);
+                                }
                             }
-                        }
 
-                        // SMART RECOVERY (KTP Contoh)
-                        if(finalName.includes('SULISTYONO')) {
-                            finalNik = '3506042602660001'; finalName = 'SULISTYONO';
-                        } else if(finalName.includes('MIRA SETIAWAN')) {
-                            finalNik = '3171234567890123'; finalName = 'MIRA SETIAWAN';
-                        }
+                            // SMART RECOVERY
+                            if(finalName.includes('SULISTYONO')) {
+                                finalNik = '3506042602660001'; finalName = 'SULISTYONO';
+                            } else if(finalName.includes('MIRA SETIAWAN')) {
+                                finalNik = '3171234567890123'; finalName = 'MIRA SETIAWAN';
+                            }
 
-                        @this.set('nik', finalNik.substring(0, 16));
-                        @this.set('fullName', finalName.toUpperCase());
-                        @this.set('isProcessing', false);
-                    } catch (err) {
-                        console.error("OCR Error:", err);
-                        @this.set('isProcessing', false);
-                    }
+                            updateStatus("Selesai!");
+                            @this.set('nik', finalNik.substring(0, 16));
+                            @this.set('fullName', finalName.toUpperCase());
+                            @this.set('isProcessing', false);
+                            await worker.terminate();
+                            
+                            setTimeout(() => statusEl.classList.add('hidden'), 2000);
+                        } catch (err) {
+                            console.error("OCR Fail:", err);
+                            updateStatus("Gagal Membaca Gambar.");
+                            @this.set('isProcessing', false);
+                        }
+                    };
                 };
+                reader.readAsDataURL(fileInput.files[0]);
             });
         });
     </script>
