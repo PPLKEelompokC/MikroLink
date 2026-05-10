@@ -12,7 +12,7 @@ use App\Models\TrustMetric;
 use App\Models\LiterasiArtikel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -26,16 +26,20 @@ class DashboardController extends Controller
             $trustMetric = $user->trustMetric;
             $trustScore = $trustMetric ? $trustMetric->final_index : 50;
 
-            if (Schema::hasTable('trust_metrics')) {
-                $trustScore = DB::table('trust_metrics')
-                    ->where('user_id', $user->id)
-                    ->value('score') ?? $trustScore;
+            // Optimization: Remove Schema::hasTable for performance, assume table exists
+            $dbTrustScore = DB::table('trust_metrics')
+                ->where('user_id', $user->id)
+                ->value('score');
+            
+            if ($dbTrustScore !== null) {
+                $trustScore = $dbTrustScore;
             }
 
-            // --- Simpanan (dari tabel deposits) ---
-            $simpananPokok    = $user->totalSimpanan('POKOK');
-            $simpananWajib    = $user->totalSimpanan('WAJIB');
-            $simpananSukarela = $user->totalSimpanan('SUKARELA');
+            // --- Simpanan (Optimization: Single Query) ---
+            $simpananTotals = $user->getAllSimpananTotals();
+            $simpananPokok    = $simpananTotals['POKOK'] ?? 0;
+            $simpananWajib    = $simpananTotals['WAJIB'] ?? 0;
+            $simpananSukarela = $simpananTotals['SUKARELA'] ?? 0;
 
             // --- Aspirasi Terbaru ---
             $userAspirations = Aspiration::where('user_id', $user->id)
@@ -43,16 +47,15 @@ class DashboardController extends Controller
                 ->take(3)
                 ->get();
 
-            // --- KYC Status ---
-            $kycStatus = 'PENDING';
-            if (Schema::hasTable('community_documents')) {
-                $kycStatus = DB::table('community_documents')
-                    ->where('user_id', $user->id)
-                    ->where('status', 'approved')
-                    ->exists() ? 'VERIFIED' : 'PENDING';
-            }
+            // --- KYC Status (Optimization) ---
+            $kycStatus = DB::table('community_documents')
+                ->where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->exists() ? 'VERIFIED' : 'PENDING';
+
             // --- Return View ---
             $artikelTerbaru = LiterasiArtikel::published()->latest()->take(3)->get();
+
             return view('dashboard', compact(
                 'trustMetric',
                 'trustScore',
@@ -66,21 +69,27 @@ class DashboardController extends Controller
         }
 
         // --- Admin / Manajer Logic ---
-        $koperasi = Koperasi::with(['capitalLogs', 'financialRecords'])->firstOrCreate(
-            ['id_koperasi' => 'KOP-001'],
-            [
-                'nama_koperasi' => 'Koperasi MikroLink',
-                'alamat'        => 'Jl. Merdeka No 1',
-                'saldo_kas'     => 350500000,
-            ]
-        );
+        
+        // PBI-02 Optimization: Caching Koperasi Profile for 60 minutes
+        $koperasi = Cache::remember('koperasi_profile', 3600, function () {
+            return Koperasi::firstOrCreate(
+                ['id_koperasi' => 'KOP-001'],
+                [
+                    'nama_koperasi' => 'Koperasi MikroLink',
+                    'alamat'        => 'Jl. Merdeka No 1',
+                    'saldo_kas'     => 350500000,
+                ]
+            );
+        });
 
         $availableCapital   = $koperasi->saldo_kas;
         $likuiditas         = $koperasi->cekLikuiditas();
-        $totalTransaksi     = $koperasi->capitalLogs->count();
-        $terakhirDiperbarui = $koperasi->capitalLogs->last()
-            ? $koperasi->capitalLogs->last()->created_at->diffForHumans()
-            : 'Belum ada transaksi';
+        
+        // Optimization: Don't load all logs, use count() and latest()
+        $totalTransaksi     = $koperasi->capitalLogs()->count();
+        $latestLog          = $koperasi->capitalLogs()->latest()->first();
+        $terakhirDiperbarui = $latestLog ? $latestLog->created_at->diffForHumans() : 'Belum ada transaksi';
+        
         $capitalLogs = $koperasi->capitalLogs()->latest()->take(5)->get();
 
         // --- Chart Data ---
@@ -94,23 +103,17 @@ class DashboardController extends Controller
 
         $latestOmzet       = $financialRecords->last()?->omzet ?? 0;
         $latestCreditScore = $financialRecords->last()?->credit_score ?? 0;
-
+        
         $maxOmzet        = max($omzetData ?: [1]);
         $omzetPercentage = $maxOmzet > 0 ? round(($latestOmzet / $maxOmzet) * 100, 1) : 0;
 
-        // --- Badge Setoran Pending untuk Admin ---
+        // --- Badge Pending Counts ---
         $pendingDepositsCount = Deposit::where('status', 'PENDING')->count();
-
-        // --- FR-18: Pending AI Fund Allocation Recommendations ---
         $pendingAllocationsCount = FundAllocation::where('status', 'pending')->count();
 
-        // --- Badge Pinjaman untuk Workflow Berjenjang ✅ ---
-        $pendingLoansCount = 0;
-        $pendingManajerLoansCount = 0;
-        if (Schema::hasTable('loans')) {
-            $pendingLoansCount        = Loan::where('status', 'Baru')->count();
-            $pendingManajerLoansCount = Loan::where('status', 'Dalam Review')->count();
-        }
+        // --- Badge Pinjaman ✅ ---
+        $pendingLoansCount        = Loan::where('status', 'Baru')->count();
+        $pendingManajerLoansCount = Loan::where('status', 'Dalam Review')->count();
 
         return view('dashboard', compact(
             'koperasi',

@@ -38,14 +38,17 @@ new class extends Component {
 }; ?>
 
 <section class="w-full">
-    @include('partials.settings-heading')
+    <div class="space-y-6">
+        <div>
+            <h3 class="text-sm font-extrabold text-gray-900 uppercase tracking-widest">Ganti Kata Sandi</h3>
+            <p class="text-xs text-gray-500 mt-1">Pastikan akun Anda menggunakan kata sandi yang panjang dan acak untuk tetap aman.</p>
+        </div>
 
-    <x-settings.layout heading="Update password" subheading="Ensure your account is using a long, random password to stay secure">
-        <form wire:submit="updatePassword" class="mt-6 space-y-6">
+        <form wire:submit="updatePassword" class="space-y-6 max-w-lg">
             <flux:input
                 wire:model="current_password"
-                id="update_password_current_passwordpassword"
-                label="{{ __('Current password') }}"
+                id="update_password_current_password"
+                label="{{ __('Current Password') }}"
                 type="password"
                 name="current_password"
                 required
@@ -54,7 +57,7 @@ new class extends Component {
             <flux:input
                 wire:model="password"
                 id="update_password_password"
-                label="{{ __('New password') }}"
+                label="{{ __('New Password') }}"
                 type="password"
                 name="password"
                 required
@@ -71,14 +74,12 @@ new class extends Component {
             />
 
             <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full">{{ __('Save') }}</flux:button>
-                </div>
+                <flux:button variant="primary" type="submit" class="bg-amber-500 hover:bg-amber-600 border-none">{{ __('Update Password') }}</flux:button>
 
                 <x-action-message class="me-3" on="password-updated">
                     {{ __('Saved.') }}
                 </x-action-message>
             </div>
         </form>
-    </x-settings.layout>
+    </div>
 </section>
