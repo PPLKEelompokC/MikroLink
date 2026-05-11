@@ -64,6 +64,11 @@
                     Koperasi
                 </a>
 
+                <a href="{{ route('system-requirements.eligibility') }}" wire:navigate
+                    class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold {{ request()->routeIs('system-requirements.*') ? 'text-[#e8a838] bg-amber-50' : 'text-gray-500 hover:text-[#e8a838] hover:bg-amber-50' }} transition-all">
+                    Kelayakan & Alokasi
+                </a>
+
                 <div x-data="{ open: false }" class="relative">
                     <button @mouseover="open = true" @mouseleave="open = false"
                         class="px-3 py-1.5 rounded-lg text-[13.5px] font-semibold text-gray-500 hover:text-[#e8a838] hover:bg-amber-50 transition-all flex items-center gap-1">

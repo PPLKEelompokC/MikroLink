@@ -4,7 +4,6 @@
 
 @section('content')
 
-
     <div class="w-full max-w-[1400px] mx-auto px-10 py-12 flex flex-col gap-10 relative z-10">
         
         @if(auth()->user()->role === 'user')
