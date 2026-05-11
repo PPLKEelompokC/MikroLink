@@ -7,9 +7,12 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KoperasiController;
-use App\Http\Controllers\TicketController;
 use App\Http\Controllers\LiterasiController;
+use App\Http\Controllers\SystemRequirementController;
+use App\Http\Controllers\TicketController;
+use App\Models\CommunityDocument;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Volt\Volt;
 
 /*
@@ -85,6 +88,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/koperasi/adjust-capital', [KoperasiController::class, 'adjustCapital'])->name('koperasi.adjustCapital');
     });
 
+    Route::middleware('role:admin,manager,super_admin,Admin Koperasi,Manajer Koperasi,Super Admin')
+        ->prefix('kebutuhan-sistem')
+        ->name('system-requirements.')
+        ->group(function () {
+            Route::get('/', [SystemRequirementController::class, 'index'])->name('index');
+            Route::get('/kelayakan', [SystemRequirementController::class, 'eligibility'])->name('eligibility');
+            Route::get('/persetujuan', [SystemRequirementController::class, 'approvals'])->name('approvals');
+            Route::get('/alokasi-dana', [SystemRequirementController::class, 'allocation'])->name('allocation');
+        });
+
     // Validasi Dokumen Komunitas
     Route::get('/community/upload', function () {
         return view('community.upload');
@@ -92,11 +105,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/documents/upload', [CommunityDocumentController::class, 'store'])->name('docs.store');
 });
-    // Literasi Keuangan (Publik, tapi harus login untuk akses penuh)
-    Route::middleware(['auth', 'verified'])->group(function () {
+// Literasi Keuangan (Publik, tapi harus login untuk akses penuh)
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/literasi', [LiterasiController::class, 'index'])->name('literasi.index');
     Route::get('/literasi/{slug}', [LiterasiController::class, 'show'])->name('literasi.show')->where('slug', '[a-z0-9-]+');
-    });
+});
 
 // --- Admin Area (Prefix: /admin) ---
 Route::middleware(['auth', 'role:admin,manager,super_admin,Admin Koperasi,Manajer Koperasi,Super Admin'])
@@ -108,9 +121,12 @@ Route::middleware(['auth', 'role:admin,manager,super_admin,Admin Koperasi,Manaje
         Route::get('/documents', [CommunityDocumentController::class, 'index'])->name('docs.index');
         Route::patch('/documents/{id}/status', [CommunityDocumentController::class, 'updateStatus'])->name('docs.update');
         Route::get('/documents/{id}/view', function ($id) {
-            $doc = \App\Models\CommunityDocument::findOrFail($id);
-            if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($doc->file_path)) abort(404);
-            return \Illuminate\Support\Facades\Storage::disk('local')->response($doc->file_path);
+            $doc = CommunityDocument::findOrFail($id);
+            if (! Storage::disk('local')->exists($doc->file_path)) {
+                abort(404);
+            }
+
+            return Storage::disk('local')->response($doc->file_path);
         })->name('docs.view');
 
         // Validasi Setoran Simpanan
