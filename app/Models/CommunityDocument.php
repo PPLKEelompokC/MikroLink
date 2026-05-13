@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CommunityDocument extends Model
 {
@@ -17,12 +18,12 @@ class CommunityDocument extends Model
         'note',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function community()
+    public function community(): BelongsTo
     {
         return $this->belongsTo(Community::class);
     }

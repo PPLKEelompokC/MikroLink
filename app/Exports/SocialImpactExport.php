@@ -3,12 +3,12 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class SocialImpactExport implements FromCollection, WithHeadings, WithTitle, WithMapping, ShouldAutoSize
+class SocialImpactExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithTitle
 {
     public function __construct(private $data) {}
 
@@ -27,8 +27,17 @@ class SocialImpactExport implements FromCollection, WithHeadings, WithTitle, Wit
         return [
             'ID Log',
             'Tanggal',
-            'Informasi Dampak',
-            'Metadata',
+            'Anggota',
+            'Periode',
+            'Pendapatan Sebelum',
+            'Pendapatan Sesudah',
+            'Pertumbuhan Pendapatan',
+            'Tanggungan',
+            'Pangan',
+            'Pendidikan',
+            'Kesehatan',
+            'Skor Kesejahteraan',
+            'Catatan',
         ];
     }
 
@@ -37,8 +46,17 @@ class SocialImpactExport implements FromCollection, WithHeadings, WithTitle, Wit
         return [
             $log->id,
             $log->created_at->format('d/m/Y H:i'),
-            'Tracking Kesejahteraan Keluarga',
-            'Target SDG 1 - Tanpa Kemiskinan',
+            $log->user?->name ?? '-',
+            $log->period_date?->format('d/m/Y'),
+            $log->income_before,
+            $log->income_after,
+            $log->incomeGrowthPercentage().'%',
+            $log->dependents_count,
+            $log->food_security_status,
+            $log->education_access_status,
+            $log->health_access_status,
+            $log->welfare_score,
+            $log->notes,
         ];
     }
 }
