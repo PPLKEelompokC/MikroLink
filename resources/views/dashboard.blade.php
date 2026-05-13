@@ -43,6 +43,7 @@
                             Lacak Pinjaman
                         </a>
                         <a href="{{ route('docs.upload.form') }}" class="px-6 py-3 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-2xl hover:bg-gray-50 transition-all">Upload Dokumen</a>
+                        <a href="{{ route('welfare.dashboard') }}" class="px-6 py-3 bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-sm rounded-2xl hover:bg-emerald-100 transition-all">SDG 1</a>
                         <a href="{{ route('aspirationPortal') }}" class="px-6 py-3 bg-blue-600 text-white font-bold text-sm rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">Portal Aspirasi</a>
                     </div>
                 </div>

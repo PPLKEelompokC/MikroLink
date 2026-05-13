@@ -6,9 +6,9 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FamilyWelfareLogController;
 use App\Http\Controllers\KoperasiController;
 use App\Http\Controllers\LiterasiController;
-use App\Http\Controllers\SystemRequirementController;
 use App\Http\Controllers\TicketController;
 use App\Models\CommunityDocument;
 use Illuminate\Support\Facades\Route;
@@ -88,22 +88,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/koperasi/adjust-capital', [KoperasiController::class, 'adjustCapital'])->name('koperasi.adjustCapital');
     });
 
-    Route::middleware('role:admin,manager,super_admin,Admin Koperasi,Manajer Koperasi,Super Admin')
-        ->prefix('kebutuhan-sistem')
-        ->name('system-requirements.')
-        ->group(function () {
-            Route::get('/', [SystemRequirementController::class, 'index'])->name('index');
-            Route::get('/kelayakan', [SystemRequirementController::class, 'eligibility'])->name('eligibility');
-            Route::get('/persetujuan', [SystemRequirementController::class, 'approvals'])->name('approvals');
-            Route::get('/alokasi-dana', [SystemRequirementController::class, 'allocation'])->name('allocation');
-        });
-
     // Validasi Dokumen Komunitas
-    Route::get('/community/upload', function () {
-        return view('community.upload');
-    })->name('docs.upload.form');
+    Route::get('/community/upload', [CommunityDocumentController::class, 'create'])->name('docs.upload.form');
 
     Route::post('/documents/upload', [CommunityDocumentController::class, 'store'])->name('docs.store');
+
+    // Jejak Kesejahteraan Keluarga (SDG 1)
+    Route::get('/welfare', [FamilyWelfareLogController::class, 'dashboard'])->name('welfare.dashboard');
+    Route::get('/welfare/create', [FamilyWelfareLogController::class, 'create'])->name('welfare.create');
+    Route::post('/welfare', [FamilyWelfareLogController::class, 'store'])->name('welfare.store');
 });
 // Literasi Keuangan (Publik, tapi harus login untuk akses penuh)
 Route::middleware(['auth', 'verified'])->group(function () {

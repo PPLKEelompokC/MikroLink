@@ -7,8 +7,10 @@ use App\Casts\MaskedEmail;
 use App\Traits\Auditable;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable // implements MustVerifyEmail
@@ -91,7 +93,7 @@ class User extends Authenticatable // implements MustVerifyEmail
     {
         return $this->deposits()
             ->where('status', 'APPROVED')
-            ->select('type', \Illuminate\Support\Facades\DB::raw('SUM(amount) as total'))
+            ->select('type', DB::raw('SUM(amount) as total'))
             ->groupBy('type')
             ->pluck('total', 'type')
             ->toArray();
@@ -119,6 +121,11 @@ class User extends Authenticatable // implements MustVerifyEmail
     public function withdrawals()
     {
         return $this->hasMany(Withdrawal::class);
+    }
+
+    public function familyWelfareLogs(): HasMany
+    {
+        return $this->hasMany(FamilyWelfareLog::class);
     }
 
     /**

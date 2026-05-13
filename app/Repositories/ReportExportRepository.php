@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\FinancialRecord;
 use App\Models\FamilyWelfareLog;
+use App\Models\FinancialRecord;
 use Illuminate\Support\Collection;
 
 class ReportExportRepository
@@ -25,7 +25,8 @@ class ReportExportRepository
      */
     public function getSocialImpactLogs(string $startDate, string $endDate): Collection
     {
-        return FamilyWelfareLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+        return FamilyWelfareLog::whereBetween('created_at', [$startDate.' 00:00:00', $endDate.' 23:59:59'])
+            ->with('user')
             ->latest()
             ->get();
     }
