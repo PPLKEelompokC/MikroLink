@@ -46,19 +46,28 @@ class Koperasi extends Model
         return $this->hasMany(FundAllocation::class, 'koperasi_id', 'id_koperasi');
     }
 
-    public function updateSaldo(float $amount, string $type = 'Penyesuaian Modal', ?string $memberName = null): void
+    public function updateSaldo(float $amount, string $type = 'hibah', ?string $memberName = null, ?int $userId = null): void
     {
-        $this->saldo_kas += $amount;
-        $this->save();
+        $transactionType = $amount >= 0 ? 'deposit' : 'withdrawal';
+        $absAmount = abs($amount);
 
-        $this->capitalLogs()->create([
-            'transaction_id' => 'PN-'.date('Y').'-'.str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
-            'type' => $type,
-            'amount' => $amount,
-            'status' => 'Disetujui',
-            'progress' => 100,
-            'member_name' => $memberName ?? 'Admin Koperasi',
-        ]);
+        // Map legacy types if passed
+        $typeMapping = [
+            'Penyesuaian Modal' => 'hibah',
+            'Simpanan' => 'simpanan_wajib',
+            'Dana Darurat' => 'dana_cadangan',
+            'Pinjaman Usaha' => 'pinjaman_usaha',
+        ];
+        $mappedType = $typeMapping[$type] ?? $type;
+
+        app(\App\Services\KoperasiCapitalService::class)->processCapitalTransaction(
+            $this,
+            $userId,
+            $absAmount,
+            $mappedType,
+            $transactionType,
+            $memberName ?? 'Admin Koperasi'
+        );
     }
 
     public function cekLikuiditas(): float

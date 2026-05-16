@@ -145,4 +145,9 @@ class User extends Authenticatable // implements MustVerifyEmail
 
         return max(0, $totalDeposit - $totalWithdrawn);
     }
+
+    public function capitalLogs(): HasMany
+    {
+        return $this->hasMany(CapitalLog::class);
+    }
 }
