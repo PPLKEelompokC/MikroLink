@@ -74,30 +74,40 @@ class NeracaKeuanganService
         // Periode label dalam Bahasa Indonesia
         $periodeLabel = $periode->locale('id')->translatedFormat('F Y');
 
-        return NeracaKeuangan::updateOrCreate(
-            [
-                'koperasi_id' => $koperasi->id_koperasi,
-                'periode'     => $endOfMonth->toDateString(),
-            ],
-            [
-                'periode_label'           => $periodeLabel,
-                'kas'                     => $kas,
-                'simpanan_pokok'          => $simpananPokok,
-                'simpanan_wajib'          => $simpananWajib,
-                'simpanan_sukarela'       => $simpananSukarela,
-                'piutang_pinjaman'        => $piutangPinjaman,
-                'total_aset'              => $totalAset,
-                'kewajiban_tarik_pending' => $kewajibanTarik,
-                'total_kewajiban'         => $totalKewajiban,
-                'modal_disetor'           => $modalDisetor,
-                'sisa_hasil_usaha'        => $shu,
-                'total_ekuitas'           => $totalEkuitas,
-                'rasio_likuiditas'        => $rasioLikuiditas,
-                'rasio_kecukupan'         => $rasioKecukupan,
-                'is_auto'                 => true,
-                'generated_by'            => Auth::id(),
-            ]
-        );
+        $periodeKey = $endOfMonth->toDateString();
+
+        $neraca = NeracaKeuangan::where('koperasi_id', $koperasi->id_koperasi)
+            ->whereDate('periode', $periodeKey)
+            ->first();
+
+        $data = [
+            'periode_label'           => $periodeLabel,
+            'kas'                     => $kas,
+            'simpanan_pokok'          => $simpananPokok,
+            'simpanan_wajib'          => $simpananWajib,
+            'simpanan_sukarela'       => $simpananSukarela,
+            'piutang_pinjaman'        => $piutangPinjaman,
+            'total_aset'              => $totalAset,
+            'kewajiban_tarik_pending' => $kewajibanTarik,
+            'total_kewajiban'         => $totalKewajiban,
+            'modal_disetor'           => $modalDisetor,
+            'sisa_hasil_usaha'        => $shu,
+            'total_ekuitas'           => $totalEkuitas,
+            'rasio_likuiditas'        => $rasioLikuiditas,
+            'rasio_kecukupan'         => $rasioKecukupan,
+            'is_auto'                 => true,
+            'generated_by'            => Auth::id(),
+        ];
+
+        if ($neraca) {
+            $neraca->update($data);
+            return $neraca;
+        }
+
+        return NeracaKeuangan::create(array_merge([
+            'koperasi_id' => $koperasi->id_koperasi,
+            'periode'     => $periodeKey,
+        ], $data));
     }
 
     /** Generate 6 bulan terakhir sekaligus */
