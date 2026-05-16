@@ -3,14 +3,15 @@
 use App\Models\Loan;
 use App\Models\LoanStage;
 use App\Models\User;
-use Livewire\Volt\Volt;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Livewire\Volt\Volt;
 
 uses(RefreshDatabase::class);
 
 it('renders the disbursement tracking component for admin', function () {
     $admin = User::factory()->create(['role' => 'Admin Koperasi']);
-    
+
     $this->actingAs($admin)
         ->get(route('admin.pinjaman.validasi'))
         ->assertStatus(200)
@@ -21,7 +22,7 @@ it('lists loans correctly', function () {
     $admin = User::factory()->create(['role' => 'Admin Koperasi']);
     $user = User::factory()->create(['role' => 'user']);
     $loan = Loan::factory()->create(['user_id' => $user->id, 'loan_id_number' => 'LN-123']);
-    
+
     Volt::actingAs($admin)
         ->test('admin.disbursement-tracking')
         ->assertSee('LN-123')
@@ -33,7 +34,7 @@ it('can filter loans by status', function () {
     $user = User::factory()->create(['role' => 'user']);
     $loan1 = Loan::factory()->create(['user_id' => $user->id, 'status' => 'Baru', 'loan_id_number' => 'LN-BARU']);
     $loan2 = Loan::factory()->create(['user_id' => $user->id, 'status' => 'Disetujui', 'loan_id_number' => 'LN-SETUJU']);
-    
+
     Volt::actingAs($admin)
         ->test('admin.disbursement-tracking')
         ->set('filterStatus', 'Baru')
@@ -41,11 +42,39 @@ it('can filter loans by status', function () {
         ->assertDontSee('LN-SETUJU');
 });
 
+it('can filter loans by month based on created_at', function () {
+    $admin = User::factory()->create(['role' => 'Admin Koperasi']);
+    $user = User::factory()->create(['role' => 'user']);
+
+    // Loan dibuat di bulan lalu — gunakan DB::table() karena created_at tidak ada di $fillable
+    $oldLoan = Loan::factory()->create([
+        'user_id' => $user->id,
+        'loan_id_number' => 'LN-LALU',
+    ]);
+    DB::table('loans')
+        ->where('id', $oldLoan->id)
+        ->update(['created_at' => now()->subMonth()]);
+
+    // Loan dibuat di bulan ini
+    $currentLoan = Loan::factory()->create([
+        'user_id' => $user->id,
+        'loan_id_number' => 'LN-KINI',
+    ]);
+
+    $currentMonth = now()->format('Y-m');
+
+    Volt::actingAs($admin)
+        ->test('admin.disbursement-tracking')
+        ->set('filterMonth', $currentMonth)
+        ->assertSee('LN-KINI')
+        ->assertDontSee('LN-LALU');
+});
+
 it('can view loan details and advance a loan stage', function () {
     $admin = User::factory()->create(['role' => 'Admin Koperasi']);
     $user = User::factory()->create(['role' => 'user']);
     $loan = Loan::factory()->create(['user_id' => $user->id, 'status' => 'Baru', 'loan_id_number' => 'LN-123']);
-    
+
     // Create stages
     LoanStage::create([
         'loan_id' => $loan->id,
