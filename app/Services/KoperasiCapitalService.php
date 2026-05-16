@@ -17,6 +17,7 @@ class KoperasiCapitalService
      * @param string $type (simpanan_pokok, simpanan_wajib, simpanan_sukarela, etc.)
      * @param string $transactionType (deposit, withdrawal)
      * @param string|null $memberName Fallback for legacy support
+     * @param string|null $notes Additional context or reason for the transaction
      * @return CapitalLog
      * @throws \Exception
      */
@@ -26,7 +27,8 @@ class KoperasiCapitalService
         float $amount,
         string $type,
         string $transactionType = 'deposit',
-        ?string $memberName = null
+        ?string $memberName = null,
+        ?string $notes = null
     ): CapitalLog {
         // Validation: Cannot withdraw simpanan_pokok or simpanan_wajib
         if ($transactionType === 'withdrawal') {
@@ -53,6 +55,7 @@ class KoperasiCapitalService
             'status' => 'Selesai', // Assuming direct approval for this service
             'progress' => 100,
             'member_name' => $memberName,
+            'notes' => $notes,
         ]);
 
         // Update Koperasi total kas

@@ -19,6 +19,7 @@ class CapitalLog extends Model
         'status',
         'progress',
         'member_name',
+        'notes',
     ];
 
     public function koperasi()
@@ -40,6 +41,7 @@ class CapitalLog extends Model
             'dana_cadangan'     => 'Dana Cadangan',
             'hibah'             => 'Hibah',
             'pinjaman_usaha'    => 'Pinjaman Usaha',
+            'penyesuaian_modal' => 'Koreksi Pembukuan',
         ][$this->type] ?? $this->type;
     }
 }

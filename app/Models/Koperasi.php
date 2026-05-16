@@ -46,14 +46,14 @@ class Koperasi extends Model
         return $this->hasMany(FundAllocation::class, 'koperasi_id', 'id_koperasi');
     }
 
-    public function updateSaldo(float $amount, string $type = 'hibah', ?string $memberName = null, ?int $userId = null): void
+    public function updateSaldo(float $amount, string $type = 'hibah', ?string $memberName = null, ?int $userId = null, ?string $notes = null): void
     {
         $transactionType = $amount >= 0 ? 'deposit' : 'withdrawal';
         $absAmount = abs($amount);
 
         // Map legacy types if passed
         $typeMapping = [
-            'Penyesuaian Modal' => 'hibah',
+            'Penyesuaian Modal' => 'penyesuaian_modal',
             'Simpanan' => 'simpanan_wajib',
             'Dana Darurat' => 'dana_cadangan',
             'Pinjaman Usaha' => 'pinjaman_usaha',
@@ -66,7 +66,8 @@ class Koperasi extends Model
             $absAmount,
             $mappedType,
             $transactionType,
-            $memberName ?? 'Admin Koperasi'
+            $memberName ?? 'Admin Koperasi',
+            $notes
         );
     }
 

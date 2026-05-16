@@ -82,6 +82,9 @@ new #[Layout('layouts.app')] class extends Component {
                                             <p class="text-[10px] text-gray-400">{{ $log->transaction_id }}</p>
                                         </div>
                                     </div>
+                                    @if($log->notes)
+                                        <p class="text-xs text-gray-500 mt-2 italic bg-gray-50 p-2 rounded-md border border-gray-100">{{ $log->notes }}</p>
+                                    @endif
                                 </td>
                                 <td class="px-8 py-5">
                                     @if($log->transaction_type === 'deposit')
