@@ -477,7 +477,7 @@
                 <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
                         <div class="px-3 py-1.5 bg-blue-50/80 text-blue-600 text-[12px] font-bold rounded-md">Riwayat Perubahan Modal</div>
-                        <span class="text-[10px] bg-white px-3 py-1 rounded-full border border-gray-200 font-bold text-gray-400">LIHAT SEMUA</span>
+                        <a href="{{ route('admin.capital-logs.index') }}" class="text-[10px] bg-white px-3 py-1 rounded-full border border-gray-200 font-bold text-gray-400 hover:bg-gray-50 transition-colors">LIHAT SEMUA</a>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
@@ -485,11 +485,11 @@
                                 @forelse($capitalLogs ?? [] as $log)
                                     <tr class="hover:bg-gray-50/50 transition-colors">
                                         <td class="px-8 py-5">
-                                            <p class="text-xs font-bold text-black">{{ $log->type }}</p>
-                                            <p class="text-[10px] text-gray-400">{{ $log->action_by }}</p>
+                                            <p class="text-xs font-bold text-black">{{ $log->type_label }}</p>
+                                            <p class="text-[10px] text-gray-400">{{ $log->member_name ?? ($log->user ? $log->user->name : 'System') }}</p>
                                         </td>
-                                        <td class="px-8 py-5 text-right font-extrabold text-emerald-600 text-sm">
-                                            Rp {{ number_format($log->amount, 0, ',', '.') }}
+                                        <td class="px-8 py-5 text-right font-extrabold {{ $log->transaction_type === 'deposit' ? 'text-emerald-600' : 'text-red-500' }} text-sm">
+                                            {{ $log->transaction_type === 'deposit' ? '+' : '-' }} Rp {{ number_format($log->amount, 0, ',', '.') }}
                                         </td>
                                     </tr>
                                 @empty

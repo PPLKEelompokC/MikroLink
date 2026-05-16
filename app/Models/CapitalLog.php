@@ -30,4 +30,16 @@ class CapitalLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getTypeLabelAttribute(): string
+    {
+        return [
+            'simpanan_pokok'    => 'Simpanan Pokok',
+            'simpanan_wajib'    => 'Simpanan Wajib',
+            'simpanan_sukarela' => 'Simpanan Sukarela',
+            'dana_cadangan'     => 'Dana Cadangan',
+            'hibah'             => 'Hibah',
+            'pinjaman_usaha'    => 'Pinjaman Usaha',
+        ][$this->type] ?? $this->type;
+    }
 }

@@ -151,6 +151,9 @@ Route::middleware(['auth', 'role:admin,manager,super_admin,Admin Koperasi,Manaje
         // Fitur: Neraca Keuangan Otomatis
         Volt::route('/neraca', 'admin.neraca-keuangan')->name('neraca.index');
 
+        // Fitur: Riwayat Perubahan Modal (Logs)
+        Volt::route('/capital-logs', 'admin.capital-logs')->name('capital-logs.index');
+
         // Khusus Manajer Koperasi
         Volt::route('/pinjaman/review-manajer', 'admin.review-pinjaman-manajer')->name('pinjaman.review.manajer');
     });
