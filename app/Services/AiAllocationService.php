@@ -57,9 +57,17 @@ class AiAllocationService
 
         $totalApprovedDeposits = (float) Deposit::where('status', 'APPROVED')->sum('amount');
 
-        $latestFinancialRecord = $koperasi->financialRecords()
+        $latestFinancialRecords = $koperasi->financialRecords()
             ->latest('record_date')
-            ->first();
+            ->limit(3)
+            ->get();
+
+        $latestFinancialRecord = $latestFinancialRecords->first();
+        
+        $omzetTrend = $latestFinancialRecords->map(fn($r) => [
+            'month' => $r->record_date,
+            'omzet' => (float) $r->omzet
+        ])->toArray();
 
         $operationalReserve = $totalCashBalance * $reserveRatio;
         $idleFundAmount = max(0, $totalCashBalance - abs($totalOutstandingLoans) - $operationalReserve);
@@ -74,8 +82,12 @@ class AiAllocationService
             'operational_reserve' => round($operationalReserve, 2),
             'idle_fund_amount' => round($idleFundAmount, 2),
             'latest_omzet' => round((float) ($latestFinancialRecord?->omzet ?? 0), 2),
+            'omzet_trend' => $omzetTrend,
             'latest_credit_score' => round((float) ($latestFinancialRecord?->credit_score ?? 0), 2),
             'reserve_ratio' => $reserveRatio,
+            'liquidity_ratio' => $koperasi->cekLikuiditas(),
+            'liquidity_status' => $koperasi->statusLikuiditas(),
+            'member_count' => User::where('role', 'user')->count(),
             'snapshot_date' => now()->toDateString(),
         ];
     }
@@ -206,33 +218,42 @@ class AiAllocationService
             : $payload['total_cash_balance'];
 
         $fundsDescription = $payload['idle_fund_amount'] > 0
-            ? "Available Idle Funds: Rp {$payload['idle_fund_amount']}"
-            : "Available Idle Funds: Rp 0 (use Total Cash Balance of Rp {$payload['total_cash_balance']} as base for strategic allocation recommendations)";
+            ? "Dana Idle Tersedia: Rp " . number_format($payload['idle_fund_amount'], 0, ',', '.')
+            : "Dana Idle Tersedia: Rp 0 (gunakan Total Saldo Kas Rp " . number_format($payload['total_cash_balance'], 0, ',', '.') . " sebagai basis alokasi strategis)";
+
+        $omzetTrendStr = collect($payload['omzet_trend'])
+            ->map(fn($t) => "- {$t['month']}: Rp " . number_format($t['omzet'], 0, ',', '.'))
+            ->implode("\n");
 
         return <<<PROMPT
-You are a financial advisor AI for an Indonesian cooperative (koperasi). Analyze the following financial data and recommend strategic fund allocations.
+You are a senior financial advisor AI for an Indonesian cooperative (koperasi). Your goal is to maximize member welfare while maintaining strict financial stability.
 
-## Financial Data
-- Cooperative: {$payload['koperasi_name']}
-- Total Cash Balance: Rp {$payload['total_cash_balance']}
-- Outstanding Loans: Rp {$payload['total_outstanding_loans']}
-- Approved Member Deposits: Rp {$payload['total_approved_deposits']}
-- Operational Reserve ({$payload['reserve_ratio']}): Rp {$payload['operational_reserve']}
+## Data Finansial Koperasi: {$payload['koperasi_name']}
+- Total Saldo Kas: Rp {$payload['total_cash_balance']}
+- Pinjaman Outstanding: Rp {$payload['total_outstanding_loans']}
+- Simpanan Anggota Disetujui: Rp {$payload['total_approved_deposits']}
+- Cadangan Operasional (Wajib): Rp {$payload['operational_reserve']}
+- Rasio Likuiditas: {$payload['liquidity_ratio']}% (Status: {$payload['liquidity_status']})
+- Jumlah Anggota Aktif: {$payload['member_count']}
 - {$fundsDescription}
-- Latest Monthly Revenue (Omzet): Rp {$payload['latest_omzet']}
-- Credit Score: {$payload['latest_credit_score']}
 
-## Instructions
-Recommend how to allocate Rp {$allocationBase} across these categories:
-1. Pinjaman Usaha Mikro (Micro Business Loans)
-2. Investasi Jangka Pendek (Short-term Investment)
-3. Dana Cadangan Likuiditas (Liquidity Reserve Fund)
-4. Program Pemberdayaan Anggota (Member Empowerment Program)
+## Tren Omzet (3 Bulan Terakhir):
+{$omzetTrendStr}
 
-For each category provide: the recommended allocation amount in IDR, a confidence score (0-100), and a brief reasoning.
+## Instruksi Alokasi:
+Rekomendasikan alokasi dana sebesar Rp {$allocationBase} ke dalam kategori berikut:
+1. Pinjaman Usaha Mikro: Memberikan modal produktif bagi anggota.
+2. Investasi Jangka Pendek: Penempatan dana aman (seperti deposito bank) untuk bunga tambahan.
+3. Dana Cadangan Likuiditas: Memperkuat bantalan kas jika rasio likuiditas rendah.
+4. Program Pemberdayaan Anggota: Pelatihan atau bantuan langsung untuk kesejahteraan anggota.
 
-Respond ONLY with a valid JSON array. No markdown, no explanation, no other text. Example format:
-[{"category": "Pinjaman Usaha Mikro", "amount": 50000000, "confidence": 85, "reasoning": "explanation here"}]
+## Output Requirements:
+1. Berikan rekomendasi dalam Bahasa Indonesia yang profesional.
+2. Pastikan alasan (reasoning) menjelaskan MENGAPA alokasi tersebut penting berdasarkan data tren omzet dan status likuiditas di atas.
+3. Jawab HANYA dalam format JSON array yang valid.
+
+Format JSON:
+[{"category": "Pinjaman Usaha Mikro", "amount": 50000000, "confidence": 85, "reasoning": "Alasan dalam Bahasa Indonesia..."}]
 PROMPT;
     }
 

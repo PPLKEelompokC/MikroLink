@@ -15,6 +15,20 @@ new #[Layout('layouts.app')] class extends Component {
             'reviewed_at' => now(),
         ]);
 
+        if ($status === 'approved') {
+            $this->fundAllocation->koperasi->capitalLogs()->create([
+                'user_id' => auth()->id(),
+                'transaction_id' => 'AI-' . strtoupper(\Illuminate\Support\Str::random(10)),
+                'type' => 'penyesuaian_modal',
+                'transaction_type' => 'deposit', // Using 'deposit' instead of 'reallocation' due to ENUM constraints
+                'amount' => $this->fundAllocation->recommended_amount,
+                'status' => 'Selesai',
+                'progress' => 100,
+                'member_name' => 'AI Strategic System',
+                'notes' => 'Alokasi Disetujui: ' . $this->fundAllocation->allocation_category,
+            ]);
+        }
+
         session()->flash('success', 'Status rekomendasi berhasil diperbarui.');
     }
 }; ?>
@@ -113,7 +127,7 @@ new #[Layout('layouts.app')] class extends Component {
 
             {{-- Sidebar: Actions --}}
             <div class="flex flex-col gap-6">
-                @if($fundAllocation->status === 'pending' && auth()->user()->role === 'Manajer Koperasi')
+                @if($fundAllocation->status === 'pending' && in_array(auth()->user()->role, ['manager', 'super_admin']))
                     <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
                         <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Tindakan</h3>
                         <div class="flex flex-col gap-3">
