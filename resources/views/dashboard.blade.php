@@ -429,7 +429,7 @@
                         </h2>
                         <p class="text-[16px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
                     </div>
-                    <a href="{{ route('admin.pinjaman.validasi') }}" wire:navigate class="bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
+                    <a href="{{ route('admin.pinjaman.validasi') }}" wire:navigate class="bg-[#e8a838] hover:bg-[#d4952f] text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
                         Kelola Pinjaman
                     </a>
                 </div>
