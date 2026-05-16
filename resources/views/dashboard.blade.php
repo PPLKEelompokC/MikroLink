@@ -348,9 +348,18 @@
                             <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                         </div>
                         <div class="text-[32px] font-bold text-gray-900 mb-1 tracking-tight">Rp {{ number_format($availableCapital ?? 0, 0, ',', '.') }}</div>
-                        <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ $likuiditas ?? 0 }}%</div>
-                        <div class="flex items-center text-[12px] font-bold text-emerald-500">
-                            <span>Stabil</span>
+                        <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ number_format($likuiditas ?? 0, 1) }}%</div>
+                        @php
+                            $status = $koperasi->statusLikuiditas();
+                            $colorClass = match($status) {
+                                'Sangat Sehat', 'Sehat' => 'text-emerald-500',
+                                'Stabil' => 'text-blue-500',
+                                'Cukup' => 'text-amber-500',
+                                default => 'text-red-500',
+                            };
+                        @endphp
+                        <div class="flex items-center text-[12px] font-bold {{ $colorClass }}">
+                            <span>{{ $status }}</span>
                             <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
                         </div>
                     </div>

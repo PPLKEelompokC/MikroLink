@@ -73,9 +73,26 @@ class Koperasi extends Model
 
     public function cekLikuiditas(): float
     {
-        // Simple logic for illustration based on class diagram, assuming likuiditas is a percentage.
-        // In real scenario, it would depend on total assets/liabilities.
-        // Here we just return a base value.
-        return $this->saldo_kas > 0 ? 92.3 : 0.0;
+        // Try to get the latest liquidity ratio from the NeracaKeuangan table
+        $latestNeraca = \App\Models\NeracaKeuangan::where('koperasi_id', $this->id_koperasi)
+            ->orderBy('periode', 'desc')
+            ->first();
+
+        if ($latestNeraca) {
+            return (float) $latestNeraca->rasio_likuiditas;
+        }
+
+        // Fallback: If no neraca generated yet, assume high liquidity if there's cash
+        return $this->saldo_kas > 0 ? 100.0 : 0.0;
+    }
+
+    public function statusLikuiditas(): string
+    {
+        $rasio = $this->cekLikuiditas();
+        if ($rasio >= 150) return 'Sangat Sehat';
+        if ($rasio >= 100) return 'Sehat';
+        if ($rasio >= 80)  return 'Stabil';
+        if ($rasio >= 50)  return 'Cukup';
+        return 'Rawan';
     }
 }

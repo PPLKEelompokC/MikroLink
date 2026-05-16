@@ -62,6 +62,9 @@ class KoperasiCapitalService
         $kasModifier = $transactionType === 'deposit' ? $amount : -$amount;
         $koperasi->increment('saldo_kas', $kasModifier);
 
+        // Auto-generate Neraca for current month to keep it in sync
+        app(\App\Services\NeracaKeuanganService::class)->generate($koperasi, now());
+
         return $log;
     }
 

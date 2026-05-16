@@ -40,7 +40,7 @@ class CapitalLog extends Model
             'simpanan_sukarela' => 'Simpanan Sukarela',
             'dana_cadangan'     => 'Dana Cadangan',
             'hibah'             => 'Hibah',
-            'pinjaman_usaha'    => 'Pinjaman Usaha',
+            'pinjaman_usaha'    => 'Modal Usaha / Kredit',
             'penyesuaian_modal' => 'Koreksi Pembukuan',
         ][$this->type] ?? $this->type;
     }
