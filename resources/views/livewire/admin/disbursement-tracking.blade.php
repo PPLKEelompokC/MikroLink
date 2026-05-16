@@ -10,18 +10,18 @@ new #[Layout('layouts.app')] class extends Component {
     public ?Loan $selectedLoan = null;
     public string $filterStatus = '';
     public string $sortOrder = 'asc';
-    public string $exportMonth = '';
+    public string $filterMonth = '';
     public string $stageNote = '';
-
-    public function mount(): void
-    {
-        $this->exportMonth = now()->format('Y-m');
-    }
 
     public function with(): array
     {
         $loans = Loan::with(['user', 'stages'])
             ->when($this->filterStatus !== '', fn ($q) => $q->where('status', $this->filterStatus))
+            ->when($this->filterMonth !== '', function ($q) {
+                [$year, $month] = explode('-', $this->filterMonth);
+
+                return $q->whereYear('created_at', (int) $year)->whereMonth('created_at', (int) $month);
+            })
             ->orderBy('loan_id_number', $this->sortOrder)
             ->get();
 
@@ -77,10 +77,7 @@ new #[Layout('layouts.app')] class extends Component {
         $this->dispatch('notif', type: 'error', message: 'Pengajuan pinjaman telah ditolak.');
     }
 
-    public function exportPrint(): void
-    {
-        $this->dispatch('print-disbursement', month: $this->exportMonth);
-    }
+
 }; ?>
 
 <div>
@@ -149,16 +146,18 @@ new #[Layout('layouts.app')] class extends Component {
                         <option value="Ditolak">Ditolak</option>
                     </select>
 
-                    {{-- Export --}}
-                    <div class="flex items-center gap-1">
-                        <input type="month" wire:model="exportMonth"
-                            class="text-xs font-semibold border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:border-[#e8a838]">
-                        <button wire:click="exportPrint"
-                            class="px-4 py-2 bg-[#e8a838] hover:bg-[#d4952f] text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                            Export
-                        </button>
-                    </div>
+                    {{-- Filter Bulan (juga dipakai untuk label export) --}}
+                    <input type="month" wire:model.live="filterMonth"
+                        class="text-xs font-semibold border border-gray-200 rounded-xl px-3 py-2 bg-white text-gray-700 focus:outline-none focus:border-[#e8a838]"
+                        title="Filter tampilan berdasarkan bulan pengajuan">
+
+                    {{-- Export: dipanggil synchronous dari click via named function — window.open tidak diblokir --}}
+                    <button
+                        x-on:click="window.disbursementPrint($wire.filterMonth)"
+                        class="px-4 py-2 bg-[#e8a838] hover:bg-[#d4952f] text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        Export
+                    </button>
                 </div>
             </div>
         </div>
@@ -375,33 +374,35 @@ new #[Layout('layouts.app')] class extends Component {
             </div>
         </div>
     @endif
-
-    {{-- Print Script --}}
+    {{-- Print Function — @script memastikan dieksekusi setiap inisialisasi komponen (termasuk wire:navigate) --}}
+    @script
     <script>
-        document.addEventListener('print-disbursement', function (e) {
-            const month = e.detail.month;
-            const area  = document.getElementById('disbursement-print-area');
+        window.disbursementPrint = function (month) {
+            month = month || 'Semua Periode';
+            var area = document.getElementById('disbursement-print-area');
             if (!area) return;
-
-            const win = window.open('', '_blank');
-            win.document.write(`
-                <html><head><title>Export Disbursement - ${month}</title>
-                <style>
-                    body { font-family: sans-serif; padding: 20px; }
-                    h2 { margin-bottom: 4px; } p { color: #666; margin: 0 0 16px; }
-                    table { width:100%; border-collapse:collapse; }
-                    th { background:#f9fafb; text-align:left; padding:10px 12px; font-size:11px; color:#9ca3af; text-transform:uppercase; letter-spacing:.05em; }
-                    td { padding:10px 12px; font-size:13px; border-bottom:1px solid #f3f4f6; }
-                </style></head>
-                <body>
-                    <h2>Laporan Disbursement Operasi</h2>
-                    <p>Periode: ${month}</p>
-                    ${area.innerHTML}
-                </body></html>
-            `);
+            var win = window.open('', '_blank');
+            if (!win) { alert('Aktifkan pop-up browser untuk mengekspor laporan.'); return; }
+            win.document.write(
+                '<html><head><title>Export Disbursement - ' + month + '<\/title>' +
+                '<style>' +
+                'body{font-family:sans-serif;padding:20px}' +
+                'h2{margin-bottom:4px}p{color:#666;margin:0 0 16px}' +
+                'table{width:100%;border-collapse:collapse}' +
+                'th{background:#f9fafb;text-align:left;padding:10px 12px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em}' +
+                'td{padding:10px 12px;font-size:13px;border-bottom:1px solid #f3f4f6}' +
+                '<\/style><\/head>' +
+                '<body>' +
+                '<h2>Laporan Disbursement Operasi<\/h2>' +
+                '<p>Periode: ' + month + '<\/p>' +
+                area.innerHTML +
+                '<\/body><\/html>'
+            );
             win.document.close();
             win.print();
-        });
+        };
     </script>
+    @endscript
+
     </div>{{-- /.w-full.max-w-7xl --}}
 </div>
