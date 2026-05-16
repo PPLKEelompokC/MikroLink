@@ -58,6 +58,23 @@ new #[Layout('layouts.app')] class extends Component {
             'admin_note' => $this->adminNote ?: 'Penarikan telah disetujui dan ditransfer.',
         ]);
 
+        // Integrate with KoperasiCapitalService
+        try {
+            $koperasi = \App\Models\Koperasi::first();
+            if ($koperasi) {
+                app(\App\Services\KoperasiCapitalService::class)->processCapitalTransaction(
+                    $koperasi,
+                    $withdrawal->user_id,
+                    (float) $withdrawal->amount,
+                    'simpanan_sukarela',
+                    'withdrawal',
+                    $withdrawal->user->name
+                );
+            }
+        } catch (\Exception $e) {
+            // Log or handle error if needed
+        }
+
         $withdrawal->user->notify(new WithdrawalStatusUpdated($withdrawal));
 
         $this->tutupModal();

@@ -46,26 +46,53 @@ class Koperasi extends Model
         return $this->hasMany(FundAllocation::class, 'koperasi_id', 'id_koperasi');
     }
 
-    public function updateSaldo(float $amount, string $type = 'Penyesuaian Modal', ?string $memberName = null): void
+    public function updateSaldo(float $amount, string $type = 'hibah', ?string $memberName = null, ?int $userId = null, ?string $notes = null): void
     {
-        $this->saldo_kas += $amount;
-        $this->save();
+        $transactionType = $amount >= 0 ? 'deposit' : 'withdrawal';
+        $absAmount = abs($amount);
 
-        $this->capitalLogs()->create([
-            'transaction_id' => 'PN-'.date('Y').'-'.str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
-            'type' => $type,
-            'amount' => $amount,
-            'status' => 'Disetujui',
-            'progress' => 100,
-            'member_name' => $memberName ?? 'Admin Koperasi',
-        ]);
+        // Map legacy types if passed
+        $typeMapping = [
+            'Penyesuaian Modal' => 'penyesuaian_modal',
+            'Simpanan' => 'simpanan_wajib',
+            'Dana Darurat' => 'dana_cadangan',
+            'Pinjaman Usaha' => 'pinjaman_usaha',
+        ];
+        $mappedType = $typeMapping[$type] ?? $type;
+
+        app(\App\Services\KoperasiCapitalService::class)->processCapitalTransaction(
+            $this,
+            $userId,
+            $absAmount,
+            $mappedType,
+            $transactionType,
+            $memberName ?? 'Admin Koperasi',
+            $notes
+        );
     }
 
     public function cekLikuiditas(): float
     {
-        // Simple logic for illustration based on class diagram, assuming likuiditas is a percentage.
-        // In real scenario, it would depend on total assets/liabilities.
-        // Here we just return a base value.
-        return $this->saldo_kas > 0 ? 92.3 : 0.0;
+        // Try to get the latest liquidity ratio from the NeracaKeuangan table
+        $latestNeraca = \App\Models\NeracaKeuangan::where('koperasi_id', $this->id_koperasi)
+            ->orderBy('periode', 'desc')
+            ->first();
+
+        if ($latestNeraca) {
+            return (float) $latestNeraca->rasio_likuiditas;
+        }
+
+        // Fallback: If no neraca generated yet, assume high liquidity if there's cash
+        return $this->saldo_kas > 0 ? 100.0 : 0.0;
+    }
+
+    public function statusLikuiditas(): string
+    {
+        $rasio = $this->cekLikuiditas();
+        if ($rasio >= 150) return 'Sangat Sehat';
+        if ($rasio >= 100) return 'Sehat';
+        if ($rasio >= 80)  return 'Stabil';
+        if ($rasio >= 50)  return 'Cukup';
+        return 'Rawan';
     }
 }

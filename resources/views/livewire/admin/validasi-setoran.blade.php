@@ -40,6 +40,30 @@ new #[Layout('layouts.app')] class extends Component {
             'status'     => 'APPROVED',
             'admin_note' => $this->adminNote ?: 'Setoran telah diverifikasi dan disetujui.',
         ]);
+
+        // Integrate with KoperasiCapitalService
+        try {
+            $koperasi = \App\Models\Koperasi::first();
+            if ($koperasi) {
+                $typeMap = [
+                    'POKOK' => 'simpanan_pokok',
+                    'WAJIB' => 'simpanan_wajib',
+                    'SUKARELA' => 'simpanan_sukarela',
+                ];
+                
+                app(\App\Services\KoperasiCapitalService::class)->processCapitalTransaction(
+                    $koperasi,
+                    $deposit->user_id,
+                    (float) $deposit->amount,
+                    $typeMap[$deposit->type] ?? 'simpanan_sukarela',
+                    'deposit',
+                    $deposit->user->name
+                );
+            }
+        } catch (\Exception $e) {
+            // Log or handle error if needed, but don't block the UI
+        }
+
         $this->tutupModal();
         $this->dispatch('notif', type: 'success', message: 'Setoran berhasil disetujui!');
     }

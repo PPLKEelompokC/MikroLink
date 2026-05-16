@@ -17,7 +17,7 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function analyze(): void
     {
-        abort_if(!in_array(auth()->user()->role, ['Manajer Koperasi', 'super_admin']), 403, 'Unauthorized action.');
+        abort_if(!in_array(auth()->user()->role, ['manager', 'super_admin']), 403, 'Unauthorized action.');
 
         $koperasi = Koperasi::firstOrFail();
 
@@ -41,7 +41,7 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function analyzeForce(): void
     {
-        abort_if(!in_array(auth()->user()->role, ['Manajer Koperasi', 'super_admin']), 403, 'Unauthorized action.');
+        abort_if(!in_array(auth()->user()->role, ['manager', 'super_admin']), 403, 'Unauthorized action.');
 
         $koperasi = Koperasi::firstOrFail();
 
@@ -85,7 +85,7 @@ new #[Layout('layouts.app')] class extends Component {
                 <h1 class="text-[32px] font-bold text-gray-900 tracking-tight">AI Strategic Fund Allocation</h1>
                 <p class="text-gray-500 mt-1">Rekomendasi alokasi dana idle dari AI berdasarkan analisis finansial koperasi.</p>
             </div>
-            @if(in_array(auth()->user()->role, ['Manajer Koperasi', 'super_admin']))
+            @if(in_array(auth()->user()->role, ['manager', 'super_admin']))
                 <button
                     wire:click="analyze"
                     wire:loading.attr="disabled"
@@ -116,7 +116,7 @@ new #[Layout('layouts.app')] class extends Component {
                     <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span class="font-medium">{{ session('error') }}</span>
                 </div>
-                @if(in_array(auth()->user()->role, ['Manajer Koperasi', 'super_admin']))
+                @if(in_array(auth()->user()->role, ['manager', 'super_admin']))
                     <button wire:click="analyzeForce" wire:loading.attr="disabled" wire:target="analyzeForce" class="text-sm font-bold text-red-700 bg-red-100 hover:bg-red-200 px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap disabled:opacity-60">
                         <svg wire:loading wire:target="analyzeForce" class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

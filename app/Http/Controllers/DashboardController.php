@@ -70,17 +70,14 @@ class DashboardController extends Controller
 
         // --- Admin / Manajer Logic ---
         
-        // PBI-02 Optimization: Caching Koperasi Profile for 60 minutes
-        $koperasi = Cache::remember('koperasi_profile', 3600, function () {
-            return Koperasi::firstOrCreate(
-                ['id_koperasi' => 'KOP-001'],
-                [
-                    'nama_koperasi' => 'Koperasi MikroLink',
-                    'alamat'        => 'Jl. Merdeka No 1',
-                    'saldo_kas'     => 350500000,
-                ]
-            );
-        });
+        $koperasi = Koperasi::firstOrCreate(
+            ['id_koperasi' => 'KOP-001'],
+            [
+                'nama_koperasi' => 'Koperasi MikroLink',
+                'alamat'        => 'Jl. Merdeka No 1',
+                'saldo_kas'     => 350500000,
+            ]
+        );
 
         $availableCapital   = $koperasi->saldo_kas;
         $likuiditas         = $koperasi->cekLikuiditas();

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Deposit;
+use App\Models\CapitalLog;
 use App\Models\Koperasi;
 use App\Models\Loan;
 use App\Models\NeracaKeuangan;
@@ -24,9 +24,9 @@ class NeracaKeuanganService
         // ── ASET ────────────────────────────────────────────────
         $kas = (float) $koperasi->saldo_kas;
 
-        $simpananPokok    = $this->totalSimpanan('POKOK',    $endOfMonth);
-        $simpananWajib    = $this->totalSimpanan('WAJIB',    $endOfMonth);
-        $simpananSukarela = $this->totalSimpanan('SUKARELA', $endOfMonth);
+        $simpananPokok    = $this->totalSimpanan('simpanan_pokok',    $endOfMonth, $koperasi);
+        $simpananWajib    = $this->totalSimpanan('simpanan_wajib',    $endOfMonth, $koperasi);
+        $simpananSukarela = $this->totalSimpanan('simpanan_sukarela', $endOfMonth, $koperasi);
 
         // Jika tidak ada data simpanan sama sekali, gunakan estimasi dari kas
         if ($simpananPokok === 0.0 && $simpananWajib === 0.0 && $simpananSukarela === 0.0) {
@@ -111,13 +111,22 @@ class NeracaKeuanganService
         return $results;
     }
 
-    private function totalSimpanan(string $type, Carbon $date): float
+    private function totalSimpanan(string $type, Carbon $date, Koperasi $koperasi): float
     {
-        if (! Schema::hasTable('deposits')) return 0.0;
-
-        return (float) Deposit::where('type', $type)
-            ->where('status', 'APPROVED')
+        $depositSum = (float) CapitalLog::where('koperasi_id', $koperasi->id_koperasi)
+            ->where('type', $type)
+            ->where('transaction_type', 'deposit')
+            ->whereIn('status', ['Selesai', 'Disetujui'])
             ->whereDate('created_at', '<=', $date)
             ->sum('amount');
+
+        $withdrawalSum = (float) CapitalLog::where('koperasi_id', $koperasi->id_koperasi)
+            ->where('type', $type)
+            ->where('transaction_type', 'withdrawal')
+            ->whereIn('status', ['Selesai', 'Disetujui'])
+            ->whereDate('created_at', '<=', $date)
+            ->sum('amount');
+
+        return max(0.0, $depositSum - $withdrawalSum);
     }
 }

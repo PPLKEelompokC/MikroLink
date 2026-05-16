@@ -348,9 +348,18 @@
                             <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                         </div>
                         <div class="text-[32px] font-bold text-gray-900 mb-1 tracking-tight">Rp {{ number_format($availableCapital ?? 0, 0, ',', '.') }}</div>
-                        <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ $likuiditas ?? 0 }}%</div>
-                        <div class="flex items-center text-[12px] font-bold text-emerald-500">
-                            <span>Stabil</span>
+                        <div class="text-[12px] text-gray-500 mb-4">Likuiditas {{ number_format($likuiditas ?? 0, 1) }}%</div>
+                        @php
+                            $status = $koperasi->statusLikuiditas();
+                            $colorClass = match($status) {
+                                'Sangat Sehat', 'Sehat' => 'text-emerald-500',
+                                'Stabil' => 'text-blue-500',
+                                'Cukup' => 'text-amber-500',
+                                default => 'text-red-500',
+                            };
+                        @endphp
+                        <div class="flex items-center text-[12px] font-bold {{ $colorClass }}">
+                            <span>{{ $status }}</span>
                             <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
                         </div>
                     </div>
@@ -477,7 +486,7 @@
                 <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-8 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
                         <div class="px-3 py-1.5 bg-blue-50/80 text-blue-600 text-[12px] font-bold rounded-md">Riwayat Perubahan Modal</div>
-                        <span class="text-[10px] bg-white px-3 py-1 rounded-full border border-gray-200 font-bold text-gray-400">LIHAT SEMUA</span>
+                        <a href="{{ route('admin.capital-logs.index') }}" class="text-[10px] bg-white px-3 py-1 rounded-full border border-gray-200 font-bold text-gray-400 hover:bg-gray-50 transition-colors">LIHAT SEMUA</a>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
@@ -485,11 +494,11 @@
                                 @forelse($capitalLogs ?? [] as $log)
                                     <tr class="hover:bg-gray-50/50 transition-colors">
                                         <td class="px-8 py-5">
-                                            <p class="text-xs font-bold text-black">{{ $log->type }}</p>
-                                            <p class="text-[10px] text-gray-400">{{ $log->action_by }}</p>
+                                            <p class="text-xs font-bold text-black">{{ $log->type_label }}</p>
+                                            <p class="text-[10px] text-gray-400">{{ $log->member_name ?? ($log->user ? $log->user->name : 'System') }}</p>
                                         </td>
-                                        <td class="px-8 py-5 text-right font-extrabold text-emerald-600 text-sm">
-                                            Rp {{ number_format($log->amount, 0, ',', '.') }}
+                                        <td class="px-8 py-5 text-right font-extrabold {{ $log->transaction_type === 'deposit' ? 'text-emerald-600' : 'text-red-500' }} text-sm">
+                                            {{ $log->transaction_type === 'deposit' ? '+' : '-' }} Rp {{ number_format($log->amount, 0, ',', '.') }}
                                         </td>
                                     </tr>
                                 @empty
