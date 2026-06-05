@@ -139,6 +139,23 @@
                     </div>
                 </div>
 
+                {{-- Peforma Kesehatan Finansial Chart --}}
+                <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 relative overflow-hidden">
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <h2 class="text-[20px] text-gray-900 leading-tight">
+                                <span>Peforma</span> <span class="font-bold">Kesehatan Finansial</span>
+                            </h2>
+                            <p class="text-[14px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
+                        </div>
+                        <a href="{{ route('pinjaman.ajukan') }}" wire:navigate
+                           class="bg-[#e8a838] hover:bg-[#d4952f] text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
+                            Ajukan Pinjaman
+                        </a>
+                    </div>
+                    <div id="userFinancialChart" class="w-full" style="min-height: 320px;"></div>
+                </div>
+
                 {{-- Riwayat Setoran Terbaru --}}
                 <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
                     <div class="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
@@ -537,43 +554,76 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin']))
-            const chartLabels = @json($chartLabels ?? []);
-            const omzetData = @json($omzetData ?? []);
-            const creditScoreData = @json($creditScoreData ?? []);
+    let charts = {};
 
-            const chartEl = document.getElementById('financialChart');
-            if (!chartEl) return;
+    function initDashboardCharts() {
+        const chartLabels = @json($chartLabels ?? []);
+        const omzetData   = @json($omzetData ?? []);
+        const creditData  = @json($creditScoreData ?? []);
 
-            if (chartLabels.length === 0) {
-                chartEl.innerHTML = '<div class="flex items-center justify-center h-64 text-gray-400 text-sm italic">Belum ada data performa finansial.</div>';
-                return;
-            }
-
-            const options = {
+        function buildOptions(labels, omzet, credit) {
+            return {
                 series: [
-                    { name: 'Omzet', type: 'area', data: omzetData },
-                    { name: 'Skor Kredit', type: 'line', data: creditScoreData }
+                    { name: 'Omzet',       type: 'area', data: omzet  },
+                    { name: 'Skor Kredit', type: 'line', data: credit }
                 ],
                 chart: {
-                    height: 320, type: 'line', fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    height: 320, type: 'line',
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
                     toolbar: { show: false }, zoom: { enabled: false },
                     dropShadow: { enabled: true, top: 4, left: 0, blur: 8, opacity: 0.12, color: ['#3b82f6', '#f59e0b'] }
                 },
                 colors: ['#3b82f6', '#f59e0b'],
-                fill: { type: ['gradient', 'solid'], gradient: { shade: 'light', type: 'vertical', opacityFrom: 0.35, opacityTo: 0.05 } },
-                stroke: { width: [3, 3], curve: 'smooth' },
-                xaxis: { categories: chartLabels, labels: { style: { colors: '#9ca3af', fontSize: '12px', fontWeight: 500 } } },
-                yaxis: [{ show: false }, { show: false, opposite: true, min: 0, max: 100 }],
+                fill: {
+                    type: ['gradient', 'solid'],
+                    gradient: { shade: 'light', type: 'vertical', opacityFrom: 0.35, opacityTo: 0.04 }
+                },
+                stroke: { width: [3, 2], curve: 'smooth' },
+                xaxis: {
+                    categories: labels,
+                    labels: { style: { colors: '#9ca3af', fontSize: '12px', fontWeight: 500 } },
+                    axisBorder: { show: false }, axisTicks: { show: false }
+                },
+                yaxis: [
+                    { show: false },
+                    { show: false, opposite: true, min: 0, max: Math.max(...credit, 20) * 1.2 }
+                ],
                 grid: { show: true, borderColor: '#f3f4f6', strokeDashArray: 4 },
                 legend: { show: false },
-                tooltip: { shared: true, intersect: false },
+                markers: { size: [0, 5], colors: ['#3b82f6', '#f59e0b'], strokeColors: '#fff', strokeWidth: 2 },
+                tooltip: {
+                    shared: true, intersect: false,
+                    y: [
+                        { formatter: v => 'Rp ' + (v ? v.toLocaleString('id-ID') : '0') },
+                        { formatter: v => (v ? v.toFixed(1) : '0') + '%' }
+                    ]
+                }
             };
+        }
 
-            const chart = new ApexCharts(chartEl, options);
-            chart.render();
+        function mountChart(key, elId) {
+            if (charts[key]) { charts[key].destroy(); charts[key] = null; }
+            const el = document.getElementById(elId);
+            if (!el) return;
+            el.innerHTML = '';
+            if (chartLabels.length === 0) {
+                el.innerHTML = '<div class="flex items-center justify-center h-64 text-gray-400 text-sm italic">Belum ada data performa finansial.</div>';
+                return;
+            }
+            charts[key] = new ApexCharts(el, buildOptions(chartLabels, omzetData, creditData));
+            charts[key].render();
+        }
+
+        @if(auth()->check() && auth()->user()->role === 'user')
+            mountChart('user', 'userFinancialChart');
         @endif
-    });
+
+        @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin', 'manager', 'super_admin', 'Super Admin']))
+            mountChart('admin', 'financialChart');
+        @endif
+    }
+
+    document.addEventListener('DOMContentLoaded', initDashboardCharts);
+    document.addEventListener('livewire:navigated', initDashboardCharts);
 </script>
 @endpush

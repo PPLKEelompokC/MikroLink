@@ -1,41 +1,36 @@
 <?php
 
 use Livewire\Volt\Component;
-use App\Models\Koperasi;
 use App\Models\NeracaKeuangan;
 use App\Services\NeracaKeuanganService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 new class extends Component {
 
     public function with(): array
     {
-        // Guard: jika tabel belum dimigrasi, tampilkan empty state
-        if (! Schema::hasTable('neraca_keuangan')) {
-            return ['neraca' => null, 'prev' => null, 'tableMissing' => true];
-        }
+        $data = Cache::remember('neraca_widget_kop001', 300, function () {
+            $neraca = NeracaKeuangan::where('koperasi_id', 'KOP-001')
+                ->orderBy('periode', 'desc')
+                ->first();
 
-        $koperasi = Koperasi::where('id_koperasi', 'KOP-001')->first();
-        if (! $koperasi) return ['neraca' => null, 'prev' => null, 'tableMissing' => false];
+            $prev = NeracaKeuangan::where('koperasi_id', 'KOP-001')
+                ->orderBy('periode', 'desc')
+                ->skip(1)->first();
 
-        $neraca = NeracaKeuangan::where('koperasi_id', $koperasi->id_koperasi)
-            ->orderBy('periode', 'desc')
-            ->first();
+            return compact('neraca', 'prev');
+        });
 
-        $prev = NeracaKeuangan::where('koperasi_id', $koperasi->id_koperasi)
-            ->orderBy('periode', 'desc')
-            ->skip(1)->first();
-
-        return compact('neraca', 'prev') + ['tableMissing' => false];
+        return $data + ['tableMissing' => false];
     }
 
     public function autoGenerate(NeracaKeuanganService $service): void
     {
-        if (! Schema::hasTable('neraca_keuangan')) return;
-        $koperasi = Koperasi::where('id_koperasi', 'KOP-001')->first();
+        $koperasi = \App\Models\Koperasi::where('id_koperasi', 'KOP-001')->first();
         if ($koperasi) {
             $service->generate($koperasi, Carbon::now()->startOfMonth());
+            Cache::forget('neraca_widget_kop001');
         }
     }
 };
