@@ -3,6 +3,7 @@
 use Livewire\Volt\Component;
 use App\Models\User;
 use App\Models\TrustMetric;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 new class extends Component {
@@ -16,7 +17,10 @@ new class extends Component {
 
     public function mount()
     {
-        $this->users = User::where('role', 'user')->get();
+        // Eager-load trustMetric sekaligus untuk hindari N+1, cached 5 menit
+        $this->users = Cache::remember('trust_mgmt_users', 300, function () {
+            return User::where('role', 'user')->with('trustMetric')->get();
+        });
     }
 
     public function editScore($userId)

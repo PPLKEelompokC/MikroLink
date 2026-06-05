@@ -2,11 +2,13 @@
 
 use Livewire\Volt\Component;
 use App\Models\Aspiration;
+use Illuminate\Support\Facades\Cache;
 
 new class extends Component {
     public function delete($id)
     {
         Aspiration::findOrFail($id)->delete();
+        Cache::forget('admin_aspirations_list');
         session()->flash('message', 'Aspirasi berhasil dihapus.');
     }
 
@@ -14,13 +16,14 @@ new class extends Component {
     {
         $aspiration = Aspiration::findOrFail($id);
         $aspiration->update(['status' => $status]);
+        Cache::forget('admin_aspirations_list');
         session()->flash('message', 'Status aspirasi diperbarui menjadi ' . $status . '.');
     }
 
     public function with()
     {
         return [
-            'aspirations' => Aspiration::latest()->get(),
+            'aspirations' => Cache::remember('admin_aspirations_list', 120, fn () => Aspiration::latest()->get()),
         ];
     }
 }; ?>
