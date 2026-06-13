@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\FamilyWelfareLog;
-use App\Models\FinancialRecord;
+use App\Models\NeracaKeuangan;
 use Illuminate\Support\Collection;
 
 class ReportExportRepository
@@ -13,9 +13,9 @@ class ReportExportRepository
      */
     public function getFinancialRecords(string $startDate, string $endDate): Collection
     {
-        return FinancialRecord::with('koperasi')
-            ->whereBetween('record_date', [$startDate, $endDate])
-            ->orderBy('record_date', 'asc')
+        return NeracaKeuangan::with('koperasi')
+            ->whereBetween('periode', [$startDate.' 00:00:00', $endDate.' 23:59:59'])
+            ->orderBy('periode', 'asc')
             ->get();
     }
 

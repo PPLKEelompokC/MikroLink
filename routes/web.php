@@ -8,6 +8,7 @@ use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FamilyWelfareLogController;
 use App\Http\Controllers\KoperasiController;
+use App\Http\Controllers\KycController;
 use App\Http\Controllers\LiterasiController;
 use App\Http\Controllers\TicketController;
 use App\Models\CommunityDocument;
@@ -93,6 +94,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/documents/upload', [CommunityDocumentController::class, 'store'])->name('docs.store');
 
+    // Digital KYC
+    Route::post('/kyc/process', [KycController::class, 'uploadKtp'])->name('kyc.process');
+    Route::post('/kyc/submit', [KycController::class, 'submitKyc'])->name('kyc.submit');
+    Route::get('/kyc/view', [KycController::class, 'viewOwnKtp'])->name('kyc.view.own');
+
     // Jejak Kesejahteraan Keluarga (SDG 1)
     Route::get('/welfare', [FamilyWelfareLogController::class, 'dashboard'])->name('welfare.dashboard');
     Route::get('/welfare/create', [FamilyWelfareLogController::class, 'create'])->name('welfare.create');
@@ -109,6 +115,11 @@ Route::middleware(['auth', 'role:admin,manager,super_admin,Admin Koperasi,Manaje
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+        // Validasi KYC Digital
+        Route::patch('/kyc/{id}/approve', [KycController::class, 'approve'])->name('kyc.approve');
+        Route::patch('/kyc/{id}/reject', [KycController::class, 'reject'])->name('kyc.reject');
+        Route::get('/kyc/{id}/view', [KycController::class, 'viewKtp'])->name('kyc.view');
 
         // Validasi Dokumen Komunitas
         Route::get('/documents', [CommunityDocumentController::class, 'index'])->name('docs.index');
@@ -156,6 +167,9 @@ Route::middleware(['auth', 'role:admin,manager,super_admin,Admin Koperasi,Manaje
 
         // Khusus Manajer Koperasi
         Volt::route('/pinjaman/review-manajer', 'admin.review-pinjaman-manajer')->name('pinjaman.review.manajer');
+
+        // Manajemen Artikel Literasi (Ruang Tumbuh)
+        Volt::route('/literasi-manager', 'admin.literasi-manager')->name('literasi.manager');
     });
 
 // --- Super Admin Area ---

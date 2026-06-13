@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CommunityDocument;
+use App\Models\KycVerification;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -55,14 +56,33 @@ class CommunityDocumentController extends Controller
      */
     public function index(): View
     {
-        $documents = CommunityDocument::with('user')->latest()->get();
+        $legacyDocs = CommunityDocument::with('user')->latest()->get();
+
+        $kycVerifications = KycVerification::with('user')->latest()->get()->map(function ($kyc) {
+            $doc = new CommunityDocument;
+            $doc->id = $kyc->id;
+            $doc->user_id = $kyc->user_id;
+            $doc->document_name = 'KTP (KYC)';
+            $doc->file_path = $kyc->ktp_path;
+            $doc->status = strtolower($kyc->status);
+            $doc->note = $kyc->rejection_reason;
+            $doc->created_at = $kyc->created_at;
+            $doc->updated_at = $kyc->updated_at;
+            $doc->setRelation('user', $kyc->user);
+            $doc->is_kyc_verification = true;
+
+            return $doc;
+        });
+
+        $documents = $legacyDocs->concat($kycVerifications)->sortByDesc('created_at');
+
         $stats = [
             'pending' => $documents->where('status', 'pending')->count(),
             'verified' => $documents->where('status', 'approved')->count(),
             'waiting_approval' => $documents->where('status', 'pending')->count(),
             'approved_today' => $documents
                 ->where('status', 'approved')
-                ->filter(fn (CommunityDocument $document): bool => $document->updated_at?->isToday() ?? false)
+                ->filter(fn ($document): bool => $document->updated_at?->isToday() ?? false)
                 ->count(),
         ];
 
