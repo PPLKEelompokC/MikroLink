@@ -108,6 +108,14 @@ class User extends Authenticatable // implements MustVerifyEmail
     }
 
     /**
+     * Get the KYC verification associated with the user.
+     */
+    public function kycVerification()
+    {
+        return $this->hasOne(KycVerification::class);
+    }
+
+    /**
      * Get all audit trails associated with the user.
      */
     public function auditTrails()

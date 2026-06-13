@@ -26,11 +26,11 @@
                         </div>
                     </div>
                     <div class="hidden md:flex gap-4">
-                        <a href="{{ route('simpanan.setor') }}" wire:navigate class="px-6 py-3 bg-emerald-600 text-white font-bold text-sm rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all flex items-center gap-2">
+                        <a href="{{ route('simpanan.setor') }}" wire:navigate class="px-6 py-3 bg-[#e8a838] text-white font-bold text-sm rounded-2xl hover:bg-[#d4952f] shadow-lg shadow-amber-100 transition-all flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                             Setor Simpanan
                         </a>
-                        <a href="{{ route('simpanan.tarik') }}" wire:navigate class="px-6 py-3 bg-red-500 text-white font-bold text-sm rounded-2xl hover:bg-red-600 shadow-lg shadow-red-100 transition-all flex items-center gap-2">
+                        <a href="{{ route('simpanan.tarik') }}" wire:navigate class="px-6 py-3 bg-[#e8a838] text-white font-bold text-sm rounded-2xl hover:bg-[#d4952f] shadow-lg shadow-amber-100 transition-all flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             Tarik Simpanan
                         </a>
@@ -38,13 +38,13 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             Ajukan Pinjaman
                         </a>
-                        <a href="{{ route('pinjaman.tracking') }}" wire:navigate class="px-6 py-3 bg-indigo-600 text-white font-bold text-sm rounded-2xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all flex items-center gap-2">
+                        <a href="{{ route('pinjaman.tracking') }}" wire:navigate class="px-6 py-3 bg-[#e8a838] text-white font-bold text-sm rounded-2xl hover:bg-[#d4952f] shadow-lg shadow-amber-100 transition-all flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                             Lacak Pinjaman
                         </a>
-                        <a href="{{ route('docs.upload.form') }}" class="px-6 py-3 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-2xl hover:bg-gray-50 transition-all">Upload Dokumen</a>
-                        <a href="{{ route('welfare.dashboard') }}" class="px-6 py-3 bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-sm rounded-2xl hover:bg-emerald-100 transition-all">SDG 1</a>
-                        <a href="{{ route('aspirationPortal') }}" class="px-6 py-3 bg-blue-600 text-white font-bold text-sm rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">Portal Aspirasi</a>
+                        <a href="{{ route('docs.upload.form') }}" class="px-6 py-3 bg-[#e8a838] text-white font-bold text-sm rounded-2xl hover:bg-[#d4952f] shadow-lg shadow-amber-100 transition-all">Upload Dokumen</a>
+                        <a href="{{ route('welfare.dashboard') }}" class="px-6 py-3 bg-[#e8a838] text-white font-bold text-sm rounded-2xl hover:bg-[#d4952f] shadow-lg shadow-amber-100 transition-all">SDG 1</a>
+                        <a href="{{ route('aspirationPortal') }}" class="px-6 py-3 bg-[#e8a838] text-white font-bold text-sm rounded-2xl hover:bg-[#d4952f] shadow-lg shadow-amber-100 transition-all">Portal Aspirasi</a>
                     </div>
                 </div>
 
@@ -144,7 +144,7 @@
                     <div class="flex items-start justify-between mb-2">
                         <div>
                             <h2 class="text-[20px] text-gray-900 leading-tight">
-                                <span>Peforma</span> <span class="font-bold">Kesehatan Finansial</span>
+                                <span>Performa</span> <span class="font-bold">Kesehatan Finansial</span>
                             </h2>
                             <p class="text-[14px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
                         </div>
@@ -153,7 +153,9 @@
                             Ajukan Pinjaman
                         </a>
                     </div>
-                    <div id="userFinancialChart" class="w-full" style="min-height: 320px;"></div>
+                    <div class="w-full overflow-x-auto pb-4 custom-scrollbar">
+                        <div id="userFinancialChart" style="min-width: 900px; min-height: 320px;"></div>
+                    </div>
                 </div>
 
                 {{-- Riwayat Setoran Terbaru --}}
@@ -450,7 +452,9 @@
                         Kelola Pinjaman
                     </a>
                 </div>
-                <div id="financialChart" class="w-full" style="min-height: 320px;"></div>
+                <div class="w-full overflow-x-auto pb-4 custom-scrollbar">
+                    <div id="financialChart" style="min-width: 900px; min-height: 320px;"></div>
+                </div>
             </div>
 
             {{-- Neraca Keuangan Widget (Admin & Manajer only) --}}
@@ -537,16 +541,18 @@
                 <livewire:admin.trust-management />
             </div>
             {{-- Tombol Ruang Tumbuh untuk Admin --}}
-            <a href="{{ route('literasi.index') }}"
-            class="w-full flex items-center justify-between bg-transparent border-2 border-[#1a2340] text-[#1a2340] px-8 py-5 rounded-[24px] hover:bg-[#1a2340] hover:text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group">
-                <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-[#1a2340]/10 group-hover:bg-white/10 rounded-2xl flex items-center justify-center text-2xl transition-all">📚</div>
-                <div>
-                    <p class="font-bold text-lg leading-tight">Ruang Tumbuh – Literasi Finansial</p>
-                    <p class="text-[#1a2340]/60 group-hover:text-white/60 text-sm transition-all">6 artikel tersedia · Mulai belajar sekarang</p>
+            <a href="{{ route('admin.literasi.manager') }}"
+               class="group relative overflow-hidden bg-gradient-to-br from-[#e8a838] to-[#d4952f] rounded-3xl p-6 text-white hover:shadow-lg hover:shadow-amber-100 transition-all flex items-center justify-between">
+                <div class="relative z-10 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
+                        <span class="text-2xl">📚</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-lg leading-tight">Kelola Ruang Tumbuh – Literasi Finansial</p>
+                        <p class="text-white/80 text-sm transition-all">6 artikel tersedia · Mulai kelola konten sekarang</p>
+                    </div>
                 </div>
-                </div>
-                <span class="text-[#1a2340]/40 group-hover:text-white group-hover:translate-x-1 transition-all text-2xl font-bold">→</span>
+                <span class="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all text-2xl font-bold">→</span>
             </a>
         @endif
     </div>
@@ -581,7 +587,13 @@
                 stroke: { width: [3, 2], curve: 'smooth' },
                 xaxis: {
                     categories: labels,
-                    labels: { style: { colors: '#9ca3af', fontSize: '12px', fontWeight: 500 } },
+                    labels: { 
+                        style: { colors: '#9ca3af', fontSize: '12px', fontWeight: 500 },
+                        rotate: -45,
+                        rotateAlways: true,
+                        hideOverlappingLabels: false,
+                        trim: false,
+                    },
                     axisBorder: { show: false }, axisTicks: { show: false }
                 },
                 yaxis: [
@@ -626,4 +638,20 @@
     document.addEventListener('DOMContentLoaded', initDashboardCharts);
     document.addEventListener('livewire:navigated', initDashboardCharts);
 </script>
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
 @endpush

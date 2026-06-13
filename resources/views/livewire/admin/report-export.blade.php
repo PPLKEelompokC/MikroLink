@@ -101,7 +101,7 @@ new class extends Component {
                             </svg>
                         </div>
                         <p class="text-[11px] text-blue-700 leading-relaxed font-medium">
-                            Data sensitif anggota (NIK) akan disamarkan secara otomatis sesuai standar PBI-21 untuk menjaga privasi.
+                            Data sensitif anggota (NIK) akan disamarkan secara otomatis untuk menjaga privasi.
                         </p>
                     </div>
 

@@ -53,10 +53,17 @@ class DashboardController extends Controller
 
             // --- KYC Status (cached 10 menit) ---
             $kycStatus = Cache::remember("kyc_status_{$user->id}", 600, function () use ($user) {
-                return DB::table('community_documents')
+                $hasCommunityDoc = DB::table('community_documents')
                     ->where('user_id', $user->id)
                     ->where('status', 'approved')
-                    ->exists() ? 'VERIFIED' : 'PENDING';
+                    ->exists();
+
+                $hasKycVerification = DB::table('kyc_verifications')
+                    ->where('user_id', $user->id)
+                    ->where('status', 'APPROVED')
+                    ->exists();
+
+                return ($hasCommunityDoc || $hasKycVerification) ? 'VERIFIED' : 'PENDING';
             });
 
             // --- Chart Data (cached 10 menit, data neraca jarang berubah) ---

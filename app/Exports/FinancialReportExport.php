@@ -3,12 +3,12 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class FinancialReportExport implements FromCollection, WithHeadings, WithTitle, WithMapping, ShouldAutoSize
+class FinancialReportExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithTitle
 {
     public function __construct(private $data) {}
 
@@ -27,9 +27,10 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithTitle, 
         return [
             'ID Koperasi',
             'Nama Koperasi',
-            'Tanggal Catatan',
-            'Omzet (IDR)',
-            'Skor Kredit',
+            'Periode',
+            'Total Aset (IDR)',
+            'Total Ekuitas (IDR)',
+            'Status Kesehatan',
         ];
     }
 
@@ -38,9 +39,10 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithTitle, 
         return [
             $record->koperasi_id,
             $record->koperasi->nama_koperasi ?? '-',
-            $record->record_date->format('d/m/Y'),
-            number_format($record->omzet, 0, ',', '.'),
-            $record->credit_score,
+            $record->periode_label,
+            number_format($record->total_aset, 0, ',', '.'),
+            number_format($record->total_ekuitas, 0, ',', '.'),
+            $record->statusKesehatan(),
         ];
     }
 }

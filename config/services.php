@@ -74,4 +74,8 @@ return [
         'operational_reserve_ratio' => (float) env('AI_ALLOCATION_RESERVE_RATIO', 0.20),
     ],
 
+    'ocr_space' => [
+        'key' => env('OCR_SPACE_API_KEY'),
+    ],
+
 ];

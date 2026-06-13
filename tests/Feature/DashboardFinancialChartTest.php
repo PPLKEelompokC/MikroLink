@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\FinancialRecord;
 use App\Models\Koperasi;
 use App\Models\User;
+use App\Models\NeracaKeuangan;
 
 test('dashboard displays financial chart data for authenticated users', function () {
     $user = User::factory()->create(['role' => 'Admin Koperasi']);
@@ -12,18 +12,28 @@ test('dashboard displays financial chart data for authenticated users', function
         ['nama_koperasi' => 'Koperasi MikroLink', 'alamat' => 'Jl. Merdeka No 1', 'saldo_kas' => 350500000]
     );
 
-    FinancialRecord::factory()->create([
+    NeracaKeuangan::create([
         'koperasi_id' => $koperasi->id_koperasi,
-        'record_date' => now()->subMonth(),
-        'omzet' => 25000000,
-        'credit_score' => 8.5,
+        'periode' => now()->subMonth()->format('Y-m'),
+        'periode_label' => now()->subMonth()->format('F Y'),
+        'total_aset' => 25000000,
+        'total_kewajiban' => 0,
+        'modal_sendiri' => 0,
+        'total_pendapatan' => 0,
+        'total_biaya' => 0,
+        'sisa_hasil_usaha' => 0,
     ]);
 
-    FinancialRecord::factory()->create([
+    NeracaKeuangan::create([
         'koperasi_id' => $koperasi->id_koperasi,
-        'record_date' => now(),
-        'omzet' => 35000000,
-        'credit_score' => 11.0,
+        'periode' => now()->format('Y-m'),
+        'periode_label' => now()->format('F Y'),
+        'total_aset' => 35000000,
+        'total_kewajiban' => 0,
+        'modal_sendiri' => 0,
+        'total_pendapatan' => 0,
+        'total_biaya' => 0,
+        'sisa_hasil_usaha' => 0,
     ]);
 
     $response = $this->actingAs($user)->get('/dashboard');
@@ -47,18 +57,30 @@ test('dashboard chart data is ordered by date ascending', function () {
         ['nama_koperasi' => 'Koperasi MikroLink', 'alamat' => 'Jl. Merdeka No 1', 'saldo_kas' => 350500000]
     );
 
-    FinancialRecord::factory()->create([
+    // This data is newer but we create it first in DB to test ordering
+    NeracaKeuangan::create([
         'koperasi_id' => $koperasi->id_koperasi,
-        'record_date' => now(),
-        'omzet' => 50000000,
-        'credit_score' => 12.0,
+        'periode' => now()->format('Y-m'),
+        'periode_label' => now()->format('F Y'),
+        'total_aset' => 50000000,
+        'total_kewajiban' => 0,
+        'modal_sendiri' => 0,
+        'total_pendapatan' => 0,
+        'total_biaya' => 0,
+        'sisa_hasil_usaha' => 0,
     ]);
 
-    FinancialRecord::factory()->create([
+    // This data is older
+    NeracaKeuangan::create([
         'koperasi_id' => $koperasi->id_koperasi,
-        'record_date' => now()->subMonths(3),
-        'omzet' => 10000000,
-        'credit_score' => 5.0,
+        'periode' => now()->subMonths(3)->format('Y-m'),
+        'periode_label' => now()->subMonths(3)->format('F Y'),
+        'total_aset' => 10000000,
+        'total_kewajiban' => 0,
+        'modal_sendiri' => 0,
+        'total_pendapatan' => 0,
+        'total_biaya' => 0,
+        'sisa_hasil_usaha' => 0,
     ]);
 
     $response = $this->actingAs($user)->get('/dashboard');
@@ -67,7 +89,7 @@ test('dashboard chart data is ordered by date ascending', function () {
 
     $omzetData = $response->viewData('omzetData');
 
-    // First entry should be the older (smaller) value
+    // First entry should be the older (smaller) value because dashboard sorts ASC
     expect($omzetData[0])->toBeLessThan($omzetData[1]);
 });
 

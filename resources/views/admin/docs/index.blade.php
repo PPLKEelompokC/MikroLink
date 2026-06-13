@@ -123,7 +123,7 @@
         <section class="bg-white border border-gray-100 rounded-lg shadow-sm p-6 min-h-[620px]">
             @forelse($documents as $doc)
                 @php
-                    $fileUrl = route('admin.docs.view', $doc->id);
+                    $fileUrl = !empty($doc->is_kyc_verification) ? route('admin.kyc.view', $doc->id) : route('admin.docs.view', $doc->id);
                     $extension = strtolower(pathinfo($doc->file_path, PATHINFO_EXTENSION));
                     $isImage = in_array($extension, ['jpg', 'jpeg', 'png']);
                     $isApproved = $doc->status === 'approved';
@@ -195,6 +195,19 @@
                             </div>
                         </div>
 
+                        {{-- Inline KTP Preview --}}
+                        @if(!empty($doc->is_kyc_verification) && $isImage)
+                            <div class="mt-5 rounded-xl border border-gray-200 overflow-hidden bg-white">
+                                <div class="px-4 py-3 bg-gray-100/60 border-b border-gray-200 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <span class="text-xs font-extrabold text-gray-600 uppercase tracking-wider">Pratinjau Foto KTP</span>
+                                </div>
+                                <div class="p-4 flex justify-center">
+                                    <img src="{{ $fileUrl }}" alt="KTP {{ $doc->user?->name }}" class="max-w-full max-h-[360px] rounded-lg shadow-sm border border-gray-100 object-contain">
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="mt-5 flex flex-wrap gap-3">
                             <a href="{{ $fileUrl }}" target="_blank" class="inline-flex items-center gap-2 rounded-lg bg-emerald-100 px-4 py-2 text-xs font-extrabold text-emerald-700">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -221,29 +234,49 @@
                     @if($doc->status === 'pending')
                         <div class="flex flex-col gap-4">
                             <div x-show="rejectId === {{ $doc->id }}" x-cloak>
-                                <form action="{{ route('admin.docs.update', $doc->id) }}" method="POST" class="rounded-lg border border-red-100 bg-red-50 p-4">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="rejected">
-                                    <label class="text-xs font-extrabold text-red-700 uppercase">Alasan Penolakan</label>
-                                    <textarea name="note" rows="3" class="mt-2 w-full rounded-lg border border-red-200 bg-white p-3 text-sm outline-none focus:border-red-400" required></textarea>
-                                    <button type="submit" class="mt-3 w-full rounded-lg bg-red-500 px-5 py-3 text-sm font-extrabold text-white hover:bg-red-600 transition-colors">Konfirmasi Penolakan</button>
-                                </form>
+                                @if(!empty($doc->is_kyc_verification))
+                                    <form action="{{ route('admin.kyc.reject', $doc->id) }}" method="POST" class="rounded-lg border border-red-100 bg-red-50 p-4">
+                                        @csrf
+                                        @method('PATCH')
+                                        <label class="text-xs font-extrabold text-red-700 uppercase">Alasan Penolakan</label>
+                                        <textarea name="rejection_reason" rows="3" class="mt-2 w-full rounded-lg border border-red-200 bg-white p-3 text-sm outline-none focus:border-red-400" required></textarea>
+                                        <button type="submit" class="mt-3 w-full rounded-lg bg-red-500 px-5 py-3 text-sm font-extrabold text-white hover:bg-red-600 transition-colors">Konfirmasi Penolakan</button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('admin.docs.update', $doc->id) }}" method="POST" class="rounded-lg border border-red-100 bg-red-50 p-4">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="rejected">
+                                        <label class="text-xs font-extrabold text-red-700 uppercase">Alasan Penolakan</label>
+                                        <textarea name="note" rows="3" class="mt-2 w-full rounded-lg border border-red-200 bg-white p-3 text-sm outline-none focus:border-red-400" required></textarea>
+                                        <button type="submit" class="mt-3 w-full rounded-lg bg-red-500 px-5 py-3 text-sm font-extrabold text-white hover:bg-red-600 transition-colors">Konfirmasi Penolakan</button>
+                                    </form>
+                                @endif
                             </div>
 
                             <div class="flex justify-end gap-4">
                                 <button type="button" @click="rejectId = rejectId === {{ $doc->id }} ? null : {{ $doc->id }}" class="w-40 rounded-lg bg-gray-500 px-5 py-3 text-sm font-extrabold text-white hover:bg-gray-600 transition-colors">
                                     Tolak
                                 </button>
-                                <form action="{{ route('admin.docs.update', $doc->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="approved">
-                                    <input type="hidden" name="note" value="Dokumen legalitas telah diverifikasi.">
-                                    <button type="submit" class="w-56 rounded-lg bg-[#f5a400] px-5 py-3 text-sm font-extrabold text-white hover:bg-amber-500 transition-colors">
-                                        Setujui & Lanjutkan
-                                    </button>
-                                </form>
+                                @if(!empty($doc->is_kyc_verification))
+                                    <form action="{{ route('admin.kyc.approve', $doc->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="w-56 rounded-lg bg-[#f5a400] px-5 py-3 text-sm font-extrabold text-white hover:bg-amber-500 transition-colors">
+                                            Setujui & Lanjutkan
+                                        </button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('admin.docs.update', $doc->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="approved">
+                                        <input type="hidden" name="note" value="Dokumen legalitas telah diverifikasi.">
+                                        <button type="submit" class="w-56 rounded-lg bg-[#f5a400] px-5 py-3 text-sm font-extrabold text-white hover:bg-amber-500 transition-colors">
+                                            Setujui & Lanjutkan
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
                     @else
