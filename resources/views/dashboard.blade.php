@@ -343,7 +343,24 @@
                 </div>
             </div>
             @endif
-            
+
+            {{-- WIDGET PUSAT BANTUAN (User) --}}
+            <a href="{{ route('pusat-bantuan') }}"
+               class="group relative overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-6 text-white hover:shadow-lg hover:shadow-gray-200 transition-all flex items-center justify-between mb-12">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                <div class="relative z-10 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-[#e8a838]/20 rounded-2xl flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6 text-[#e8a838]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-lg leading-tight">Pusat Bantuan & FAQ</p>
+                        <p class="text-white/70 text-sm transition-all">Temukan jawaban, panduan, atau hubungi tim support kami</p>
+                    </div>
+                </div>
+                <span class="relative z-10 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all text-2xl font-bold">→</span>
+            </a>
+
         @else
             <div class="w-full flex items-center justify-between gap-6">
                 <div class="max-w-3xl">
@@ -553,6 +570,23 @@
                     </div>
                 </div>
                 <span class="text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all text-2xl font-bold">→</span>
+            </a>
+
+            {{-- WIDGET PUSAT BANTUAN (Admin) --}}
+            <a href="{{ route('pusat-bantuan') }}"
+               class="group relative overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-6 text-white hover:shadow-lg hover:shadow-gray-200 transition-all flex items-center justify-between mt-6">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                <div class="relative z-10 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-[#e8a838]/20 rounded-2xl flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6 text-[#e8a838]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-lg leading-tight">Pusat Bantuan & FAQ</p>
+                        <p class="text-white/70 text-sm transition-all">Temukan jawaban, panduan, atau hubungi tim support kami</p>
+                    </div>
+                </div>
+                <span class="relative z-10 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all text-2xl font-bold">→</span>
             </a>
         @endif
     </div>
