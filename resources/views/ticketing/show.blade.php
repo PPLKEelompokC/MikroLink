@@ -1,35 +1,15 @@
-<x-layouts.app.header title="Detail Tiket - {{ $ticket->ticket_number }}">
-<div class="min-h-screen bg-gray-50" style="font-family: 'Instrument Sans', sans-serif;">
+@extends('layouts.app')
 
-    {{-- NAVBAR --}}
-    <nav class="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
-        <div class="flex items-center gap-2">
-            <img src="{{ asset('images/logo-mikrolink.png') }}" alt="MikroLink" class="h-10 w-auto"
-                onerror="this.style.display='none'; document.getElementById('nav-logo-fb3').style.display='flex';">
-            <div id="nav-logo-fb3" class="hidden items-center gap-1">
-                <div class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-                </div>
-                <span class="font-bold text-green-800 text-lg">MikroLink</span>
-            </div>
-        </div>
-        <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
-            <a href="{{ route('dashboard') }}" class="hover:text-gray-900 transition-colors">Dashboard</a>
-            <a href="#" class="hover:text-gray-900 transition-colors">Loan Services</a>
-            <a href="#" class="hover:text-gray-900 transition-colors">Verifikasi &amp; Keanggotaan</a>
-            <a href="#" class="hover:text-gray-900 transition-colors">Report &amp; Analytics</a>
-            <a href="{{ route('education-center') }}" class="font-semibold text-yellow-500 hover:text-yellow-600 transition-colors">Education Center</a>
-        </div>
-        <div class="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center cursor-pointer text-sm font-bold text-white">
-            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
-        </div>
-    </nav>
+@section('title', 'Detail Tiket - ' . $ticket->ticket_number)
+
+@section('content')
+<div class="min-h-screen bg-gray-50">
 
     {{-- HERO --}}
     <div class="bg-white border-b border-gray-100 px-6 py-10 relative overflow-hidden">
         <div class="relative max-w-5xl mx-auto">
             <div class="flex items-center gap-2 text-sm text-gray-400 mb-3">
-                <a href="{{ route('education-center') }}" class="hover:text-yellow-500 transition-colors">Education Center</a>
+                <a href="{{ route('pusat-bantuan') }}" class="hover:text-yellow-500 transition-colors">Pusat Bantuan</a>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 <a href="{{ route('ticketing.index') }}" class="hover:text-yellow-500 transition-colors">Tiket Saya</a>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -209,4 +189,4 @@
         </div>
     </div>
 </div>
-</x-layouts.app.header>
+@endsection
