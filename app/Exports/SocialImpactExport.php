@@ -43,10 +43,18 @@ class SocialImpactExport implements FromCollection, ShouldAutoSize, WithHeadings
 
     public function map($log): array
     {
+        $userName = $log->user?->name ?? '-';
+        $nik = $log->user?->kycVerification?->nik;
+
+        if ($nik && strlen($nik) >= 16) {
+            $maskedNik = substr($nik, 0, 4).str_repeat('*', 8).substr($nik, 12);
+            $userName .= " ({$maskedNik})";
+        }
+
         return [
             $log->id,
             $log->created_at->format('d/m/Y H:i'),
-            $log->user?->name ?? '-',
+            $userName,
             $log->period_date?->format('d/m/Y'),
             $log->income_before,
             $log->income_after,

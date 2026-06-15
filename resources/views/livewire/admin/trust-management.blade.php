@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 new class extends Component {
-    public $users;
     public $selectedUserId;
     public $participation = 50;
     public $integrity = 50;
@@ -15,12 +14,13 @@ new class extends Component {
     public $notes = '';
     public $showModal = false;
 
-    public function mount()
+    public function with()
     {
-        // Eager-load trustMetric sekaligus untuk hindari N+1, cached 5 menit
-        $this->users = Cache::remember('trust_mgmt_users', 300, function () {
-            return User::where('role', 'user')->with('trustMetric')->get();
-        });
+        return [
+            'users' => Cache::remember('trust_mgmt_users', 300, function () {
+                return User::where('role', 'user')->with('trustMetric')->get();
+            })
+        ];
     }
 
     public function editScore($userId)
@@ -60,6 +60,8 @@ new class extends Component {
                 'notes' => $this->notes,
             ]
         );
+
+        Cache::forget('trust_mgmt_users'); // Invalidate cache so table updates immediately
 
         $this->showModal = false;
         $this->dispatch('notify', 'Trust score updated successfully!');
@@ -138,21 +140,21 @@ new class extends Component {
                             <span>Partisipasi (40%)</span>
                             <span class="text-[#e8a838]">{{ $participation }}</span>
                         </label>
-                        <input type="range" wire:model.live="participation" min="0" max="100" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#e8a838]">
+                        <input type="range" wire:model.live.debounce.250ms="participation" min="0" max="100" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#e8a838]">
                     </div>
                     <div>
                         <label class="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
                             <span>Integritas (40%)</span>
                             <span class="text-[#e8a838]">{{ $integrity }}</span>
                         </label>
-                        <input type="range" wire:model.live="integrity" min="0" max="100" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#e8a838]">
+                        <input type="range" wire:model.live.debounce.250ms="integrity" min="0" max="100" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#e8a838]">
                     </div>
                     <div>
                         <label class="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
                             <span>Konsistensi (20%)</span>
                             <span class="text-[#e8a838]">{{ $reliability }}</span>
                         </label>
-                        <input type="range" wire:model.live="reliability" min="0" max="100" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#e8a838]">
+                        <input type="range" wire:model.live.debounce.250ms="reliability" min="0" max="100" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#e8a838]">
                     </div>
                     
                     <div class="pt-2">
