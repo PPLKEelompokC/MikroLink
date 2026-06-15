@@ -59,37 +59,39 @@ class DashboardController extends Controller
                     ->exists() ? 'VERIFIED' : 'PENDING';
             });
 
-            // --- Chart Data (cached 10 menit, data neraca jarang berubah) ---
-            $chartData = Cache::remember('dashboard_chart_data_user', 600, function () {
-                $records = NeracaKeuangan::where('koperasi_id', 'KOP-001')
-                    ->orderBy('periode', 'asc')
-                    ->get();
+            // --- Chart Data (Data Pribadi User) ---
+            $chartData = Cache::remember("dashboard_chart_data_user_{$user->id}", 60, function () use ($user) {
+                $labels = [];
+                $depositData = [];
+                $withdrawalData = [];
 
-                $omzetData = $records->pluck('total_aset')->map(fn ($v) => (float) $v)->values()->toArray();
-                $creditScoreData = $records->map(function ($r) {
-                    $totalAset = (float) $r->total_aset;
-                    $sukarela = (float) $r->simpanan_sukarela;
-
-                    return $totalAset > 0 ? min(100, round($sukarela / $totalAset * 100, 1)) : 0;
-                })->values()->toArray();
-
-                $latestOmzet = (float) ($records->last()?->total_aset ?? 0);
-                $maxOmzet = max($omzetData ?: [1]);
+                for ($i = 5; $i >= 0; $i--) {
+                    $date = now()->subMonths($i);
+                    $labels[] = $date->translatedFormat('M Y');
+                    
+                    $depositData[] = (float) \App\Models\Deposit::where('user_id', $user->id)
+                        ->where('status', 'APPROVED')
+                        ->whereYear('created_at', $date->year)
+                        ->whereMonth('created_at', $date->month)
+                        ->sum('amount');
+                        
+                    $withdrawalData[] = (float) \App\Models\Withdrawal::where('user_id', $user->id)
+                        ->where('status', 'APPROVED')
+                        ->whereYear('created_at', $date->year)
+                        ->whereMonth('created_at', $date->month)
+                        ->sum('amount');
+                }
 
                 return [
-                    'labels' => $records->pluck('periode_label')->values()->toArray(),
-                    'omzetData' => $omzetData,
-                    'creditScoreData' => $creditScoreData,
-                    'omzetPercentage' => $maxOmzet > 0 ? round(($latestOmzet / $maxOmzet) * 100, 1) : 0,
-                    'latestCreditScore' => end($creditScoreData) ?: 0,
+                    'labels' => $labels,
+                    'depositData' => $depositData,
+                    'withdrawalData' => $withdrawalData,
                 ];
             });
 
             $chartLabels = $chartData['labels'];
-            $omzetData = $chartData['omzetData'];
-            $creditScoreData = $chartData['creditScoreData'];
-            $omzetPercentage = $chartData['omzetPercentage'];
-            $latestCreditScore = $chartData['latestCreditScore'];
+            $depositData = $chartData['depositData'];
+            $withdrawalData = $chartData['withdrawalData'];
 
             // --- Artikel Terbaru (cached 10 menit) ---
             $artikelTerbaru = Cache::remember('literasi_terbaru', 600, function () {
@@ -106,10 +108,8 @@ class DashboardController extends Controller
                 'kycStatus',
                 'artikelTerbaru',
                 'chartLabels',
-                'omzetData',
-                'creditScoreData',
-                'omzetPercentage',
-                'latestCreditScore',
+                'depositData',
+                'withdrawalData',
             ));
         }
 

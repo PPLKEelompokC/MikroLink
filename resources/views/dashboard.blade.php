@@ -139,18 +139,18 @@
                     </div>
                 </div>
 
-                {{-- Peforma Kesehatan Finansial Chart --}}
+                {{-- Aktivitas Keuangan Pribadi Chart --}}
                 <div class="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 relative overflow-hidden">
                     <div class="flex items-start justify-between mb-2">
                         <div>
                             <h2 class="text-[20px] text-gray-900 leading-tight">
-                                <span>Peforma</span> <span class="font-bold">Kesehatan Finansial</span>
+                                <span>Aktivitas</span> <span class="font-bold">Keuangan Pribadi</span>
                             </h2>
-                            <p class="text-[14px] text-gray-500 mt-1">Tren Pertumbuhan Omzet Harian</p>
+                            <p class="text-[14px] text-gray-500 mt-1">Tren Setoran dan Penarikan (6 Bulan Terakhir)</p>
                         </div>
-                        <a href="{{ route('pinjaman.ajukan') }}" wire:navigate
-                           class="bg-[#e8a838] hover:bg-[#d4952f] text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
-                            Ajukan Pinjaman
+                        <a href="{{ route('simpanan.setor') }}" wire:navigate
+                           class="bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-bold px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 whitespace-nowrap">
+                            Setor Simpanan
                         </a>
                     </div>
                     <div id="userFinancialChart" class="w-full" style="min-height: 320px;"></div>
@@ -558,14 +558,65 @@
 
     function initDashboardCharts() {
         const chartLabels = @json($chartLabels ?? []);
-        const omzetData   = @json($omzetData ?? []);
-        const creditData  = @json($creditScoreData ?? []);
+        
+        @if(auth()->check() && auth()->user()->role === 'user')
+            const depositData = @json($depositData ?? []);
+            const withdrawalData = @json($withdrawalData ?? []);
 
-        function buildOptions(labels, omzet, credit) {
-            return {
+            const userOptions = {
                 series: [
-                    { name: 'Omzet',       type: 'area', data: omzet  },
-                    { name: 'Skor Kredit', type: 'line', data: credit }
+                    { name: 'Total Setoran', type: 'area', data: depositData },
+                    { name: 'Total Penarikan', type: 'line', data: withdrawalData }
+                ],
+                chart: {
+                    height: 320, type: 'line',
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    toolbar: { show: false }, zoom: { enabled: false },
+                    dropShadow: { enabled: true, top: 4, left: 0, blur: 8, opacity: 0.12, color: ['#10b981', '#ef4444'] }
+                },
+                colors: ['#10b981', '#ef4444'],
+                fill: {
+                    type: ['gradient', 'solid'],
+                    gradient: { shade: 'light', type: 'vertical', opacityFrom: 0.35, opacityTo: 0.04 }
+                },
+                stroke: { width: [3, 2], curve: 'smooth' },
+                xaxis: {
+                    categories: chartLabels,
+                    labels: { style: { colors: '#9ca3af', fontSize: '12px', fontWeight: 500 } },
+                    axisBorder: { show: false }, axisTicks: { show: false }
+                },
+                yaxis: [
+                    { show: false },
+                    { show: false, opposite: true }
+                ],
+                grid: { show: true, borderColor: '#f3f4f6', strokeDashArray: 4 },
+                legend: { show: true, position: 'top' },
+                markers: { size: [0, 5], colors: ['#10b981', '#ef4444'], strokeColors: '#fff', strokeWidth: 2 },
+                tooltip: {
+                    shared: true, intersect: false,
+                    y: { formatter: v => 'Rp ' + (v ? v.toLocaleString('id-ID') : '0') }
+                }
+            };
+
+            if (charts['user']) { charts['user'].destroy(); }
+            const elUser = document.getElementById('userFinancialChart');
+            if (elUser && chartLabels.length > 0) {
+                elUser.innerHTML = '';
+                charts['user'] = new ApexCharts(elUser, userOptions);
+                charts['user'].render();
+            } else if (elUser) {
+                elUser.innerHTML = '<div class="flex items-center justify-center h-64 text-gray-400 text-sm italic">Belum ada data aktivitas keuangan.</div>';
+            }
+        @endif
+
+        @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin', 'manager', 'super_admin', 'Super Admin']))
+            const omzetData   = @json($omzetData ?? []);
+            const creditData  = @json($creditScoreData ?? []);
+
+            const adminOptions = {
+                series: [
+                    { name: 'Omzet', type: 'area', data: omzetData },
+                    { name: 'Skor Kredit', type: 'line', data: creditData }
                 ],
                 chart: {
                     height: 320, type: 'line',
@@ -580,13 +631,13 @@
                 },
                 stroke: { width: [3, 2], curve: 'smooth' },
                 xaxis: {
-                    categories: labels,
+                    categories: chartLabels,
                     labels: { style: { colors: '#9ca3af', fontSize: '12px', fontWeight: 500 } },
                     axisBorder: { show: false }, axisTicks: { show: false }
                 },
                 yaxis: [
                     { show: false },
-                    { show: false, opposite: true, min: 0, max: Math.max(...credit, 20) * 1.2 }
+                    { show: false, opposite: true, min: 0, max: Math.max(...(creditData.length ? creditData : [0]), 20) * 1.2 }
                 ],
                 grid: { show: true, borderColor: '#f3f4f6', strokeDashArray: 4 },
                 legend: { show: false },
@@ -599,27 +650,16 @@
                     ]
                 }
             };
-        }
 
-        function mountChart(key, elId) {
-            if (charts[key]) { charts[key].destroy(); charts[key] = null; }
-            const el = document.getElementById(elId);
-            if (!el) return;
-            el.innerHTML = '';
-            if (chartLabels.length === 0) {
-                el.innerHTML = '<div class="flex items-center justify-center h-64 text-gray-400 text-sm italic">Belum ada data performa finansial.</div>';
-                return;
+            if (charts['admin']) { charts['admin'].destroy(); }
+            const elAdmin = document.getElementById('financialChart');
+            if (elAdmin && chartLabels.length > 0) {
+                elAdmin.innerHTML = '';
+                charts['admin'] = new ApexCharts(elAdmin, adminOptions);
+                charts['admin'].render();
+            } else if (elAdmin) {
+                elAdmin.innerHTML = '<div class="flex items-center justify-center h-64 text-gray-400 text-sm italic">Belum ada data performa finansial.</div>';
             }
-            charts[key] = new ApexCharts(el, buildOptions(chartLabels, omzetData, creditData));
-            charts[key].render();
-        }
-
-        @if(auth()->check() && auth()->user()->role === 'user')
-            mountChart('user', 'userFinancialChart');
-        @endif
-
-        @if(auth()->check() && in_array(auth()->user()->role, ['Admin Koperasi', 'Manajer Koperasi', 'admin', 'manager', 'super_admin', 'Super Admin']))
-            mountChart('admin', 'financialChart');
         @endif
     }
 
