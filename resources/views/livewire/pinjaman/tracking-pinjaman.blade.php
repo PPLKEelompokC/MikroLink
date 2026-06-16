@@ -19,7 +19,9 @@ new class extends Component {
 
     public function lihatDetail(int $id): void
     {
-        $this->selectedLoan = Loan::with(['stages.completedBy'])->findOrFail($id);
+        $this->selectedLoan = Loan::with(['stages.completedBy'])
+            ->where('user_id', auth()->id())
+            ->findOrFail($id);
     }
 
     public function tutupModal(): void
